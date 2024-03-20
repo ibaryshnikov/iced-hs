@@ -30,6 +30,6 @@ view_hs view model_ptr = do
 run :: model -> UpdateCallback model message -> ViewCallback model -> IO ()
 run model update_fn view_fn = do
   modelPtr <- newStablePtr model
-  updatePtr <- makeUpdateCallback (\model message -> update_hs update_fn model message)
-  viewPtr <- makeViewCallback (\model -> view_hs view_fn model)
+  updatePtr <- makeUpdateCallback $ update_hs update_fn
+  viewPtr <- makeViewCallback $ view_hs view_fn
   runAppFfi modelPtr updatePtr viewPtr
