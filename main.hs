@@ -8,17 +8,17 @@ import Application
 import Widgets
 
 data Model = Model {
-    value:: Int
+    value :: Int
 }
 
 data Message = Inc | Dec
 
-update:: Model -> Message -> Model
+update :: Model -> Message -> Model
 update model message = case message of
   Inc -> Model { value = model.value + 1 }
   Dec -> Model { value = model.value - 1 }
 
-view:: Model -> IO(Element)
+view :: Model -> IO(Element)
 view model = do
   button_inc <- button "Inc" Inc
   label <- text $ "Counter value " ++ show model.value
