@@ -1,0 +1,13 @@
+.idea
+/target
+Cargo.lock
+libiced_hs.a
+application.hi
+application.o
+application_stub.h
+main
+main.hi
+main.o
+main_stub.h
+widgets.hi
+widgets.o

@@ -1,0 +1,12 @@
+[package]
+name = "iced-hs"
+version = "0.1.0"
+authors = ["ibaryshnikov"]
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+iced = "0.12.1"
+libc = "0.2"
