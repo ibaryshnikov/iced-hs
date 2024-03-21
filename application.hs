@@ -18,13 +18,14 @@ foreign import ccall "wrapper"
 foreign import ccall safe "run_app"
   runAppFfi :: StablePtr model -> FunPtr (Update model message) -> FunPtr (View model) -> IO ()
 
-type UpdateCallback model message = model -> message -> model
+type UpdateCallback model message = model -> message -> IO (model)
 
 update_hs :: UpdateCallback model message -> StablePtr model -> StablePtr message -> IO (StablePtr model)
 update_hs update model_ptr message_ptr = do
   model <- deRefStablePtr model_ptr
   message <- deRefStablePtr message_ptr
-  newStablePtr $ update model message
+  newModel <- update model message
+  newStablePtr newModel
 
 type ViewCallback model = model -> IO (Element)
 

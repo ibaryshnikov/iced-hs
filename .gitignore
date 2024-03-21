@@ -11,3 +11,4 @@ main.o
 main_stub.h
 widgets.hi
 widgets.o
+widgets_stub.h
