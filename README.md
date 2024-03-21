@@ -40,3 +40,6 @@ main = Application.run Model { value = 0 } update view
 ## Roadmap
 
  - [ ] Add more widgets
+   - [x] text
+   - [x] text_input
+   - [x] button
