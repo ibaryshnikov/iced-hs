@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ghc libiced_hs.a widgets.hs application.hs main.hs
+ghc -Wall libiced_hs.a Iced.hs main.hs

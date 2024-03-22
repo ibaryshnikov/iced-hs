@@ -1,11 +1,14 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE NoFieldSelectors #-}
-{-# LANGUAGE ForeignFunctionInterface #-}
 
 module Main where
 
-import Application
-import Widgets
+import Iced.Application as Application
+import Iced.Widget
+import Iced.Widget.Button
+import Iced.Widget.Column
+import Iced.Widget.Text
+import Iced.Widget.TextInput
 
 data Model = Model {
     value :: Int,
@@ -42,8 +45,9 @@ view model = do
   button_inc <- button "Inc" Inc
   label <- text $ "Counter value " ++ show model.value
   button_dec <- button "Dec" Dec
-  input <- text_input "Placeholder" model.inputValue Input Submit
+  input <- textInput "Placeholder" model.inputValue Input Submit
   labels <- makeLabels model.items []
   column $ [button_inc, label, button_dec, input] ++ labels
 
-main = Application.run initModel update view
+main :: IO ()
+main = Application.run "Iced hs" initModel update view

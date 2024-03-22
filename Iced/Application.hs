@@ -1,9 +1,9 @@
-module Application where
+module Iced.Application where
 
 import Foreign
-import Foreign.StablePtr
+import Foreign.C.String
 
-import Widgets
+import Iced.Widget
 
 type Update model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 
@@ -15,8 +15,8 @@ foreign import ccall "wrapper"
 foreign import ccall "wrapper"
   makeViewCallback :: View model -> IO (FunPtr (View model))
 
-foreign import ccall safe "run_app"
-  runAppFfi :: StablePtr model -> FunPtr (Update model message) -> FunPtr (View model) -> IO ()
+foreign import ccall safe "run_app" runAppFfi ::
+  CString -> StablePtr model -> FunPtr (Update model message) -> FunPtr (View model) -> IO ()
 
 type UpdateCallback model message = model -> message -> IO (model)
 
@@ -34,9 +34,12 @@ view_hs view model_ptr = do
   model <- deRefStablePtr model_ptr
   view model
 
-run :: model -> UpdateCallback model message -> ViewCallback model -> IO ()
-run model update_fn view_fn = do
+run :: String -> model -> UpdateCallback model message -> ViewCallback model -> IO ()
+run title model update_fn view_fn = do
+  titlePtr <- newCString title
   modelPtr <- newStablePtr model
   updatePtr <- makeUpdateCallback $ update_hs update_fn
   viewPtr <- makeViewCallback $ view_hs view_fn
-  runAppFfi modelPtr updatePtr viewPtr
+  runAppFfi titlePtr modelPtr updatePtr viewPtr
+
+data Alignment = Start | Center | End

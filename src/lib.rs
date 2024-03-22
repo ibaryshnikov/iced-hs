@@ -1,11 +1,13 @@
+use std::ffi::c_char;
+
 use iced::{Application, Command, Element, Settings, Theme};
 
-mod widgets;
+mod widget;
 
 type Model = *const u8;
 type Message = *const u8;
 type Update = unsafe extern "C" fn(model: Model, message: Message) -> Model;
-type View = unsafe extern "C" fn(model: Model) -> widgets::ElementPtr;
+type View = unsafe extern "C" fn(model: Model) -> widget::ElementPtr;
 
 #[derive(Debug, Clone)]
 pub struct HaskellMessage {
@@ -20,12 +22,14 @@ pub enum IcedMessage {
 }
 
 struct Flags {
+    title: String,
     model: Model,
     update: Update,
     view: View,
 }
 
 struct App {
+    title: String,
     model: Model,
     update_hs: Update,
     view_hs: View,
@@ -40,6 +44,7 @@ impl Application for App {
     fn new(flags: Flags) -> (App, Command<IcedMessage>) {
         (
             App {
+                title: flags.title,
                 model: flags.model,
                 update_hs: flags.update,
                 view_hs: flags.view,
@@ -48,7 +53,7 @@ impl Application for App {
         )
     }
     fn title(&self) -> String {
-        "Hello from Iced".to_owned()
+        self.title.clone()
     }
     fn update(&mut self, message: IcedMessage) -> Command<IcedMessage> {
         match message {
@@ -65,14 +70,21 @@ impl Application for App {
 }
 
 #[no_mangle]
-pub extern "C" fn run_app(model: Model, maybe_update: Option<Update>, maybe_view: Option<View>) {
+pub extern "C" fn run_app(
+    title_ptr: *mut c_char,
+    model: Model,
+    maybe_update: Option<Update>,
+    maybe_view: Option<View>,
+) {
     let Some(update) = maybe_update else {
         panic!("Update callback is NULL");
     };
     let Some(view) = maybe_view else {
         panic!("View callback is NULL");
     };
+    let title = widget::c_string_to_rust(title_ptr);
     let flags = Flags {
+        title,
         model,
         update,
         view,
