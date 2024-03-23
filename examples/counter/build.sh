@@ -1,6 +1,5 @@
 #!/bin/bash
 
-cd ../..
-ghc -Wall libiced_hs.a Iced.hs \
-  examples/counter/main.hs \
-  -o examples/counter/main
+ghc -Wall -i../.. \
+  ../../libiced_hs.a \
+  main.hs
