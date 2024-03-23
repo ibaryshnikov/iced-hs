@@ -16,6 +16,9 @@ You can modify it and build with these scripts. Also, check the [examples](./exa
 ## Example
 
 ```haskell
+import Iced
+import Iced.Widget
+
 data Model = Model {
     value :: Int
 }
@@ -35,7 +38,8 @@ view model = do
   button_dec <- button "Dec" Dec
   column [button_inc, label, button_dec]
 
-main = Application.run Model { value = 0 } update view
+main :: IO ()
+main = Iced.run "Counter" Model { value = 0 } update view
 ```
 
 ## Roadmap

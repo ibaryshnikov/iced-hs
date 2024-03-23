@@ -3,7 +3,7 @@ module Iced.Widget.Column (column) where
 import Foreign
 import Foreign.C.Types
 
-import Iced.Widget
+import Iced.Element
 
 foreign import ccall safe "new_column"
   newColumn :: CInt -> Ptr Element -> IO (Element)

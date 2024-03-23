@@ -1,9 +1,9 @@
-module Iced.Application where
+module Iced.Application (run) where
 
 import Foreign
 import Foreign.C.String
 
-import Iced.Widget
+import Iced.Element
 
 type Update model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 
@@ -41,5 +41,3 @@ run title model update_fn view_fn = do
   updatePtr <- makeUpdateCallback $ update_hs update_fn
   viewPtr <- makeViewCallback $ view_hs view_fn
   runAppFfi titlePtr modelPtr updatePtr viewPtr
-
-data Alignment = Start | Center | End

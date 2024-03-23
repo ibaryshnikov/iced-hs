@@ -3,11 +3,8 @@
 
 module Main where
 
-import Iced.Application as Application
+import Iced
 import Iced.Widget
-import Iced.Widget.Button
-import Iced.Widget.Column
-import Iced.Widget.Text
 
 data Model = Model {
     value :: Int
@@ -34,4 +31,4 @@ view model = do
   column $ [button_inc, label, button_dec]
 
 main :: IO ()
-main = Application.run "Counter" initModel update view
+main = Iced.run "Counter" initModel update view

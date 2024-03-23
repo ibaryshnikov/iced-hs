@@ -3,12 +3,8 @@
 
 module Main where
 
-import Iced.Application as Application
+import Iced
 import Iced.Widget
-import Iced.Widget.Button
-import Iced.Widget.Column
-import Iced.Widget.Text
-import Iced.Widget.TextInput
 
 data Model = Model {
     value :: Int,
@@ -42,12 +38,12 @@ makeLabels (first:remaining) elements = do
 
 view :: Model -> IO(Element)
 view model = do
-  button_inc <- button "Inc" Inc
+  buttonInc <- button "Inc" Inc
   label <- text $ "Counter value " ++ show model.value
-  button_dec <- button "Dec" Dec
+  buttonDec <- button "Dec" Dec
   input <- textInput "Placeholder" model.inputValue Input Submit
   labels <- makeLabels model.items []
-  column $ [button_inc, label, button_dec, input] ++ labels
+  column $ [buttonInc, label, buttonDec, input] ++ labels
 
 main :: IO ()
-main = Application.run "Iced hs" initModel update view
+main = Iced.run "Iced in Haskell" initModel update view

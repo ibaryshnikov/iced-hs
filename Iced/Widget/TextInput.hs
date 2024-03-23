@@ -3,7 +3,7 @@ module Iced.Widget.TextInput (textInput) where
 import Foreign
 import Foreign.C.String
 
-import Iced.Widget
+import Iced.Element
 
 foreign import ccall safe "new_text_input"
   newTextInput :: CString -> CString -> FunPtr (NativeOnInput a) -> StablePtr a -> IO (Element)

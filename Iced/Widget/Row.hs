@@ -3,7 +3,7 @@ module Iced.Widget.Row (row) where
 import Foreign
 import Foreign.C.Types
 
-import Iced.Widget
+import Iced.Element
 
 foreign import ccall safe "new_row"
   newRow :: CInt -> Ptr Element -> IO (Element)
