@@ -1,10 +1,13 @@
 use std::ffi::{c_char, CString};
 
 mod button;
+mod checkbox;
 mod column;
+mod horizontal_space;
 mod row;
 mod text;
 mod text_input;
+mod vertical_space;
 
 use crate::IcedMessage;
 

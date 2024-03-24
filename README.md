@@ -48,5 +48,9 @@ main = Iced.run "Counter" Model { value = 0 } update view
    - [x] text
    - [x] text_input
    - [x] button
+   - [x] checkbox
    - [x] column
    - [x] row
+   - [x] horizontal_space
+   - [x] vertical_space
+ - [ ] Styles and themes

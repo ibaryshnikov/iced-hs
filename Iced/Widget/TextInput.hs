@@ -6,7 +6,7 @@ import Foreign.C.String
 import Iced.Element
 
 foreign import ccall safe "new_text_input"
-  newTextInput :: CString -> CString -> FunPtr (NativeOnInput a) -> StablePtr a -> IO (Element)
+  new_text_input :: CString -> CString -> FunPtr (NativeOnInput a) -> StablePtr a -> IO (Element)
 
 type NativeOnInput message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -25,4 +25,4 @@ textInput placeholder value onInput onSubmit = do
   valuePtr <- newCString value
   onInputPtr <- makeCallback $ wrapOnInput onInput
   onSubmitPtr <- newStablePtr onSubmit
-  newTextInput placeholderPtr valuePtr onInputPtr onSubmitPtr
+  new_text_input placeholderPtr valuePtr onInputPtr onSubmitPtr
