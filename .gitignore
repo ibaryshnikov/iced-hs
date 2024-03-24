@@ -4,6 +4,5 @@ Cargo.lock
 **/*.hi
 **/*.o
 **/*_stub.h
-examples/counter/main
+**/main
 libiced_hs.a
-main

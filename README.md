@@ -19,27 +19,23 @@ You can modify it and build with these scripts. Also, check the [examples](./exa
 import Iced
 import Iced.Widget
 
-data Model = Model {
-    value :: Int
-}
-
 data Message = Inc | Dec
 
-update :: Model -> Message -> IO (Model)
-update model message = do
+update :: Int -> Message -> IO (Int)
+update value message = do
   return $ case message of
-    Inc -> Model { value = model.value + 1 }
-    Dec -> Model { value = model.value - 1 }
+    Inc -> value + 1
+    Dec -> value - 1
 
-view :: Model -> IO (Element)
-view model = do
+view :: Int -> IO(Element)
+view value = do
   button_inc <- button "Inc" Inc
-  label <- text $ "Counter value " ++ show model.value
+  label <- text $ show value
   button_dec <- button "Dec" Dec
-  column [button_inc, label, button_dec]
+  column $ [button_inc, label, button_dec]
 
 main :: IO ()
-main = Iced.run "Counter" Model { value = 0 } update view
+main = Iced.run "Counter" 0 update view
 ```
 
 ## Roadmap
