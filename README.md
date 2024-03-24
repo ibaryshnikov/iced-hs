@@ -1,19 +1,37 @@
 # iced-hs
 
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
-Very experimental, an early proof of concept
+Very experimental, an early proof of concept.
+
+To learn more about iced check [official website](https://iced.rs) and the [book](https://book.iced.rs)
+
 
 ## Usage
 
-Currently the app code lives in main.hs
-You can modify it and build with these scripts. Also, check the [examples](./examples)
+First, build rust crate to produce `libiced_hs.a`
 
 ```bash
 ./build_rust.sh
-./build_haskell.sh
 ```
 
+then pass it to ghc
+
+```bash
+ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
+```
+
+
+## Platform support
+
+Desktop - Linux, Windows, Mac. Supported targets are the same
+as for iced except the web target, since it's tricky to link
+wasm produced by different compilers. With some effort it
+may be possible, just not out of the box.
+
+
 ## Example
+
+Check [examples](./examples) for more
 
 ```haskell
 import Iced
@@ -35,6 +53,7 @@ view value = do
 main :: IO ()
 main = Iced.run "Counter" 0 update view
 ```
+
 
 ## Roadmap
 
