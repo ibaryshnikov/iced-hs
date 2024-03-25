@@ -59,11 +59,12 @@ main = Iced.run "Counter" 0 update view
 
  - [ ] Add more widgets
    - [x] text
-   - [x] text_input
+   - [x] textInput
+   - [x] textEditor
    - [x] button
    - [x] checkbox
    - [x] column
    - [x] row
-   - [x] horizontal_space
-   - [x] vertical_space
+   - [x] horizontalSpace
+   - [x] verticalSpace
  - [ ] Styles and themes

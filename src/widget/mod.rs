@@ -6,6 +6,7 @@ mod column;
 mod horizontal_space;
 mod row;
 mod text;
+mod text_editor;
 mod text_input;
 mod vertical_space;
 
