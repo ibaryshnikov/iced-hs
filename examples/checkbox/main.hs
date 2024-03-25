@@ -40,5 +40,4 @@ initModel :: Model
 initModel = Model { default_ = False, styled = False, custom = False }
 
 main :: IO ()
-main = do
-  Iced.run "Checkbox - Iced" initModel update view
+main = do Iced.run "Checkbox" initModel update view
