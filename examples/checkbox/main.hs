@@ -14,27 +14,27 @@ data Model = Model {
 
 data Message = DefaultToggled Bool | CustomToggled Bool | StyledToggled Bool
 
-update :: Model -> Message -> IO (Model)
-update model message = do
-  return $ case message of
-    DefaultToggled default_ -> model { default_ = default_ }
-    StyledToggled styled -> model { styled = styled }
-    CustomToggled custom -> model { custom = custom }
+update :: Model -> Message -> Model
+update model message = case message of
+  DefaultToggled default_ -> model { default_ = default_ }
+  StyledToggled styled -> model { styled = styled }
+  CustomToggled custom -> model { custom = custom }
 
-view :: Model -> IO (Element)
-view model = do
-  defaultCheckbox <- checkbox "Default" model.default_ DefaultToggled
+view :: Model -> Element
+view model =
+  let defaultCheckbox = checkbox [onToggle DefaultToggled] "Default" model.default_
 
-  let styledCheckbox label = checkbox label model.styled StyledToggled
-  primary <- styledCheckbox "Primary"
-  secondary <- styledCheckbox "Secondary"
-  success <- styledCheckbox "Success"
-  danger <- styledCheckbox "Danger"
-  checkboxes <- row [primary, secondary, success, danger]
+      styledCheckbox label = checkbox [onToggle StyledToggled] label model.styled
 
-  customCheckbox <- checkbox "Custom" model.custom CustomToggled
+      primary = styledCheckbox "Primary"
+      secondary = styledCheckbox "Secondary"
+      success = styledCheckbox "Success"
+      danger = styledCheckbox "Danger"
 
-  column [defaultCheckbox, checkboxes, customCheckbox]
+      checkboxes = row [] [primary, secondary, success, danger]
+
+      customCheckbox = checkbox [onToggle CustomToggled] "Custom" model.custom
+  in column [] [defaultCheckbox, checkboxes, customCheckbox]
 
 initModel :: Model
 initModel = Model { default_ = False, styled = False, custom = False }

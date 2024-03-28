@@ -18,9 +18,8 @@ update model message = case message of
     applyAction model.content action
     return model
 
-view :: Model -> IO (Element)
-view model = do
-  textEditor model.content EditorAction
+view :: Model -> Element
+view model = textEditor [onAction EditorAction] model.content
 
 initModel :: Model
 initModel = Model { content = newContent }

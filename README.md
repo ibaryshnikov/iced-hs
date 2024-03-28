@@ -39,16 +39,16 @@ import Iced.Widget
 
 data Message = Inc | Dec
 
-update :: Int -> Message -> IO (Int)
-update value Inc = pure $ value + 1
-update value Dec = pure $ value - 1
+update :: Int -> Message -> Int
+update value Inc = value + 1
+update value Dec = value - 1
 
-view :: Int -> IO (Element)
-view value = do
-  buttonInc <- button "Inc" Inc
-  label <- text $ show value
-  buttonDec <- button "Dec" Dec
-  column [buttonInc, label, buttonDec]
+view :: Int -> Element
+view value = column [] [
+    button [onClick Inc] "Inc",
+    text [] value,
+    button [onClick Dec] "Dec"
+  ]
 
 main :: IO ()
 main = Iced.run "Counter" 0 update view
@@ -60,7 +60,7 @@ main = Iced.run "Counter" 0 update view
  - [ ] Add more widgets
    - [x] text
    - [x] textInput
-   - [x] textEditor
+   - [ ] textEditor
    - [x] button
    - [x] checkbox
    - [x] column

@@ -7,7 +7,7 @@ import Iced.Element
 
 type Update model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 
-type View model = StablePtr model -> IO (Element)
+type View model = StablePtr model -> IO (ElementPtr)
 
 foreign import ccall "wrapper"
   makeUpdateCallback :: Update model message -> IO (FunPtr (Update model message))
@@ -18,13 +18,13 @@ foreign import ccall "wrapper"
 foreign import ccall safe "run_app" run_app_ffi ::
   CString -> StablePtr model -> FunPtr (Update model message) -> FunPtr (View model) -> IO ()
 
-type UpdateCallback model message = model -> message -> IO (model)
+type UpdateCallback model message = model -> message -> model
 
 update_hs :: UpdateCallback model message -> StablePtr model -> StablePtr message -> IO (StablePtr model)
 update_hs update model_ptr message_ptr = do
   model <- deRefStablePtr model_ptr
   message <- deRefStablePtr message_ptr
-  newModel <- update model message
+  let newModel = update model message
   -- better call it from Rust after we change the pointer to a new one
   freeStablePtr model_ptr
   -- do something with message_ptr too
@@ -32,12 +32,12 @@ update_hs update model_ptr message_ptr = do
   -- others are Input String, and must be deallocated
   newStablePtr newModel
 
-type ViewCallback model = model -> IO (Element)
+type ViewCallback model = model -> Element
 
-view_hs :: ViewCallback model -> StablePtr model -> IO (Element)
+view_hs :: ViewCallback model -> StablePtr model -> IO (ElementPtr)
 view_hs view modelPtr = do
   model <- deRefStablePtr modelPtr
-  view model
+  elementToNative $ view model
 
 run :: String -> model -> UpdateCallback model message -> ViewCallback model -> IO ()
 run title model update view = do

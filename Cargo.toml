@@ -8,5 +8,5 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies]
-iced = "0.12.1"
+iced = { version = "0.12.1", features = ["advanced"] }
 libc = "0.2"
