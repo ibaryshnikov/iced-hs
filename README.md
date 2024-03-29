@@ -60,11 +60,15 @@ main = Iced.run "Counter" 0 update view
  - [ ] Add more widgets
    - [x] text
    - [x] textInput
-   - [ ] textEditor
+   - [X] textEditor
    - [x] button
    - [x] checkbox
    - [x] column
    - [x] row
    - [x] horizontalSpace
    - [x] verticalSpace
+   - [ ] shader
+ - [ ] Canvas api
+ - [ ] Command api, changing `update` to `:: Model -> Message -> (Model, Command)`
+ - [ ] Add all attributes from iced for each widget
  - [ ] Styles and themes

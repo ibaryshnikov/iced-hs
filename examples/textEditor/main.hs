@@ -12,11 +12,9 @@ data Model = Model {
 
 data Message = EditorAction Action
 
-update :: Model -> Message -> IO (Model)
+update :: Model -> Message -> Model
 update model message = case message of
-  EditorAction action -> do
-    applyAction model.content action
-    return model
+  EditorAction action -> model { content = applyAction model.content action }
 
 view :: Model -> Element
 view model = textEditor [onAction EditorAction] model.content

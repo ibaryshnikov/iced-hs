@@ -10,6 +10,9 @@ module Iced.Widget.TextEditor (
   onAction,
 ) where
 
+-- required to be able to run IO in update function
+-- gonna be removed after the addition of Command api
+import System.IO.Unsafe -- hopefully temporally
 import Foreign
 
 import Iced.Element
@@ -25,11 +28,16 @@ foreign import ccall safe "new_content"
   newContent :: Content
 
 foreign import ccall safe "content_perform"
-  applyAction :: Content -> Action -> IO ()
+  content_perform :: Content -> Action -> IO ()
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "free_content"
 --  free_content :: Content -> ()
+
+applyAction :: Content -> Action -> Content
+applyAction content action = unsafePerformIO $ do -- todo: make it a Command
+  content_perform content action
+  return content
 
 foreign import ccall safe "new_text_editor"
   new_text_editor :: Content -> IO (TextEditorPtr)
