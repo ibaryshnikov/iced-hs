@@ -10,19 +10,20 @@ import Foreign.C.String
 import Iced.Element
 
 data NativeTextInput
-type TextInputPtr = Ptr NativeTextInput
+type SelfPtr = Ptr NativeTextInput
+type Attribute = SelfPtr -> IO SelfPtr
 
 foreign import ccall safe "new_text_input"
-  new_text_input :: CString -> CString -> IO (TextInputPtr)
+  new_text_input :: CString -> CString -> IO (SelfPtr)
 
 foreign import ccall safe "text_input_on_input"
-  text_input_on_input :: TextInputPtr -> FunPtr (NativeOnInput a) -> IO (TextInputPtr)
+  text_input_on_input :: SelfPtr -> FunPtr (NativeOnInput a) -> IO (SelfPtr)
 
 foreign import ccall safe "text_input_on_submit"
-  text_input_on_submit :: TextInputPtr -> StablePtr a -> IO (TextInputPtr)
+  text_input_on_submit :: SelfPtr -> StablePtr a -> IO (SelfPtr)
 
 foreign import ccall safe "text_input_into_element"
-  text_input_into_element :: TextInputPtr -> IO (ElementPtr)
+  text_input_into_element :: SelfPtr -> IO (ElementPtr)
 
 type NativeOnInput message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -38,26 +39,26 @@ type OnInput message = String -> message
 data TextInput = TextInput {
   placeholder :: String,
   value :: String,
-  attributes :: [TextInputPtr -> IO TextInputPtr]
+  attributes :: [Attribute]
 }
 
 instance IntoNative TextInput where
   toNative details = do
     placeholderPtr <- newCString details.placeholder
     valuePtr <- newCString details.value
-    textInputPtr <- new_text_input placeholderPtr valuePtr
-    updatedTextInput <- applyAttributes textInputPtr details.attributes
-    text_input_into_element updatedTextInput
+    selfPtr <- new_text_input placeholderPtr valuePtr
+    updatedSelf <- applyAttributes selfPtr details.attributes
+    text_input_into_element updatedSelf
 
-textInput :: [TextInputPtr -> IO TextInputPtr] -> String -> String -> Element
+textInput :: [Attribute] -> String -> String -> Element
 textInput attributes placeholder value = pack TextInput { placeholder, value, attributes }
 
-onInput :: OnInput message -> TextInputPtr -> IO (TextInputPtr)
-onInput callback textInputPtr = do
+onInput :: OnInput message -> Attribute
+onInput callback selfPtr = do
   onInputPtr <- makeCallback $ wrapOnInput callback
-  text_input_on_input textInputPtr onInputPtr
+  text_input_on_input selfPtr onInputPtr
 
-onSubmit :: message -> TextInputPtr -> IO (TextInputPtr)
-onSubmit message textInputPtr = do
+onSubmit :: message -> Attribute
+onSubmit message selfPtr = do
     onSubmitPtr <- newStablePtr message
-    text_input_on_submit textInputPtr onSubmitPtr
+    text_input_on_submit selfPtr onSubmitPtr

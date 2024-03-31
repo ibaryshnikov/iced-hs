@@ -34,7 +34,7 @@ buildElements (first:remaining) elements = do
   native <- elementToNative first
   buildElements remaining (elements ++ [native])
 
-applyAttributes :: widget -> [widget -> IO (widget)] -> IO (widget)
+applyAttributes :: widget -> [widget -> IO widget] -> IO (widget)
 applyAttributes widgetPtr [] = pure widgetPtr
 applyAttributes widgetPtr (attribute:remaining) = do
   updatedWidget <- attribute widgetPtr

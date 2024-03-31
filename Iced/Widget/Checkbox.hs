@@ -11,16 +11,17 @@ import Foreign.C.Types
 import Iced.Element
 
 data NativeCheckbox
-type CheckboxPtr = Ptr NativeCheckbox
+type SelfPtr = Ptr NativeCheckbox
+type Attribute = SelfPtr -> IO SelfPtr
 
 foreign import ccall safe "new_checkbox"
-  new_checkbox :: CString -> CBool -> IO (CheckboxPtr)
+  new_checkbox :: CString -> CBool -> IO (SelfPtr)
 
 foreign import ccall safe "checkbox_on_toggle"
-  checkbox_on_toggle :: CheckboxPtr -> FunPtr (NativeOnToggle a) -> IO (CheckboxPtr)
+  checkbox_on_toggle :: SelfPtr -> FunPtr (NativeOnToggle a) -> IO (SelfPtr)
 
 foreign import ccall safe "checkbox_into_element"
-  checkbox_into_element :: CheckboxPtr -> IO (ElementPtr)
+  checkbox_into_element :: SelfPtr -> IO (ElementPtr)
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -35,21 +36,21 @@ type OnToggle message = Bool -> message
 data Checkbox = Checkbox {
   label :: String,
   value :: Bool,
-  attributes :: [CheckboxPtr -> IO CheckboxPtr]
+  attributes :: [Attribute]
 }
 
 instance IntoNative Checkbox where
   toNative details = do
     let checked = fromBool details.value
     labelPtr <- newCString details.label
-    checkboxPtr <- new_checkbox labelPtr checked
-    updatedCheckbox <- applyAttributes checkboxPtr details.attributes
-    checkbox_into_element updatedCheckbox
+    selfPtr <- new_checkbox labelPtr checked
+    updatedSelf <- applyAttributes selfPtr details.attributes
+    checkbox_into_element updatedSelf
 
-checkbox :: Show label => [CheckboxPtr -> IO CheckboxPtr] -> label -> Bool -> Element
+checkbox :: Show label => [Attribute] -> label -> Bool -> Element
 checkbox attributes label value = pack Checkbox { label = show label, value, attributes }
 
-onToggle :: OnToggle message -> CheckboxPtr -> IO (CheckboxPtr)
-onToggle callback checkboxPtr = do
+onToggle :: OnToggle message -> Attribute
+onToggle callback selfPtr = do
   onTogglePtr <- makeCallback $ wrapOnToggle callback
-  checkbox_on_toggle checkboxPtr onTogglePtr
+  checkbox_on_toggle selfPtr onTogglePtr

@@ -18,7 +18,8 @@ import Foreign
 import Iced.Element
 
 data NativeTextEditor
-type TextEditorPtr = Ptr NativeTextEditor
+type SelfPtr = Ptr NativeTextEditor
+type Attribute = SelfPtr -> IO SelfPtr
 data NativeContent
 type Content = Ptr NativeContent
 data NativeAction
@@ -40,13 +41,13 @@ applyAction content action = unsafePerformIO $ do -- todo: make it a Command
   return content
 
 foreign import ccall safe "new_text_editor"
-  new_text_editor :: Content -> IO (TextEditorPtr)
+  new_text_editor :: Content -> IO (SelfPtr)
 
 foreign import ccall safe "text_editor_on_action"
-  text_editor_on_action :: TextEditorPtr -> FunPtr (NativeOnAction message) -> IO (TextEditorPtr)
+  text_editor_on_action :: SelfPtr -> FunPtr (NativeOnAction message) -> IO (SelfPtr)
 
 foreign import ccall safe "text_editor_into_element"
-  text_editor_into_element :: TextEditorPtr -> IO (ElementPtr)
+  text_editor_into_element :: SelfPtr -> IO (ElementPtr)
 
 type NativeOnAction message = Action -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -60,19 +61,19 @@ type OnAction message = Action -> message
 
 data TextEditor = TextEditor {
   content :: Content,
-  attributes :: [TextEditorPtr -> IO TextEditorPtr]
+  attributes :: [Attribute]
 }
 
 instance IntoNative TextEditor where
   toNative details = do
-    textEditorPtr <- new_text_editor details.content
-    updatedTextEditor <- applyAttributes textEditorPtr details.attributes
-    text_editor_into_element updatedTextEditor
+    selfPtr <- new_text_editor details.content
+    updatedSelf <- applyAttributes selfPtr details.attributes
+    text_editor_into_element updatedSelf
 
-textEditor :: [TextEditorPtr -> IO TextEditorPtr] -> Content -> Element
+textEditor :: [Attribute] -> Content -> Element
 textEditor attributes content = pack TextEditor { content = content, attributes = attributes }
 
-onAction :: OnAction message -> TextEditorPtr -> IO (TextEditorPtr)
-onAction callback textEditorPtr = do
+onAction :: OnAction message -> Attribute
+onAction callback selfPtr = do
   onActionPtr <- makeCallback $ wrapOnAction callback
-  text_editor_on_action textEditorPtr onActionPtr
+  text_editor_on_action selfPtr onActionPtr

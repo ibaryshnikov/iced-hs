@@ -9,22 +9,23 @@ import Foreign.C.String
 import Iced.Element
 
 data NativeText
-type TextPtr = Ptr NativeText
+type SelfPtr = Ptr NativeText
+type Attribute = SelfPtr -> IO SelfPtr
 
 foreign import ccall safe "new_text"
-  new_text :: CString -> IO (TextPtr)
+  new_text :: CString -> IO (SelfPtr)
 
 foreign import ccall safe "text_into_element"
-  text_into_element :: TextPtr -> IO (ElementPtr)
+  text_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Text = Text { value :: String, attributes :: [TextPtr -> IO TextPtr] }
+data Text = Text { value :: String, attributes :: [Attribute] }
 
 instance IntoNative Text where
   toNative details = do
     valuePtr <- newCString details.value
-    textPtr <- new_text valuePtr
-    updatedText <- applyAttributes textPtr details.attributes
-    text_into_element updatedText
+    selfPtr <- new_text valuePtr
+    updatedSelf <- applyAttributes selfPtr details.attributes
+    text_into_element updatedSelf
 
-text :: Show label => [TextPtr -> IO TextPtr] -> label -> Element
+text :: Show label => [Attribute] -> label -> Element
 text attributes label = pack Text { value = show label, attributes = attributes }

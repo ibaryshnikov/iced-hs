@@ -9,32 +9,33 @@ import Foreign.C.String
 import Iced.Element
 
 data NativeButton
-type ButtonPtr = Ptr NativeButton
+type SelfPtr = Ptr NativeButton
+type Attribute = SelfPtr -> IO SelfPtr
 
 foreign import ccall safe "new_button"
-  new_button :: CString -> IO (ButtonPtr)
+  new_button :: CString -> IO (SelfPtr)
 
 foreign import ccall safe "button_on_press"
-  button_on_press :: ButtonPtr -> StablePtr a -> IO (ButtonPtr)
+  button_on_press :: SelfPtr -> StablePtr a -> IO (SelfPtr)
 
 foreign import ccall safe "button_into_element"
-  button_into_element :: ButtonPtr -> IO (ElementPtr)
+  button_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Button = Button { label :: String, attributes :: [ButtonPtr -> IO ButtonPtr] }
+data Button = Button { label :: String, attributes :: [Attribute] }
 
 instance IntoNative Button where
   toNative details = do
     labelPtr <- newCString details.label
-    buttonPtr <- new_button labelPtr
-    updatedButton <- applyAttributes buttonPtr details.attributes
-    button_into_element updatedButton
+    selfPtr <- new_button labelPtr
+    updatedSelf <- applyAttributes selfPtr details.attributes
+    button_into_element updatedSelf
 
-button :: Show label => [ButtonPtr -> IO ButtonPtr] -> label -> Element
+button :: Show label => [Attribute] -> label -> Element
 button attributes label = pack Button { label = show label, attributes = attributes }
 
-onClick :: message -> ButtonPtr -> IO (ButtonPtr)
-onClick message buttonPtr = do
+onClick :: message -> Attribute
+onClick message selfPtr = do
   -- pass a callback instead which will create
   -- a new StablePtr for each message separately
   messagePtr <- newStablePtr message
-  button_on_press buttonPtr messagePtr
+  button_on_press selfPtr messagePtr
