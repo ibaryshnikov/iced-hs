@@ -1,6 +1,7 @@
 use std::ffi::{c_char, CString};
 
 mod button;
+mod canvas;
 mod checkbox;
 mod column;
 mod row;

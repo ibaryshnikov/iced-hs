@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ghc -Wall -i. libiced_hs.a main.hs
+ghc -Wall -i. -odir build -hidir build libiced_hs.a main.hs
