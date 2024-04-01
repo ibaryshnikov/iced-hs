@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Row (row) where
 
@@ -26,7 +27,7 @@ foreign import ccall safe "row_with_children"
 foreign import ccall safe "row_into_element"
   row_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Row = Row { children :: [Element], attributes :: [Attribute] }
+data Row = Row { attributes :: [Attribute], children :: [Element] }
 
 instance IntoNative Row where
   toNative details = do
@@ -39,4 +40,4 @@ instance IntoNative Row where
     row_into_element updatedSelf
 
 row :: [Attribute] -> [Element] -> Element
-row attributes children = pack Row { children = children, attributes = attributes }
+row attributes children = pack Row { .. }

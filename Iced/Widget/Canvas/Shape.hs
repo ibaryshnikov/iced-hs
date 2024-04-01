@@ -1,4 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Canvas.Shape (
@@ -34,13 +33,13 @@ addToPath shape builder = do
       PathBuilder.rectangle builder top_left_x top_left_y width height
 
 circle :: Float -> Float -> Float -> Shape
-circle x y radius = Circle { .. }
+circle = Circle
 
 lineTo :: Float -> Float -> Shape
-lineTo x y = LineTo { x, y }
+lineTo = LineTo
 
 moveTo :: Float -> Float -> Shape
-moveTo x y = MoveTo { x, y }
+moveTo = MoveTo
 
 rectangle :: Float -> Float -> Float -> Float -> Shape
-rectangle top_left_x top_left_y width height = Rectangle { .. }
+rectangle = Rectangle

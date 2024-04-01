@@ -22,8 +22,10 @@ initModel = Model {
 update :: Model -> Message -> Model
 update model message = case message of
   Input s -> model { inputValue = s }
-  Submit -> let items = model.items ++ [model.inputValue]
-            in model { items = items, inputValue = "" }
+  Submit -> case model.inputValue of
+    "" -> model -- filter empty strings
+    value -> let items = model.items ++ [value]
+      in model { items = items, inputValue = "" }
 
 view :: Model -> Element
 view model =

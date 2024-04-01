@@ -1,6 +1,6 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Checkbox (checkbox, onToggle) where
 
@@ -34,9 +34,9 @@ wrapOnToggle callback c_bool = do
 type OnToggle message = Bool -> message
 
 data Checkbox = Checkbox {
+  attributes :: [Attribute],
   label :: String,
-  value :: Bool,
-  attributes :: [Attribute]
+  value :: Bool
 }
 
 instance IntoNative Checkbox where
@@ -47,8 +47,8 @@ instance IntoNative Checkbox where
     updatedSelf <- applyAttributes selfPtr details.attributes
     checkbox_into_element updatedSelf
 
-checkbox :: Show label => [Attribute] -> label -> Bool -> Element
-checkbox attributes label value = pack Checkbox { label = show label, value, attributes }
+checkbox :: [Attribute] -> String -> Bool -> Element
+checkbox attributes label value = pack Checkbox { .. }
 
 onToggle :: OnToggle message -> Attribute
 onToggle callback selfPtr = do

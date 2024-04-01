@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Text (text) where
 
@@ -18,7 +19,7 @@ foreign import ccall safe "new_text"
 foreign import ccall safe "text_into_element"
   text_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Text = Text { value :: String, attributes :: [Attribute] }
+data Text = Text { attributes :: [Attribute], value :: String }
 
 instance IntoNative Text where
   toNative details = do
@@ -27,5 +28,5 @@ instance IntoNative Text where
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_into_element updatedSelf
 
-text :: Show label => [Attribute] -> label -> Element
-text attributes label = pack Text { value = show label, attributes = attributes }
+text :: [Attribute] -> String -> Element
+text attributes value = pack Text { .. }

@@ -14,7 +14,7 @@ type Draw = unsafe extern "C" fn(frame: *mut Frame);
 
 pub struct CanvasState {
     cache: Cache,
-    draw_hs: Draw,
+    draw_hs: Option<Draw>,
 }
 
 fn view(state: &CanvasState) -> Element<IcedMessage> {
@@ -35,8 +35,11 @@ impl<Message> Program<Message> for CanvasState {
         bounds: Rectangle,
         _cursor: mouse::Cursor,
     ) -> Vec<Geometry> {
+        let Some(draw) = self.draw_hs else {
+            return vec![];
+        };
         let geometry = self.cache.draw(renderer, bounds.size(), |frame| {
-            unsafe { (self.draw_hs)(frame) };
+            unsafe { draw(frame) };
         });
         vec![geometry]
     }
@@ -46,9 +49,24 @@ impl<Message> Program<Message> for CanvasState {
 pub extern "C" fn new_canvas_state(draw: Draw) -> *mut CanvasState {
     let state = CanvasState {
         cache: Cache::default(),
-        draw_hs: draw,
+        draw_hs: Some(draw),
     };
     Box::into_raw(Box::new(state))
+}
+
+#[no_mangle]
+pub extern "C" fn canvas_set_draw(state: &mut CanvasState, draw: Draw) {
+    state.draw_hs = Some(draw);
+}
+
+#[no_mangle]
+pub extern "C" fn canvas_remove_draw(state: &mut CanvasState) {
+    state.draw_hs = None;
+}
+
+#[no_mangle]
+pub extern "C" fn canvas_clear_cache(state: &mut CanvasState) {
+    state.cache.clear();
 }
 
 #[no_mangle]

@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Space (
   horizontalSpace,
@@ -25,7 +26,7 @@ foreign import ccall safe "space_into_element"
 
 data SpaceKind = Horizontal | Vertical
 
-data Space = Space { kind :: SpaceKind, attributes :: [Attribute] }
+data Space = Space { attributes :: [Attribute], kind :: SpaceKind }
 
 instance IntoNative Space where
   toNative details = do
@@ -40,7 +41,7 @@ kindToConstructor kind = case kind of
   Vertical -> new_vertical_space
 
 horizontalSpace :: [Attribute] -> Element
-horizontalSpace attributes = pack Space { kind = Horizontal, attributes = attributes }
+horizontalSpace attributes = let kind = Horizontal in pack Space { .. }
 
 verticalSpace :: [Attribute] -> Element
-verticalSpace attributes = pack Space { kind = Vertical, attributes = attributes }
+verticalSpace attributes = let kind = Vertical in pack Space { .. }

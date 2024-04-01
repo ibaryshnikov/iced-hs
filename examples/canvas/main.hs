@@ -1,17 +1,21 @@
+{-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Main where
 
 import Iced
 import Iced.Widget
 import Iced.Widget.Canvas.Shape
 
-data Model = Model
+data Model = Model { cache :: CanvasCache }
+
 data Message
 
 update :: Model -> Message -> Model
 update model _message = model
 
 view :: Model -> Element
-view _model = canvas [] shapes
+view model = canvas [] shapes model.cache
 
 shapes :: [Shape]
 shapes = [
@@ -23,5 +27,8 @@ shapes = [
     rectangle 30 30 50 50
   ]
 
+initModel :: Model
+initModel = Model { cache = newCache }
+
 main :: IO ()
-main = Iced.run "Canvas" Model update view
+main = Iced.run "Canvas" initModel update view

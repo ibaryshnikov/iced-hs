@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Button (button, onClick) where
 
@@ -21,7 +22,7 @@ foreign import ccall safe "button_on_press"
 foreign import ccall safe "button_into_element"
   button_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Button = Button { label :: String, attributes :: [Attribute] }
+data Button = Button { attributes :: [Attribute], label :: String }
 
 instance IntoNative Button where
   toNative details = do
@@ -30,8 +31,8 @@ instance IntoNative Button where
     updatedSelf <- applyAttributes selfPtr details.attributes
     button_into_element updatedSelf
 
-button :: Show label => [Attribute] -> label -> Element
-button attributes label = pack Button { label = show label, attributes = attributes }
+button :: [Attribute] -> String -> Element
+button attributes label = pack Button { .. }
 
 onClick :: message -> Attribute
 onClick message selfPtr = do

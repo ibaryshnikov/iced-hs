@@ -46,7 +46,7 @@ update value Dec = value - 1
 view :: Int -> Element
 view value = column [] [
     button [onClick Inc] "Inc",
-    text [] value,
+    text [] $ show value,
     button [onClick Dec] "Dec"
   ]
 

@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.Column (column) where
 
@@ -26,7 +27,7 @@ foreign import ccall safe "column_with_children"
 foreign import ccall safe "column_into_element"
   column_into_element :: SelfPtr -> IO (ElementPtr)
 
-data Column = Column { children :: [Element], attributes :: [Attribute] }
+data Column = Column { attributes :: [Attribute], children :: [Element] }
 
 instance IntoNative Column where
   toNative details = do
@@ -39,4 +40,4 @@ instance IntoNative Column where
     column_into_element updatedSelf
 
 column :: [Attribute] -> [Element] -> Element
-column attributes children = pack Column { children = children, attributes = attributes }
+column attributes children = pack Column { .. }

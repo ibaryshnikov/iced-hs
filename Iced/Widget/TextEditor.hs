@@ -1,5 +1,6 @@
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.TextEditor (
   textEditor,
@@ -60,8 +61,8 @@ wrapOnAction callback action = do
 type OnAction message = Action -> message
 
 data TextEditor = TextEditor {
-  content :: Content,
-  attributes :: [Attribute]
+  attributes :: [Attribute],
+  content :: Content
 }
 
 instance IntoNative TextEditor where
@@ -71,7 +72,7 @@ instance IntoNative TextEditor where
     text_editor_into_element updatedSelf
 
 textEditor :: [Attribute] -> Content -> Element
-textEditor attributes content = pack TextEditor { content = content, attributes = attributes }
+textEditor attributes content = pack TextEditor { .. }
 
 onAction :: OnAction message -> Attribute
 onAction callback selfPtr = do

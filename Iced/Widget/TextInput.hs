@@ -1,6 +1,6 @@
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Iced.Widget.TextInput (textInput, onInput, onSubmit) where
 
@@ -37,9 +37,9 @@ wrapOnInput callback c_string = do
 type OnInput message = String -> message
 
 data TextInput = TextInput {
+  attributes :: [Attribute],
   placeholder :: String,
-  value :: String,
-  attributes :: [Attribute]
+  value :: String
 }
 
 instance IntoNative TextInput where
@@ -51,7 +51,7 @@ instance IntoNative TextInput where
     text_input_into_element updatedSelf
 
 textInput :: [Attribute] -> String -> String -> Element
-textInput attributes placeholder value = pack TextInput { placeholder, value, attributes }
+textInput attributes placeholder value = pack TextInput { .. }
 
 onInput :: OnInput message -> Attribute
 onInput callback selfPtr = do
