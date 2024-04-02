@@ -1,3 +1,3 @@
-module Iced.Alignment (Alignment) where
+module Iced.Alignment where
 
 data Alignment = Start | Center | End

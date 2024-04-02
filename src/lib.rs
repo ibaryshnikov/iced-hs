@@ -2,6 +2,8 @@ use std::ffi::c_char;
 
 use iced::{Application, Command, Element, Settings, Theme};
 
+mod alignment;
+mod length;
 mod widget;
 
 type Model = *const u8;

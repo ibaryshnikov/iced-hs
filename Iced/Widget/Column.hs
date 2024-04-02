@@ -2,11 +2,17 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Widget.Column (column) where
+module Iced.Widget.Column (
+  column,
+  alignItems,
+  padding,
+) where
 
 import Foreign
 import Foreign.C.Types
 
+import Iced.Alignment (Alignment)
+import Iced.AlignmentFFI
 import Iced.Element
 
 data NativeColumn
@@ -16,6 +22,13 @@ type Attribute = SelfPtr -> IO SelfPtr
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_column"
 --  new_column :: IO (SelfPtr)
+
+foreign import ccall safe "column_align_items"
+  column_align_items :: SelfPtr -> AlignmentPtr -> IO (SelfPtr)
+
+-- column top right bottom left
+foreign import ccall safe "column_padding"
+  column_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "column_with_children"
   column_with_children :: CInt -> Ptr ElementPtr -> IO (SelfPtr)
@@ -41,3 +54,12 @@ instance IntoNative Column where
 
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }
+
+padding :: Float -> Attribute
+padding value selfPtr = do
+  column_padding selfPtr (CFloat value) (CFloat value) (CFloat value) (CFloat value)
+
+alignItems :: Alignment -> Attribute
+alignItems value selfPtr = do
+  let nativeAlignment = alignmentToNative value
+  column_align_items selfPtr nativeAlignment
