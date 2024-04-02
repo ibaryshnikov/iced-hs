@@ -21,20 +21,12 @@ update model message = case message of
   CustomToggled custom -> model { custom = custom }
 
 view :: Model -> Element
-view model =
-  let defaultCheckbox = checkbox [onToggle DefaultToggled] "Default" model.default_
-
-      styledCheckbox label = checkbox [onToggle StyledToggled] label model.styled
-
-      primary = styledCheckbox "Primary"
-      secondary = styledCheckbox "Secondary"
-      success = styledCheckbox "Success"
-      danger = styledCheckbox "Danger"
-
-      checkboxes = row [] [primary, secondary, success, danger]
-
-      customCheckbox = checkbox [onToggle CustomToggled] "Custom" model.custom
-  in column [] [defaultCheckbox, checkboxes, customCheckbox]
+view model = column [] [
+    checkbox [onToggle DefaultToggled] "Default" model.default_,
+    row [] (map styled ["Primary", "Secondary", "Success", "Danger"]),
+    checkbox [onToggle CustomToggled] "Custom" model.custom
+  ]
+  where styled label = checkbox [onToggle StyledToggled] label model.styled
 
 initModel :: Model
 initModel = Model { default_ = False, styled = False, custom = False }
