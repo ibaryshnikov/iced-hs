@@ -23,4 +23,4 @@ initModel :: Model
 initModel = Model { content = newContent }
 
 main :: IO ()
-main = do Iced.run "TextEditor" initModel update view
+main = do Iced.run [] "TextEditor" initModel update view

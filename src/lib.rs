@@ -4,6 +4,7 @@ use iced::{Application, Command, Element, Settings, Theme};
 
 mod alignment;
 mod length;
+mod settings;
 mod widget;
 
 type Model = *const u8;
@@ -71,8 +72,22 @@ impl Application for App {
     }
 }
 
+fn make_settings(settings: Settings<()>, flags: Flags) -> Settings<Flags> {
+    Settings {
+        flags,
+        id: settings.id,
+        window: settings.window,
+        fonts: settings.fonts,
+        default_font: settings.default_font,
+        default_text_size: settings.default_text_size,
+        antialiasing: true,
+    }
+}
+
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 #[no_mangle]
 pub extern "C" fn run_app(
+    settings_ptr: *mut Settings<()>,
     title_ptr: *mut c_char,
     model: Model,
     maybe_update: Option<Update>,
@@ -84,6 +99,7 @@ pub extern "C" fn run_app(
     let Some(view) = maybe_view else {
         panic!("View callback is NULL");
     };
+    let settings = unsafe { *Box::from_raw(settings_ptr) };
     let title = widget::c_string_to_rust(title_ptr);
     let flags = Flags {
         title,
@@ -91,7 +107,6 @@ pub extern "C" fn run_app(
         update,
         view,
     };
-    let mut settings = Settings::with_flags(flags);
-    settings.antialiasing = true;
+    let settings = make_settings(settings, flags);
     App::run(settings).expect("Should run the app")
 }

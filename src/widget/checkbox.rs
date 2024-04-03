@@ -1,5 +1,6 @@
 use std::ffi::{c_char, c_int};
 
+use iced::theme;
 use iced::widget::{checkbox, Checkbox};
 
 use crate::{HaskellMessage, IcedMessage};
@@ -35,7 +36,42 @@ pub extern "C" fn checkbox_on_toggle(
 }
 
 #[no_mangle]
+pub extern "C" fn checkbox_style(
+    pointer: CheckboxPtr,
+    style_ptr: *mut theme::Checkbox,
+) -> CheckboxPtr {
+    let checkbox = unsafe { *Box::from_raw(pointer) };
+    let style = unsafe { *Box::from_raw(style_ptr) };
+    Box::into_raw(Box::new(checkbox.style(style)))
+}
+
+#[no_mangle]
 pub extern "C" fn checkbox_into_element(pointer: CheckboxPtr) -> ElementPtr {
     let checkbox = unsafe { *Box::from_raw(pointer) };
     Box::into_raw(Box::new(checkbox.into()))
 }
+
+#[no_mangle]
+pub extern "C" fn checkbox_primary() -> *mut theme::Checkbox {
+    Box::into_raw(Box::new(theme::Checkbox::Primary))
+}
+
+#[no_mangle]
+pub extern "C" fn checkbox_secondary() -> *mut theme::Checkbox {
+    Box::into_raw(Box::new(theme::Checkbox::Secondary))
+}
+
+#[no_mangle]
+pub extern "C" fn checkbox_success() -> *mut theme::Checkbox {
+    Box::into_raw(Box::new(theme::Checkbox::Success))
+}
+
+#[no_mangle]
+pub extern "C" fn checkbox_danger() -> *mut theme::Checkbox {
+    Box::into_raw(Box::new(theme::Checkbox::Danger))
+}
+
+// #[no_mangle]
+// pub extern "C" fn checkbox_custom() -> *mut theme::Checkbox {
+//     Box::into_raw(Box::new(theme::Checkbox::Custom))
+// }

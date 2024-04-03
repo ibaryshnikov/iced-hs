@@ -1,7 +1,6 @@
 module Iced.AlignmentFFI where
 
 import Foreign
-import Foreign.C.Types
 
 import Iced.Alignment
 
@@ -18,7 +17,7 @@ foreign import ccall safe "alignment_end"
   alignment_end :: AlignmentPtr
 
 alignmentToNative :: Alignment -> AlignmentPtr
-alignmentToNative alignment = case alignment of
+alignmentToNative value = case value of
   Start -> alignment_start
   Center -> alignment_center
   End -> alignment_end

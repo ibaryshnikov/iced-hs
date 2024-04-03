@@ -2,7 +2,11 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Widget.Row (row) where
+module Iced.Widget.Row (
+  row,
+  padding,
+  spacing,
+) where
 
 import Foreign
 import Foreign.C.Types
@@ -16,6 +20,14 @@ type Attribute = SelfPtr -> IO SelfPtr
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_row"
 --  new_row :: IO (SelfPtr)
+
+-- column top right bottom left
+foreign import ccall safe "row_padding"
+  row_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+
+-- row value
+foreign import ccall safe "row_spacing"
+  row_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "row_with_children"
   row_with_children :: CInt -> Ptr ElementPtr -> IO (SelfPtr)
@@ -41,3 +53,11 @@ instance IntoNative Row where
 
 row :: [Attribute] -> [Element] -> Element
 row attributes children = pack Row { .. }
+
+padding :: Float -> Attribute
+padding value selfPtr = do
+  row_padding selfPtr (CFloat value) (CFloat value) (CFloat value) (CFloat value)
+
+spacing :: Float -> Attribute
+spacing value selfPtr = do
+  row_spacing selfPtr (CFloat value)

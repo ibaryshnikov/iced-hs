@@ -34,4 +34,4 @@ view model =
   in column [] ([input] ++ labels)
 
 main :: IO ()
-main = Iced.run "TextInput" initModel update view
+main = Iced.run [] "TextInput" initModel update view

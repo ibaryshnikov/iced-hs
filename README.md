@@ -64,6 +64,7 @@ main = Iced.run "Counter" 0 update view
    - [x] button
    - [x] checkbox
    - [x] column
+   - [x] container
    - [x] row
    - [x] horizontalSpace
    - [x] verticalSpace

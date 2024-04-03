@@ -4,6 +4,7 @@ mod button;
 mod canvas;
 mod checkbox;
 mod column;
+mod container;
 mod row;
 mod space;
 mod text;

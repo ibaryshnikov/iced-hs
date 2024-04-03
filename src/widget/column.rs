@@ -40,6 +40,12 @@ pub extern "C" fn column_padding(
 }
 
 #[no_mangle]
+pub extern "C" fn column_spacing(pointer: ColumnPtr, pixels: c_float) -> ColumnPtr {
+    let column = unsafe { Box::from_raw(pointer) };
+    Box::into_raw(Box::new(column.spacing(pixels)))
+}
+
+#[no_mangle]
 pub extern "C" fn column_with_children(len: libc::size_t, ptr: *const ElementPtr) -> ColumnPtr {
     let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
     let mut column = Column::new();

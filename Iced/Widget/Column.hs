@@ -6,6 +6,7 @@ module Iced.Widget.Column (
   column,
   alignItems,
   padding,
+  spacing,
 ) where
 
 import Foreign
@@ -29,6 +30,10 @@ foreign import ccall safe "column_align_items"
 -- column top right bottom left
 foreign import ccall safe "column_padding"
   column_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+
+-- column value
+foreign import ccall safe "column_spacing"
+  column_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "column_with_children"
   column_with_children :: CInt -> Ptr ElementPtr -> IO (SelfPtr)
@@ -58,6 +63,10 @@ column attributes children = pack Column { .. }
 padding :: Float -> Attribute
 padding value selfPtr = do
   column_padding selfPtr (CFloat value) (CFloat value) (CFloat value) (CFloat value)
+
+spacing :: Float -> Attribute
+spacing value selfPtr = do
+  column_spacing selfPtr (CFloat value)
 
 alignItems :: Alignment -> Attribute
 alignItems value selfPtr = do

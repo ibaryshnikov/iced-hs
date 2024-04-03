@@ -31,4 +31,4 @@ initModel :: Model
 initModel = Model { cache = newCache }
 
 main :: IO ()
-main = Iced.run "Canvas" initModel update view
+main = Iced.run [] "Canvas" initModel update view
