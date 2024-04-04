@@ -1,7 +1,7 @@
 use std::ffi::c_float;
 
 use iced::widget::Row;
-use iced::Padding;
+use iced::{Alignment, Padding};
 
 use crate::IcedMessage;
 
@@ -12,6 +12,13 @@ type RowPtr = *mut Row<'static, IcedMessage>;
 #[no_mangle]
 pub extern "C" fn new_row() -> RowPtr {
     Box::into_raw(Box::new(Row::new()))
+}
+
+#[no_mangle]
+pub extern "C" fn row_align_items(pointer: RowPtr, alignment: *mut Alignment) -> RowPtr {
+    let row = unsafe { Box::from_raw(pointer) };
+    let alignment = unsafe { *Box::from_raw(alignment) };
+    Box::into_raw(Box::new(row.align_items(alignment)))
 }
 
 #[no_mangle]

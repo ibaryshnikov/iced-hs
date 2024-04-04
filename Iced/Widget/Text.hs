@@ -19,7 +19,9 @@ import Iced.LengthFFI
 
 data NativeText
 type SelfPtr = Ptr NativeText
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
+
+data Attribute = Height Length | Width Length | Size Float
 
 foreign import ccall safe "new_text"
   new_text :: CString -> IO (SelfPtr)
@@ -45,19 +47,33 @@ instance IntoNative Text where
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_into_element updatedSelf
 
+instance UseAttribute SelfPtr Attribute where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      Height len -> useHeight len selfPtr
+      Width len -> useWidth len selfPtr
+      Size value -> useSize value selfPtr
+
+instance UseLength Attribute where
+  height len = Height len
+  width len = Width len
+
 text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }
 
-height :: Length -> Attribute
-height len selfPtr = do
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
   let nativeLen = lengthToNative len
   text_height selfPtr nativeLen
 
 size :: Float -> Attribute
-size value selfPtr = do
+size value = Size value
+
+useSize :: Float -> AttributeFn
+useSize value selfPtr = do
   text_size selfPtr (CFloat value)
 
-width :: Length -> Attribute
-width len selfPtr = do
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
   let nativeLen = lengthToNative len
   text_width selfPtr nativeLen

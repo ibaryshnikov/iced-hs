@@ -14,10 +14,10 @@ module Iced.Widget (
 import Iced.Widget.Button
 import Iced.Widget.Canvas
 import Iced.Widget.Checkbox
-import Iced.Widget.Column (column)
-import Iced.Widget.Container (container)
-import Iced.Widget.Row (row)
+import Iced.Widget.Column
+import Iced.Widget.Container
+import Iced.Widget.Row
 import Iced.Widget.Space
-import Iced.Widget.Text (text)
+import Iced.Widget.Text
 import Iced.Widget.TextEditor
 import Iced.Widget.TextInput

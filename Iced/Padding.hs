@@ -9,21 +9,21 @@ data Padding = Padding {
   left :: Float
 }
 
-padding :: Float -> Padding
-padding a = Padding {
-    top = a,
-    right = a,
-    bottom = a,
-    left = a
+class UsePadding attribute where
+  paddingToAttribute :: Padding -> attribute
+  padding :: Float -> attribute
+  padding value = paddingToAttribute Padding {
+    top = value,
+    right = value,
+    bottom = value,
+    left = value
   }
-
-sides :: Float -> Float -> Padding
-sides a b = Padding {
+  padding2 :: Float -> Float -> attribute
+  padding2 a b = paddingToAttribute Padding {
     top = a,
     right = b,
     bottom = a,
     left = b
   }
-
-full :: Float -> Float -> Float -> Float -> Padding
-full top right bottom left = Padding { .. }
+  padding4 :: Float -> Float -> Float -> Float -> attribute
+  padding4 top right bottom left = paddingToAttribute Padding { .. }

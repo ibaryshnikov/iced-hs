@@ -51,7 +51,7 @@ view value = column [] [
   ]
 
 main :: IO ()
-main = Iced.run "Counter" 0 update view
+main = Iced.run [] "Counter" 0 update view
 ```
 
 

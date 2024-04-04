@@ -13,7 +13,9 @@ import Iced.Element
 
 data NativeSpace
 type SelfPtr = Ptr NativeSpace
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
+
+data Attribute
 
 foreign import ccall safe "new_horizontal_space"
   new_horizontal_space :: IO (SelfPtr)
@@ -34,6 +36,9 @@ instance IntoNative Space where
     selfPtr <- constructor
     updatedSelf <- applyAttributes selfPtr details.attributes
     space_into_element updatedSelf
+
+instance UseAttribute SelfPtr Attribute where
+  useAttribute selfPtr _attribute = pure selfPtr -- no attributes currently
 
 kindToConstructor :: SpaceKind -> IO (SelfPtr)
 kindToConstructor kind = case kind of

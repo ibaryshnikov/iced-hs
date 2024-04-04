@@ -22,9 +22,11 @@ import Iced.Widget.Canvas.Shape
 data NativeCanvas
 type SelfPtr = Ptr NativeCanvas
 type CanvasCache = SelfPtr;
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
 data NativeFrame
 type FramePtr = Ptr NativeFrame
+
+data Attribute
 
 foreign import ccall safe "new_canvas_state"
   new_canvas_state :: SelfPtr
@@ -72,6 +74,9 @@ instance IntoNative Canvas where
     canvas_set_draw details.cache drawCallbackPtr
     updatedSelf <- applyAttributes details.cache details.attributes
     canvas_view updatedSelf
+
+instance UseAttribute SelfPtr Attribute where
+  useAttribute selfPtr _attribute = pure selfPtr -- no attributes currently
 
 newCache :: CanvasCache
 newCache = new_canvas_state

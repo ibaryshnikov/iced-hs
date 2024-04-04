@@ -1,6 +1,7 @@
 use std::ffi::c_char;
 
 use iced::widget::{text, Button};
+use iced::Length;
 
 use crate::{HaskellMessage, IcedMessage};
 
@@ -27,4 +28,18 @@ pub extern "C" fn button_on_press(pointer: ButtonPtr, message_ptr: *const u8) ->
 pub extern "C" fn button_into_element(pointer: ButtonPtr) -> ElementPtr {
     let button = unsafe { *Box::from_raw(pointer) };
     Box::into_raw(Box::new(button.into()))
+}
+
+#[no_mangle]
+pub extern "C" fn button_height(pointer: ButtonPtr, height: *mut Length) -> ButtonPtr {
+    let button = unsafe { Box::from_raw(pointer) };
+    let height = unsafe { *Box::from_raw(height) };
+    Box::into_raw(Box::new(button.height(height)))
+}
+
+#[no_mangle]
+pub extern "C" fn button_width(pointer: ButtonPtr, width: *mut Length) -> ButtonPtr {
+    let button = unsafe { Box::from_raw(pointer) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(button.width(width)))
 }

@@ -16,7 +16,7 @@ pub extern "C" fn new_column() -> ColumnPtr {
 
 #[no_mangle]
 pub extern "C" fn column_align_items(pointer: ColumnPtr, alignment: *mut Alignment) -> ColumnPtr {
-    let column = unsafe { *Box::from_raw(pointer) };
+    let column = unsafe { Box::from_raw(pointer) };
     let alignment = unsafe { *Box::from_raw(alignment) };
     Box::into_raw(Box::new(column.align_items(alignment)))
 }
@@ -29,7 +29,7 @@ pub extern "C" fn column_padding(
     bottom: c_float,
     left: c_float,
 ) -> ColumnPtr {
-    let column = unsafe { *Box::from_raw(pointer) };
+    let column = unsafe { Box::from_raw(pointer) };
     let padding = Padding {
         top,
         right,

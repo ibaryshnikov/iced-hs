@@ -2,12 +2,14 @@ module Iced.Element (
   NativeElement,
   Element(..),
   IntoNative,
+  toNative,
+  UseAttribute,
+  useAttribute,
   pack,
   elementToNative,
   buildElements,
   applyAttributes,
   ElementPtr,
-  toNative,
 ) where
 
 import Foreign
@@ -34,8 +36,11 @@ buildElements (first:remaining) elements = do
   native <- elementToNative first
   buildElements remaining (elements ++ [native])
 
-applyAttributes :: widget -> [widget -> IO widget] -> IO (widget)
+class UseAttribute widget attribute where
+  useAttribute :: widget -> attribute -> IO (widget)
+
+applyAttributes :: UseAttribute widget attribute => widget -> [attribute] -> IO (widget)
 applyAttributes widgetPtr [] = pure widgetPtr
 applyAttributes widgetPtr (attribute:remaining) = do
-  updatedWidget <- attribute widgetPtr
+  updatedWidget <- useAttribute widgetPtr attribute
   applyAttributes updatedWidget remaining

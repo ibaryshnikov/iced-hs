@@ -20,11 +20,13 @@ import Iced.Element
 
 data NativeTextEditor
 type SelfPtr = Ptr NativeTextEditor
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
 data NativeContent
 type Content = Ptr NativeContent
 data NativeAction
 type Action = Ptr NativeAction
+
+data Attribute message = AddOnAction (OnAction message)
 
 foreign import ccall safe "new_content"
   newContent :: Content
@@ -60,21 +62,29 @@ wrapOnAction callback action = do
 
 type OnAction message = Action -> message
 
-data TextEditor = TextEditor {
-  attributes :: [Attribute],
+data TextEditor message = TextEditor {
+  attributes :: [Attribute message],
   content :: Content
 }
 
-instance IntoNative TextEditor where
+instance IntoNative (TextEditor message) where
   toNative details = do
     selfPtr <- new_text_editor details.content
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_editor_into_element updatedSelf
 
-textEditor :: [Attribute] -> Content -> Element
+instance UseAttribute SelfPtr (Attribute message) where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      AddOnAction callback -> useOnAction callback selfPtr
+
+textEditor :: [Attribute message] -> Content -> Element
 textEditor attributes content = pack TextEditor { .. }
 
-onAction :: OnAction message -> Attribute
-onAction callback selfPtr = do
+onAction :: OnAction message -> Attribute message
+onAction callback = AddOnAction callback
+
+useOnAction :: OnAction message -> AttributeFn
+useOnAction callback selfPtr = do
   onActionPtr <- makeCallback $ wrapOnAction callback
   text_editor_on_action selfPtr onActionPtr

@@ -12,13 +12,17 @@ module Iced.Widget.Column (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Alignment (Alignment)
+import Iced.Alignment
 import Iced.AlignmentFFI
 import Iced.Element
+import Iced.Padding
+import Iced.Spacing
 
 data NativeColumn
 type SelfPtr = Ptr NativeColumn
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
+
+data Attribute = Spacing Float | AddPadding Padding | AlignItems Alignment
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_column"
@@ -57,18 +61,34 @@ instance IntoNative Column where
     updatedSelf <- applyAttributes selfPtr details.attributes
     column_into_element updatedSelf
 
+instance UseAttribute SelfPtr Attribute where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      Spacing value -> useSpacing value selfPtr
+      AddPadding value -> usePadding value selfPtr
+      AlignItems value -> useAlignItems value selfPtr
+
+instance UseAlignment Attribute where
+  alignItems value = AlignItems value
+
+instance UseSpacing Attribute where
+  spacing value = Spacing value
+
+instance UsePadding Attribute where
+  paddingToAttribute value = AddPadding value
+
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }
 
-padding :: Float -> Attribute
-padding value selfPtr = do
-  column_padding selfPtr (CFloat value) (CFloat value) (CFloat value) (CFloat value)
+usePadding :: Padding -> AttributeFn
+usePadding Padding { .. } selfPtr = do
+  column_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
-spacing :: Float -> Attribute
-spacing value selfPtr = do
+useSpacing :: Float -> AttributeFn
+useSpacing value selfPtr = do
   column_spacing selfPtr (CFloat value)
 
-alignItems :: Alignment -> Attribute
-alignItems value selfPtr = do
+useAlignItems :: Alignment -> AttributeFn
+useAlignItems value selfPtr = do
   let nativeAlignment = alignmentToNative value
   column_align_items selfPtr nativeAlignment

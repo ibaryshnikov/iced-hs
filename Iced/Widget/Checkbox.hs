@@ -2,7 +2,13 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Widget.Checkbox (checkbox, onToggle, onToggleMaybe, style, Style(..)) where
+module Iced.Widget.Checkbox (
+  checkbox,
+  onToggle,
+  onToggleIf,
+  style,
+  Style(..),
+) where
 
 import Foreign
 import Foreign.C.String
@@ -12,9 +18,11 @@ import Iced.Element
 
 data NativeCheckbox
 type SelfPtr = Ptr NativeCheckbox
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
 data NativeStyle
 type StylePtr = Ptr NativeStyle
+
+data Attribute message = AddOnToggle (OnToggle message) | AddStyle Style | None
 
 foreign import ccall safe "new_checkbox"
   new_checkbox :: CString -> CBool -> IO (SelfPtr)
@@ -52,13 +60,13 @@ type OnToggle message = Bool -> message
 
 data Style = Primary | Secondary | Success | Danger
 
-data Checkbox = Checkbox {
-  attributes :: [Attribute],
+data Checkbox message = Checkbox {
+  attributes :: [Attribute message],
   label :: String,
   value :: Bool
 }
 
-instance IntoNative Checkbox where
+instance IntoNative (Checkbox message) where
   toNative details = do
     let checked = fromBool details.value
     labelPtr <- newCString details.label
@@ -66,17 +74,27 @@ instance IntoNative Checkbox where
     updatedSelf <- applyAttributes selfPtr details.attributes
     checkbox_into_element updatedSelf
 
-checkbox :: [Attribute] -> String -> Bool -> Element
+instance UseAttribute SelfPtr (Attribute message) where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      AddOnToggle message -> useOnToggle message selfPtr
+      AddStyle value -> useStyle value selfPtr
+      None -> return selfPtr
+
+checkbox :: [Attribute message] -> String -> Bool -> Element
 checkbox attributes label value = pack Checkbox { .. }
 
-onToggle :: OnToggle message -> Attribute
-onToggle callback selfPtr = do
+onToggle :: OnToggle message -> Attribute message
+onToggle callback = AddOnToggle callback
+
+onToggleIf :: Bool -> OnToggle message -> Attribute message
+onToggleIf True callback = onToggle callback
+onToggleIf False _ = None
+
+useOnToggle :: OnToggle message -> AttributeFn
+useOnToggle callback selfPtr = do
   onTogglePtr <- makeCallback $ wrapOnToggle callback
   checkbox_on_toggle selfPtr onTogglePtr
-
-onToggleMaybe :: Maybe (OnToggle message) -> Attribute
-onToggleMaybe Nothing selfPtr = pure selfPtr
-onToggleMaybe (Just callback) selfPtr = onToggle callback selfPtr
 
 styleToNative :: Style -> StylePtr
 styleToNative value = case value of
@@ -85,7 +103,10 @@ styleToNative value = case value of
   Success -> checkbox_success
   Danger -> checkbox_danger
 
-style :: Style -> Attribute
-style value selfPtr = do
+style :: Style -> Attribute message
+style value = AddStyle value
+
+useStyle :: Style -> AttributeFn
+useStyle value selfPtr = do
   let stylePtr = styleToNative value
   checkbox_style selfPtr stylePtr

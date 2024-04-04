@@ -18,7 +18,9 @@ import Iced.LengthFFI
 
 data NativeText
 type SelfPtr = Ptr NativeText
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
+
+data Attribute = CenterX | CenterY | Height Length | Width Length
 
 foreign import ccall safe "new_container"
   new_container :: ElementPtr -> IO (SelfPtr)
@@ -47,21 +49,39 @@ instance IntoNative Container where
     updatedSelf <- applyAttributes selfPtr details.attributes
     container_into_element updatedSelf
 
+instance UseAttribute SelfPtr Attribute where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      CenterX -> useCenterX selfPtr
+      CenterY -> useCenterY selfPtr
+      Height len -> useHeight len selfPtr
+      Width len -> useWidth len selfPtr
+
+instance UseLength Attribute where
+  height len = Height len
+  width len = Width len
+
 container :: [Attribute] -> Element -> Element
 container attributes content = pack Container { .. }
 
 centerX :: Attribute
-centerX = container_center_x
+centerX = CenterX
+
+useCenterX :: AttributeFn
+useCenterX = container_center_x
 
 centerY :: Attribute
-centerY = container_center_y
+centerY = CenterY
 
-height :: Length -> Attribute
-height len selfPtr = do
+useCenterY :: AttributeFn
+useCenterY = container_center_y
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
   let nativeLen = lengthToNative len
   container_height selfPtr nativeLen
 
-width :: Length -> Attribute
-width len selfPtr = do
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
   let nativeLen = lengthToNative len
   container_width selfPtr nativeLen

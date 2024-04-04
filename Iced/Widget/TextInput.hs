@@ -11,7 +11,9 @@ import Iced.Element
 
 data NativeTextInput
 type SelfPtr = Ptr NativeTextInput
-type Attribute = SelfPtr -> IO SelfPtr
+type AttributeFn = SelfPtr -> IO SelfPtr
+
+data Attribute message = AddOnInput (OnInput message) | AddOnSubmit message
 
 foreign import ccall safe "new_text_input"
   new_text_input :: CString -> CString -> IO (SelfPtr)
@@ -36,13 +38,13 @@ wrapOnInput callback c_string = do
 
 type OnInput message = String -> message
 
-data TextInput = TextInput {
-  attributes :: [Attribute],
+data TextInput message = TextInput {
+  attributes :: [Attribute message],
   placeholder :: String,
   value :: String
 }
 
-instance IntoNative TextInput where
+instance IntoNative (TextInput message) where
   toNative details = do
     placeholderPtr <- newCString details.placeholder
     valuePtr <- newCString details.value
@@ -50,15 +52,27 @@ instance IntoNative TextInput where
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_input_into_element updatedSelf
 
-textInput :: [Attribute] -> String -> String -> Element
+instance UseAttribute SelfPtr (Attribute message) where
+  useAttribute selfPtr attribute = do
+    case attribute of
+      AddOnInput callback -> useOnInput callback selfPtr
+      AddOnSubmit message -> useOnSubmit message selfPtr
+
+textInput :: [Attribute message] -> String -> String -> Element
 textInput attributes placeholder value = pack TextInput { .. }
 
-onInput :: OnInput message -> Attribute
-onInput callback selfPtr = do
+onInput :: OnInput message -> Attribute message
+onInput callback = AddOnInput callback
+
+useOnInput :: OnInput message -> AttributeFn
+useOnInput callback selfPtr = do
   onInputPtr <- makeCallback $ wrapOnInput callback
   text_input_on_input selfPtr onInputPtr
 
-onSubmit :: message -> Attribute
-onSubmit message selfPtr = do
+onSubmit :: message -> Attribute message
+onSubmit message = AddOnSubmit message
+
+useOnSubmit :: message -> AttributeFn
+useOnSubmit message selfPtr = do
     onSubmitPtr <- newStablePtr message
     text_input_on_submit selfPtr onSubmitPtr
