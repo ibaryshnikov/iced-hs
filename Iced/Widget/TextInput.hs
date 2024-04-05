@@ -15,8 +15,8 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute message = AddOnInput (OnInput message) | AddOnSubmit message
 
-foreign import ccall safe "new_text_input"
-  new_text_input :: CString -> CString -> IO (SelfPtr)
+foreign import ccall safe "text_input_new"
+  text_input_new :: CString -> CString -> IO (SelfPtr)
 
 foreign import ccall safe "text_input_on_input"
   text_input_on_input :: SelfPtr -> FunPtr (NativeOnInput a) -> IO (SelfPtr)
@@ -48,7 +48,7 @@ instance IntoNative (TextInput message) where
   toNative details = do
     placeholderPtr <- newCString details.placeholder
     valuePtr <- newCString details.value
-    selfPtr <- new_text_input placeholderPtr valuePtr
+    selfPtr <- text_input_new placeholderPtr valuePtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_input_into_element updatedSelf
 

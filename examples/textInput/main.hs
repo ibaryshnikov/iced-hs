@@ -1,5 +1,5 @@
-{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Main where
 
@@ -24,7 +24,7 @@ update model message = case message of
   Input s -> model { inputValue = s }
   Submit -> case model.inputValue of
     "" -> model -- filter empty strings
-    value -> let items = model.items ++ [value]
+    value -> let items = [value] ++ model.items
       in model { items = items, inputValue = "" }
 
 view :: Model -> Element

@@ -17,11 +17,11 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute
 
-foreign import ccall safe "new_horizontal_space"
-  new_horizontal_space :: IO (SelfPtr)
+foreign import ccall safe "horizontal_space_new"
+  horizontal_space_new :: IO (SelfPtr)
 
-foreign import ccall safe "new_vertical_space"
-  new_vertical_space :: IO (SelfPtr)
+foreign import ccall safe "vertical_space_new"
+  vertical_space_new :: IO (SelfPtr)
 
 foreign import ccall safe "space_into_element"
   space_into_element :: SelfPtr -> IO (ElementPtr)
@@ -42,8 +42,8 @@ instance UseAttribute SelfPtr Attribute where
 
 kindToConstructor :: SpaceKind -> IO (SelfPtr)
 kindToConstructor kind = case kind of
-  Horizontal -> new_horizontal_space
-  Vertical -> new_vertical_space
+  Horizontal -> horizontal_space_new
+  Vertical -> vertical_space_new
 
 horizontalSpace :: [Attribute] -> Element
 horizontalSpace attributes = let kind = Horizontal in pack Space { .. }

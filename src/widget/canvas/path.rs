@@ -8,7 +8,7 @@ use canvas::path::Builder;
 type PathCallback = unsafe extern "C" fn(builder: &mut Builder);
 
 #[no_mangle]
-pub extern "C" fn new_path(callback: PathCallback) -> *mut Path {
+pub extern "C" fn path_new(callback: PathCallback) -> *mut Path {
     let path = Path::new(|builder| unsafe { callback(builder) });
     Box::into_raw(Box::new(path))
 }

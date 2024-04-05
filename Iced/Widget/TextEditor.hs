@@ -28,7 +28,7 @@ type Action = Ptr NativeAction
 
 data Attribute message = AddOnAction (OnAction message)
 
-foreign import ccall safe "new_content"
+foreign import ccall safe "content_new"
   newContent :: Content
 
 foreign import ccall safe "content_perform"
@@ -43,8 +43,8 @@ applyAction content action = unsafePerformIO $ do -- todo: make it a Command
   content_perform content action
   return content
 
-foreign import ccall safe "new_text_editor"
-  new_text_editor :: Content -> IO (SelfPtr)
+foreign import ccall safe "text_editor_new"
+  text_editor_new :: Content -> IO (SelfPtr)
 
 foreign import ccall safe "text_editor_on_action"
   text_editor_on_action :: SelfPtr -> FunPtr (NativeOnAction message) -> IO (SelfPtr)
@@ -69,7 +69,7 @@ data TextEditor message = TextEditor {
 
 instance IntoNative (TextEditor message) where
   toNative details = do
-    selfPtr <- new_text_editor details.content
+    selfPtr <- text_editor_new details.content
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_editor_into_element updatedSelf
 

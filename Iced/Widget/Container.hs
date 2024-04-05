@@ -22,8 +22,8 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute = CenterX | CenterY | Height Length | Width Length
 
-foreign import ccall safe "new_container"
-  new_container :: ElementPtr -> IO (SelfPtr)
+foreign import ccall safe "container_new"
+  container_new :: ElementPtr -> IO (SelfPtr)
 
 foreign import ccall safe "container_center_x"
   container_center_x :: SelfPtr -> IO (SelfPtr)
@@ -45,7 +45,7 @@ data Container = Container { attributes :: [Attribute], content :: Element }
 instance IntoNative Container where
   toNative details = do
     contentPtr <- elementToNative details.content
-    selfPtr <- new_container contentPtr
+    selfPtr <- container_new contentPtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     container_into_element updatedSelf
 

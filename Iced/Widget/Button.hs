@@ -17,8 +17,8 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute message = OnClick message | Height Length | Width Length
 
-foreign import ccall safe "new_button"
-  new_button :: CString -> IO (SelfPtr)
+foreign import ccall safe "button_new"
+  button_new :: CString -> IO (SelfPtr)
 
 foreign import ccall safe "button_on_press"
   button_on_press :: SelfPtr -> StablePtr a -> IO (SelfPtr)
@@ -40,7 +40,7 @@ data Button message = Button {
 instance IntoNative (Button message) where
   toNative details = do
     labelPtr <- newCString details.label
-    selfPtr <- new_button labelPtr
+    selfPtr <- button_new labelPtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     button_into_element updatedSelf
 

@@ -23,8 +23,8 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute = Height Length | Width Length | Size Float
 
-foreign import ccall safe "new_text"
-  new_text :: CString -> IO (SelfPtr)
+foreign import ccall safe "text_new"
+  text_new :: CString -> IO (SelfPtr)
 
 foreign import ccall safe "text_into_element"
   text_into_element :: SelfPtr -> IO (ElementPtr)
@@ -43,7 +43,7 @@ data Text = Text { attributes :: [Attribute], value :: String }
 instance IntoNative Text where
   toNative details = do
     valuePtr <- newCString details.value
-    selfPtr <- new_text valuePtr
+    selfPtr <- text_new valuePtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     text_into_element updatedSelf
 

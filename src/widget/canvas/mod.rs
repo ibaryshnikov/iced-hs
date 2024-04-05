@@ -2,9 +2,7 @@ use canvas::{Cache, Fill, Frame, Geometry, Path, Program};
 use iced::widget::{canvas, Canvas};
 use iced::{mouse, Element, Length, Rectangle, Renderer, Theme};
 
-use crate::IcedMessage;
-
-use super::ElementPtr;
+use super::{ElementPtr, IcedMessage};
 
 mod path;
 mod path_builder;
@@ -46,7 +44,7 @@ impl<Message> Program<Message> for CanvasState {
 }
 
 #[no_mangle]
-pub extern "C" fn new_canvas_state(draw: Draw) -> *mut CanvasState {
+pub extern "C" fn canvas_state_new(draw: Draw) -> *mut CanvasState {
     let state = CanvasState {
         cache: Cache::default(),
         draw_hs: Some(draw),

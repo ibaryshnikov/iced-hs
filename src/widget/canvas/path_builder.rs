@@ -7,7 +7,7 @@ use canvas::path::arc::Elliptical;
 use canvas::path::{Arc, Builder, Path};
 
 #[no_mangle]
-pub extern "C" fn new_path_builder() -> *mut Builder {
+pub extern "C" fn path_builder_new() -> *mut Builder {
     Box::into_raw(Box::new(Builder::new()))
 }
 

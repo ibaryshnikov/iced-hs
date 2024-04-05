@@ -3,33 +3,31 @@ use std::ffi::c_float;
 use iced::widget::Row;
 use iced::{Alignment, Padding};
 
-use crate::IcedMessage;
+use super::{ElementPtr, IcedMessage};
 
-use super::ElementPtr;
-
-type RowPtr = *mut Row<'static, IcedMessage>;
+type SelfPtr = *mut Row<'static, IcedMessage>;
 
 #[no_mangle]
-pub extern "C" fn new_row() -> RowPtr {
+pub extern "C" fn row_new() -> SelfPtr {
     Box::into_raw(Box::new(Row::new()))
 }
 
 #[no_mangle]
-pub extern "C" fn row_align_items(pointer: RowPtr, alignment: *mut Alignment) -> RowPtr {
-    let row = unsafe { Box::from_raw(pointer) };
+pub extern "C" fn row_align_items(self_ptr: SelfPtr, alignment: *mut Alignment) -> SelfPtr {
+    let row = unsafe { Box::from_raw(self_ptr) };
     let alignment = unsafe { *Box::from_raw(alignment) };
     Box::into_raw(Box::new(row.align_items(alignment)))
 }
 
 #[no_mangle]
 pub extern "C" fn row_padding(
-    pointer: RowPtr,
+    self_ptr: SelfPtr,
     top: c_float,
     right: c_float,
     bottom: c_float,
     left: c_float,
-) -> RowPtr {
-    let row = unsafe { Box::from_raw(pointer) };
+) -> SelfPtr {
+    let row = unsafe { Box::from_raw(self_ptr) };
     let padding = Padding {
         top,
         right,
@@ -40,13 +38,13 @@ pub extern "C" fn row_padding(
 }
 
 #[no_mangle]
-pub extern "C" fn row_spacing(pointer: RowPtr, pixels: c_float) -> RowPtr {
-    let row = unsafe { Box::from_raw(pointer) };
+pub extern "C" fn row_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
+    let row = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(row.spacing(pixels)))
 }
 
 #[no_mangle]
-pub extern "C" fn row_with_children(len: libc::size_t, ptr: *const ElementPtr) -> RowPtr {
+pub extern "C" fn row_with_children(len: usize, ptr: *const ElementPtr) -> SelfPtr {
     let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
     let mut row = Row::new();
     for item in slice {
@@ -58,11 +56,11 @@ pub extern "C" fn row_with_children(len: libc::size_t, ptr: *const ElementPtr) -
 
 #[no_mangle]
 pub extern "C" fn row_extend(
-    pointer: RowPtr,
-    len: libc::size_t,
+    self_ptr: SelfPtr,
+    len: usize,
     elements_ptr: *const ElementPtr,
-) -> RowPtr {
-    let mut row = unsafe { *Box::from_raw(pointer) };
+) -> SelfPtr {
+    let mut row = unsafe { *Box::from_raw(self_ptr) };
     let slice = unsafe { std::slice::from_raw_parts(elements_ptr, len) };
     for item in slice {
         let boxed = unsafe { Box::from_raw(*item) };
@@ -72,7 +70,7 @@ pub extern "C" fn row_extend(
 }
 
 #[no_mangle]
-pub extern "C" fn row_into_element(pointer: RowPtr) -> ElementPtr {
-    let row = unsafe { *Box::from_raw(pointer) };
+pub extern "C" fn row_into_element(self_ptr: SelfPtr) -> ElementPtr {
+    let row = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(row.into()))
 }

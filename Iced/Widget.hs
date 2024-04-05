@@ -9,6 +9,7 @@ module Iced.Widget (
   module Iced.Widget.Text,
   module Iced.Widget.TextEditor,
   module Iced.Widget.TextInput,
+  module Iced.Widget.Tooltip,
 ) where
 
 import Iced.Widget.Button
@@ -21,3 +22,4 @@ import Iced.Widget.Space
 import Iced.Widget.Text
 import Iced.Widget.TextEditor
 import Iced.Widget.TextInput
+import Iced.Widget.Tooltip

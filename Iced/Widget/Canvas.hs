@@ -28,8 +28,8 @@ type FramePtr = Ptr NativeFrame
 
 data Attribute
 
-foreign import ccall safe "new_canvas_state"
-  new_canvas_state :: SelfPtr
+foreign import ccall safe "canvas_state_new"
+  canvas_state_new :: SelfPtr
 
 foreign import ccall safe "canvas_set_draw"
   canvas_set_draw :: SelfPtr -> FunPtr (NativeDraw) -> IO ()
@@ -79,7 +79,7 @@ instance UseAttribute SelfPtr Attribute where
   useAttribute selfPtr _attribute = pure selfPtr -- no attributes currently
 
 newCache :: CanvasCache
-newCache = new_canvas_state
+newCache = canvas_state_new
 
 clearCache :: CanvasCache -> CanvasCache
 clearCache cache = unsafePerformIO $ do -- todo: make it a Command probably?

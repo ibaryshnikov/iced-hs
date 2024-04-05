@@ -10,6 +10,7 @@ mod space;
 mod text;
 mod text_editor;
 mod text_input;
+mod tooltip;
 
 use crate::IcedMessage;
 

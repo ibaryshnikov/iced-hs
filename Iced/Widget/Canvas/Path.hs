@@ -8,8 +8,8 @@ import Iced.Widget.Canvas.Shape
 data NativePath
 type PathPtr = Ptr NativePath
 
-foreign import ccall safe "new_path"
-  new_path :: FunPtr (NativePathCallback) -> IO (PathPtr)
+foreign import ccall safe "path_new"
+  path_new :: FunPtr (NativePathCallback) -> IO (PathPtr)
 
 type NativePathCallback = PathBuilderPtr -> IO ()
 foreign import ccall "wrapper"
@@ -27,4 +27,4 @@ pathCallback shapes = shapesToPath shapes
 newPath :: [Shape] -> IO (PathPtr)
 newPath shapes = do
   callbackPtr <- makeCallback $ pathCallback shapes
-  new_path callbackPtr
+  path_new callbackPtr

@@ -24,6 +24,13 @@ pub enum IcedMessage {
     Ptr(HaskellMessage),
 }
 
+impl IcedMessage {
+    /// StablePtr to Haskell message
+    fn ptr(ptr: *const u8) -> Self {
+        IcedMessage::Ptr(HaskellMessage { ptr })
+    }
+}
+
 struct Flags {
     title: String,
     model: Model,

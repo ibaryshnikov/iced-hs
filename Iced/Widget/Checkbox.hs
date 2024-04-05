@@ -24,8 +24,8 @@ type StylePtr = Ptr NativeStyle
 
 data Attribute message = AddOnToggle (OnToggle message) | AddStyle Style | None
 
-foreign import ccall safe "new_checkbox"
-  new_checkbox :: CString -> CBool -> IO (SelfPtr)
+foreign import ccall safe "checkbox_new"
+  checkbox_new :: CString -> CBool -> IO (SelfPtr)
 
 foreign import ccall safe "checkbox_on_toggle"
   checkbox_on_toggle :: SelfPtr -> FunPtr (NativeOnToggle a) -> IO (SelfPtr)
@@ -70,7 +70,7 @@ instance IntoNative (Checkbox message) where
   toNative details = do
     let checked = fromBool details.value
     labelPtr <- newCString details.label
-    selfPtr <- new_checkbox labelPtr checked
+    selfPtr <- checkbox_new labelPtr checked
     updatedSelf <- applyAttributes selfPtr details.attributes
     checkbox_into_element updatedSelf
 

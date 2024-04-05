@@ -1,18 +1,16 @@
-use std::ffi::{c_char, c_int};
+use std::ffi::{c_char, c_uchar};
 
 use iced::theme;
 use iced::widget::{checkbox, Checkbox};
 
-use crate::{HaskellMessage, IcedMessage};
+use super::{c_string_to_rust, ElementPtr, IcedMessage};
 
-use super::{c_string_to_rust, ElementPtr};
+type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 
-type CheckboxPtr = *mut Checkbox<'static, IcedMessage>;
-
-type ToggleCallback = unsafe extern "C" fn(input: c_int) -> *const u8;
+type ToggleCallback = unsafe extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn new_checkbox(input: *mut c_char, value: c_int) -> CheckboxPtr {
+pub extern "C" fn checkbox_new(input: *mut c_char, value: c_uchar) -> SelfPtr {
     let label = c_string_to_rust(input);
     let is_checked = match value {
         0 => false,
@@ -23,31 +21,25 @@ pub extern "C" fn new_checkbox(input: *mut c_char, value: c_int) -> CheckboxPtr 
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_on_toggle(
-    pointer: CheckboxPtr,
-    on_toggle: ToggleCallback,
-) -> CheckboxPtr {
-    let mut checkbox = unsafe { *Box::from_raw(pointer) };
-    checkbox = checkbox.on_toggle(move |new_value| {
+pub extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle: ToggleCallback) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let checkbox = checkbox.on_toggle(move |new_value| {
         let message_ptr = unsafe { on_toggle(new_value.into()) };
-        IcedMessage::Ptr(HaskellMessage { ptr: message_ptr })
+        IcedMessage::ptr(message_ptr)
     });
     Box::into_raw(Box::new(checkbox))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_style(
-    pointer: CheckboxPtr,
-    style_ptr: *mut theme::Checkbox,
-) -> CheckboxPtr {
-    let checkbox = unsafe { *Box::from_raw(pointer) };
+pub extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
     let style = unsafe { *Box::from_raw(style_ptr) };
     Box::into_raw(Box::new(checkbox.style(style)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_into_element(pointer: CheckboxPtr) -> ElementPtr {
-    let checkbox = unsafe { *Box::from_raw(pointer) };
+pub extern "C" fn checkbox_into_element(self_ptr: SelfPtr) -> ElementPtr {
+    let checkbox = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(checkbox.into()))
 }
 
