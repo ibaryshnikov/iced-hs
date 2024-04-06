@@ -1,7 +1,7 @@
 use std::ffi::c_float;
 
 use iced::widget::Column;
-use iced::{Alignment, Padding};
+use iced::{Alignment, Length, Padding};
 
 use super::{ElementPtr, IcedMessage};
 
@@ -67,6 +67,20 @@ pub extern "C" fn column_extend(
         column = column.push(*boxed);
     }
     Box::into_raw(Box::new(column))
+}
+
+#[no_mangle]
+pub extern "C" fn column_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let column = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(column.width(width)))
+}
+
+#[no_mangle]
+pub extern "C" fn column_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+    let column = unsafe { Box::from_raw(self_ptr) };
+    let height = unsafe { *Box::from_raw(height) };
+    Box::into_raw(Box::new(column.height(height)))
 }
 
 #[no_mangle]

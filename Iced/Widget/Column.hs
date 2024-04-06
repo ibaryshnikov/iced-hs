@@ -4,9 +4,6 @@
 
 module Iced.Widget.Column (
   column,
-  alignItems,
-  padding,
-  spacing,
 ) where
 
 import Foreign
@@ -15,6 +12,8 @@ import Foreign.C.Types
 import Iced.Alignment
 import Iced.AlignmentFFI
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
 import Iced.Padding
 import Iced.Spacing
 
@@ -23,6 +22,7 @@ type SelfPtr = Ptr NativeColumn
 type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute = Spacing Float | AddPadding Padding | AlignItems Alignment
+ | Width Length | Height Length
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_column"
@@ -40,11 +40,17 @@ foreign import ccall safe "column_spacing"
   column_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "column_with_children"
-  column_with_children :: CInt -> Ptr ElementPtr -> IO (SelfPtr)
+  column_with_children :: CUInt -> Ptr ElementPtr -> IO (SelfPtr)
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "column_extend"
---  column_extend :: SelfPtr -> CInt -> Ptr ElementPtr -> IO (SelfPtr)
+--  column_extend :: SelfPtr -> CUInt -> Ptr ElementPtr -> IO (SelfPtr)
+
+foreign import ccall safe "column_width"
+  column_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+
+foreign import ccall safe "column_height"
+  column_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "column_into_element"
   column_into_element :: SelfPtr -> IO (ElementPtr)
@@ -67,6 +73,8 @@ instance UseAttribute SelfPtr Attribute where
       Spacing value -> useSpacing value selfPtr
       AddPadding value -> usePadding value selfPtr
       AlignItems value -> useAlignItems value selfPtr
+      Width len -> useWidth len selfPtr
+      Height len -> useHeight len selfPtr
 
 instance UseAlignment Attribute where
   alignItems value = AlignItems value
@@ -76,6 +84,10 @@ instance UseSpacing Attribute where
 
 instance UsePadding Attribute where
   paddingToAttribute value = AddPadding value
+
+instance UseLength Attribute where
+  height len = Height len
+  width len = Width len
 
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }
@@ -92,3 +104,13 @@ useAlignItems :: Alignment -> AttributeFn
 useAlignItems value selfPtr = do
   let nativeAlignment = alignmentToNative value
   column_align_items selfPtr nativeAlignment
+
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
+  let nativeLen = lengthToNative len
+  column_width selfPtr nativeLen
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  column_height selfPtr nativeLen

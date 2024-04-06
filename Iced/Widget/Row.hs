@@ -4,9 +4,6 @@
 
 module Iced.Widget.Row (
   row,
-  alignItems,
-  padding,
-  spacing,
 ) where
 
 import Foreign
@@ -15,6 +12,8 @@ import Foreign.C.Types
 import Iced.Alignment
 import Iced.AlignmentFFI
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
 import Iced.Spacing
 import Iced.Padding
 
@@ -23,6 +22,7 @@ type SelfPtr = Ptr NativeRow
 type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute = Spacing Float | AddPadding Padding | AlignItems Alignment
+  | Width Length | Height Length
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_row"
@@ -40,11 +40,17 @@ foreign import ccall safe "row_spacing"
   row_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "row_with_children"
-  row_with_children :: CInt -> Ptr ElementPtr -> IO (SelfPtr)
+  row_with_children :: CUInt -> Ptr ElementPtr -> IO (SelfPtr)
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "row_extend"
---  row_extend :: SelfPtr -> CInt -> Ptr ElementPtr -> IO (SelfPtr)
+--  row_extend :: SelfPtr -> CUInt -> Ptr ElementPtr -> IO (SelfPtr)
+
+foreign import ccall safe "row_width"
+  row_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+
+foreign import ccall safe "row_height"
+  row_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "row_into_element"
   row_into_element :: SelfPtr -> IO (ElementPtr)
@@ -67,6 +73,8 @@ instance UseAttribute SelfPtr Attribute where
       Spacing value -> useSpacing value selfPtr
       AddPadding value -> usePadding value selfPtr
       AlignItems value -> useAlignItems value selfPtr
+      Width len -> useWidth len selfPtr
+      Height len -> useHeight len selfPtr
 
 instance UseAlignment Attribute where
   alignItems value = AlignItems value
@@ -76,6 +84,10 @@ instance UsePadding Attribute where
 
 instance UseSpacing Attribute where
   spacing value = Spacing value
+
+instance UseLength Attribute where
+  height len = Height len
+  width len = Width len
 
 row :: [Attribute] -> [Element] -> Element
 row attributes children = pack Row { .. }
@@ -92,3 +104,13 @@ usePadding Padding { .. } selfPtr = do
 useSpacing :: Float -> AttributeFn
 useSpacing value selfPtr = do
   row_spacing selfPtr (CFloat value)
+
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
+  let nativeLen = lengthToNative len
+  row_width selfPtr nativeLen
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  row_height selfPtr nativeLen

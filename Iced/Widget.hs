@@ -4,7 +4,9 @@ module Iced.Widget (
   module Iced.Widget.Checkbox,
   module Iced.Widget.Column,
   module Iced.Widget.Container,
+  module Iced.Widget.PickList,
   module Iced.Widget.Row,
+  module Iced.Widget.Scrollable,
   module Iced.Widget.Space,
   module Iced.Widget.Text,
   module Iced.Widget.TextEditor,
@@ -17,7 +19,9 @@ import Iced.Widget.Canvas
 import Iced.Widget.Checkbox
 import Iced.Widget.Column
 import Iced.Widget.Container
+import Iced.Widget.PickList
 import Iced.Widget.Row
+import Iced.Widget.Scrollable
 import Iced.Widget.Space
 import Iced.Widget.Text
 import Iced.Widget.TextEditor

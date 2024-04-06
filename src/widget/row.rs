@@ -1,7 +1,7 @@
 use std::ffi::c_float;
 
 use iced::widget::Row;
-use iced::{Alignment, Padding};
+use iced::{Alignment, Length, Padding};
 
 use super::{ElementPtr, IcedMessage};
 
@@ -67,6 +67,20 @@ pub extern "C" fn row_extend(
         row = row.push(*boxed);
     }
     Box::into_raw(Box::new(row))
+}
+
+#[no_mangle]
+pub extern "C" fn row_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let row = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(row.width(width)))
+}
+
+#[no_mangle]
+pub extern "C" fn row_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+    let row = unsafe { Box::from_raw(self_ptr) };
+    let height = unsafe { *Box::from_raw(height) };
+    Box::into_raw(Box::new(row.height(height)))
 }
 
 #[no_mangle]

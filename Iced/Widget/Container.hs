@@ -6,8 +6,6 @@ module Iced.Widget.Container (
   container,
   centerX,
   centerY,
-  height,
-  width,
 ) where
 
 import Foreign
@@ -16,11 +14,11 @@ import Iced.Element
 import Iced.Length
 import Iced.LengthFFI
 
-data NativeText
-type SelfPtr = Ptr NativeText
+data NativeContainer
+type SelfPtr = Ptr NativeContainer
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = CenterX | CenterY | Height Length | Width Length
+data Attribute = CenterX | CenterY | Width Length | Height Length
 
 foreign import ccall safe "container_new"
   container_new :: ElementPtr -> IO (SelfPtr)

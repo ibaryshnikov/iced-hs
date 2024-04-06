@@ -4,9 +4,7 @@
 
 module Iced.Widget.Text (
   text,
-  height,
   size,
-  width,
 ) where
 
 import Foreign
@@ -21,7 +19,7 @@ data NativeText
 type SelfPtr = Ptr NativeText
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = Height Length | Width Length | Size Float
+data Attribute = Width Length | Height Length | Size Float
 
 foreign import ccall safe "text_new"
   text_new :: CString -> IO (SelfPtr)

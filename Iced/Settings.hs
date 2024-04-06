@@ -11,7 +11,7 @@ foreign import ccall safe "settings_new"
   settings_new :: IO (SettingsPtr)
 
 foreign import ccall safe "settings_add_fonts"
-  settings_add_fonts :: SettingsPtr -> Ptr Word8 -> CInt -> IO ()
+  settings_add_fonts :: SettingsPtr -> Ptr Word8 -> CUInt -> IO ()
 
 newSettings :: IO (SettingsPtr)
 newSettings = settings_new

@@ -15,7 +15,7 @@ data NativeButton
 type SelfPtr = Ptr NativeButton
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute message = OnPress message | Height Length | Width Length
+data Attribute message = OnPress message | Width Length | Height Length
 
 foreign import ccall safe "button_new"
   button_new :: CString -> IO (SelfPtr)

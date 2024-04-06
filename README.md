@@ -62,7 +62,9 @@ main = Iced.run [] "Counter" 0 update view
    - [x] checkbox
    - [x] column
    - [x] container
+   - [x] pickList
    - [x] row
+   - [x] scrollable
    - [x] horizontalSpace
    - [x] verticalSpace
    - [x] text
