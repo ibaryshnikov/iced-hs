@@ -12,10 +12,10 @@ update value Dec = value - 1
 
 view :: Int -> Element
 view value = column [padding 20, alignItems Center] [
-    button [onClick Inc] "Increment",
+    button [onPress Inc] "Increment",
     text [size 50] $ show value,
-    button [onClick Dec] "Decrement"
+    button [onPress Dec] "Decrement"
   ]
 
 main :: IO ()
-main = Iced.run [] "Counter" 0 update view
+main = Iced.run [] "Counter - Iced" 0 update view

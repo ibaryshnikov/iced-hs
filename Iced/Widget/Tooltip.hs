@@ -86,8 +86,8 @@ gap :: Float -> Attribute
 gap value = Gap value
 
 useGap :: Float -> AttributeFn
-useGap gap selfPtr = do
-  tooltip_gap selfPtr (CFloat gap)
+useGap value selfPtr = do
+  tooltip_gap selfPtr (CFloat value)
 
 usePadding :: Float -> AttributeFn
 usePadding value selfPtr = do

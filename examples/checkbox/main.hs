@@ -41,4 +41,4 @@ initModel = Model { def = False, styled = False, custom = False }
 main :: IO ()
 main = do
   let bytes = $(includeBytes "fonts/icons.ttf")
-  Iced.run [Fonts bytes] "Checkbox" initModel update view
+  Iced.run [Fonts bytes] "Checkbox - Iced" initModel update view

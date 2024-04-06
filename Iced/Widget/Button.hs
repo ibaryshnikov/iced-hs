@@ -2,7 +2,7 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Widget.Button (button, onClick) where
+module Iced.Widget.Button (button, onPress) where
 
 import Foreign
 import Foreign.C.String
@@ -15,7 +15,7 @@ data NativeButton
 type SelfPtr = Ptr NativeButton
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute message = OnClick message | Height Length | Width Length
+data Attribute message = OnPress message | Height Length | Width Length
 
 foreign import ccall safe "button_new"
   button_new :: CString -> IO (SelfPtr)
@@ -23,11 +23,11 @@ foreign import ccall safe "button_new"
 foreign import ccall safe "button_on_press"
   button_on_press :: SelfPtr -> StablePtr a -> IO (SelfPtr)
 
-foreign import ccall safe "button_height"
-  button_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
-
 foreign import ccall safe "button_width"
   button_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+
+foreign import ccall safe "button_height"
+  button_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "button_into_element"
   button_into_element :: SelfPtr -> IO (ElementPtr)
@@ -47,9 +47,9 @@ instance IntoNative (Button message) where
 instance UseAttribute SelfPtr (Attribute message) where
   useAttribute selfPtr attribute = do
     case attribute of
-      OnClick message -> useOnClick message selfPtr
-      Height len -> useHeight len selfPtr
+      OnPress message -> useOnPress message selfPtr
       Width len -> useWidth len selfPtr
+      Height len -> useHeight len selfPtr
 
 instance UseLength (Attribute message) where
   width len = Width len
@@ -58,22 +58,22 @@ instance UseLength (Attribute message) where
 button :: [Attribute message] -> String -> Element
 button attributes label = pack Button { .. }
 
-onClick :: message -> Attribute message
-onClick message = OnClick message
+onPress :: message -> Attribute message
+onPress message = OnPress message
 
-useOnClick :: message -> AttributeFn
-useOnClick message selfPtr = do
+useOnPress :: message -> AttributeFn
+useOnPress message selfPtr = do
   -- pass a callback instead which will create
   -- a new StablePtr for each message separately
   messagePtr <- newStablePtr message
   button_on_press selfPtr messagePtr
 
-useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
-  let nativeLen = lengthToNative len
-  button_height selfPtr nativeLen
-
 useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do
   let nativeLen = lengthToNative len
   button_width selfPtr nativeLen
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  button_height selfPtr nativeLen

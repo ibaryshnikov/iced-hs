@@ -45,9 +45,9 @@ update value Dec = value - 1
 
 view :: Int -> Element
 view value = column [] [
-    button [onClick Inc] "Inc",
+    button [onPress Inc] "Inc",
     text [] $ show value,
-    button [onClick Dec] "Dec"
+    button [onPress Dec] "Dec"
   ]
 
 main :: IO ()
@@ -58,9 +58,6 @@ main = Iced.run [] "Counter" 0 update view
 ## Roadmap
 
  - [ ] Add more widgets
-   - [x] text
-   - [x] textInput
-   - [X] textEditor
    - [x] button
    - [x] checkbox
    - [x] column
@@ -68,6 +65,10 @@ main = Iced.run [] "Counter" 0 update view
    - [x] row
    - [x] horizontalSpace
    - [x] verticalSpace
+   - [x] text
+   - [x] textEditor
+   - [x] textInput
+   - [x] tooltip
    - [ ] shader
  - [ ] Canvas api
  - [ ] Command api, changing `update` to `:: Model -> Message -> (Model, Command)`

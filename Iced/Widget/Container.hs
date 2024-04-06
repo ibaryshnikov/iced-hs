@@ -31,14 +31,14 @@ foreign import ccall safe "container_center_x"
 foreign import ccall safe "container_center_y"
   container_center_y :: SelfPtr -> IO (SelfPtr)
 
-foreign import ccall safe "container_into_element"
-  container_into_element :: SelfPtr -> IO (ElementPtr)
+foreign import ccall safe "container_width"
+  container_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "container_height"
   container_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
-foreign import ccall safe "container_width"
-  container_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+foreign import ccall safe "container_into_element"
+  container_into_element :: SelfPtr -> IO (ElementPtr)
 
 data Container = Container { attributes :: [Attribute], content :: Element }
 
@@ -54,12 +54,12 @@ instance UseAttribute SelfPtr Attribute where
     case attribute of
       CenterX -> useCenterX selfPtr
       CenterY -> useCenterY selfPtr
-      Height len -> useHeight len selfPtr
       Width len -> useWidth len selfPtr
+      Height len -> useHeight len selfPtr
 
 instance UseLength Attribute where
-  height len = Height len
   width len = Width len
+  height len = Height len
 
 container :: [Attribute] -> Element -> Element
 container attributes content = pack Container { .. }
@@ -76,12 +76,12 @@ centerY = CenterY
 useCenterY :: AttributeFn
 useCenterY = container_center_y
 
-useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
-  let nativeLen = lengthToNative len
-  container_height selfPtr nativeLen
-
 useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do
   let nativeLen = lengthToNative len
   container_width selfPtr nativeLen
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  container_height selfPtr nativeLen

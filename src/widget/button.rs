@@ -22,17 +22,17 @@ pub extern "C" fn button_on_press(self_ptr: SelfPtr, message_ptr: *const u8) -> 
 }
 
 #[no_mangle]
-pub extern "C" fn button_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
-    let height = unsafe { *Box::from_raw(height) };
-    Box::into_raw(Box::new(button.height(height)))
-}
-
-#[no_mangle]
 pub extern "C" fn button_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
     let button = unsafe { Box::from_raw(self_ptr) };
     let width = unsafe { *Box::from_raw(width) };
     Box::into_raw(Box::new(button.width(width)))
+}
+
+#[no_mangle]
+pub extern "C" fn button_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+    let button = unsafe { Box::from_raw(self_ptr) };
+    let height = unsafe { *Box::from_raw(height) };
+    Box::into_raw(Box::new(button.height(height)))
 }
 
 #[no_mangle]

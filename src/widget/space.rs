@@ -1,8 +1,28 @@
 use iced::widget::{self, Space};
+use iced::Length;
 
 use super::ElementPtr;
 
 type SelfPtr = *mut Space;
+
+#[no_mangle]
+pub extern "C" fn space_new(width_ptr: *mut Length, height_ptr: *mut Length) -> SelfPtr {
+    let width = unsafe { *Box::from_raw(width_ptr) };
+    let height = unsafe { *Box::from_raw(height_ptr) };
+    Box::into_raw(Box::new(Space::new(width, height)))
+}
+
+#[no_mangle]
+pub extern "C" fn space_with_width(width_ptr: *mut Length) -> SelfPtr {
+    let width = unsafe { *Box::from_raw(width_ptr) };
+    Box::into_raw(Box::new(Space::with_width(width)))
+}
+
+#[no_mangle]
+pub extern "C" fn space_with_height(height_ptr: *mut Length) -> SelfPtr {
+    let height = unsafe { *Box::from_raw(height_ptr) };
+    Box::into_raw(Box::new(Space::with_height(height)))
+}
 
 #[no_mangle]
 pub extern "C" fn horizontal_space_new() -> SelfPtr {

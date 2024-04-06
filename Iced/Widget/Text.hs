@@ -26,17 +26,17 @@ data Attribute = Height Length | Width Length | Size Float
 foreign import ccall safe "text_new"
   text_new :: CString -> IO (SelfPtr)
 
-foreign import ccall safe "text_into_element"
-  text_into_element :: SelfPtr -> IO (ElementPtr)
-
-foreign import ccall safe "text_height"
-  text_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
-
 foreign import ccall safe "text_size"
   text_size :: SelfPtr -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "text_width"
   text_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+
+foreign import ccall safe "text_height"
+  text_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+
+foreign import ccall safe "text_into_element"
+  text_into_element :: SelfPtr -> IO (ElementPtr)
 
 data Text = Text { attributes :: [Attribute], value :: String }
 
@@ -50,9 +50,9 @@ instance IntoNative Text where
 instance UseAttribute SelfPtr Attribute where
   useAttribute selfPtr attribute = do
     case attribute of
-      Height len -> useHeight len selfPtr
-      Width len -> useWidth len selfPtr
       Size value -> useSize value selfPtr
+      Width len -> useWidth len selfPtr
+      Height len -> useHeight len selfPtr
 
 instance UseLength Attribute where
   height len = Height len
@@ -60,11 +60,6 @@ instance UseLength Attribute where
 
 text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }
-
-useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
-  let nativeLen = lengthToNative len
-  text_height selfPtr nativeLen
 
 size :: Float -> Attribute
 size value = Size value
@@ -77,3 +72,8 @@ useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do
   let nativeLen = lengthToNative len
   text_width selfPtr nativeLen
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  text_height selfPtr nativeLen
