@@ -60,9 +60,9 @@ data Column = Column { attributes :: [Attribute], children :: [Element] }
 instance IntoNative Column where
   toNative details = do
     elements <- buildElements details.children []
-    let len = (length elements)
+    let len = fromIntegral $ length elements
     elementsPtr <- newArray elements
-    selfPtr <- column_with_children (fromIntegral len) elementsPtr
+    selfPtr <- column_with_children len elementsPtr
     free elementsPtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     column_into_element updatedSelf
@@ -86,8 +86,8 @@ instance UsePadding Attribute where
   paddingToAttribute value = AddPadding value
 
 instance UseLength Attribute where
-  height len = Height len
   width len = Width len
+  height len = Height len
 
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }

@@ -53,8 +53,8 @@ instance UseAttribute SelfPtr Attribute where
       Height len -> useHeight len selfPtr
 
 instance UseLength Attribute where
-  height len = Height len
   width len = Width len
+  height len = Height len
 
 text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }

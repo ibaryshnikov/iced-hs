@@ -23,7 +23,7 @@ ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 
 ## Platform support
 
-Desktop - Linux, Windows, Mac. Supported targets are the same
+Desktop - Windows, macOS, Linux. Supported targets are the same
 as for iced except the web target, since it's tricky to link
 wasm produced by different compilers. With some effort it
 may be possible, just not out of the box.
@@ -55,24 +55,61 @@ main = Iced.run [] "Counter" 0 update view
 ```
 
 
+## Status
+
+This is a research project. The api may change often.
+Not recommended for use in production. But may be a good
+option if you are learning Haskell or need a simple
+way to build a ui or display some data. The selection of widgets
+is currently small, but growing over time.
+
+
 ## Roadmap
 
  - [ ] Add more widgets
    - [x] button
    - [x] checkbox
    - [x] column
+   - [ ] comboBox
    - [x] container
+   - [ ] image
+   - [ ] keyedColumn
+   - [ ] mouseArea
+   - [ ] paneGrid
+   - [ ] progressBar
    - [x] pickList
+   - [ ] qrCode
+   - [ ] radio
+   - [ ] horizontalRule, verticalRule
    - [x] row
    - [x] scrollable
-   - [x] horizontalSpace
-   - [x] verticalSpace
+   - [ ] slider, verticalSlider
+   - [x] horizontalSpace, verticalSpace
+   - [ ] svg
    - [x] text
    - [x] textEditor
    - [x] textInput
+   - [ ] toggler
    - [x] tooltip
-   - [ ] shader
+ - Add helper functions
+   - [ ] responsive
+   - [ ] lazy
+   - [ ] themer
+   - [ ] focusNext, focusPrevious
  - [ ] Canvas api
+   - [x] canvas widget
+   - [x] fill path
+   - [ ] stroke path
+   - [x] path methods - circle, lineTo, moveTo, rectangle
+   - [ ] more path methods
+ - [ ] Shader
+   - [ ] shader widget
+   - [ ] attributes
+ - [ ] Multi window
+ - [ ] Custom widgets
+ - [ ] Subscriptions
+   - [ ] keyboard events
+   - [ ] other events
  - [ ] Command api, changing `update` to `:: Model -> Message -> (Model, Command)`
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles and themes

@@ -25,7 +25,7 @@ pub enum IcedMessage {
 }
 
 impl IcedMessage {
-    /// StablePtr to Haskell message
+    // StablePtr to Haskell message
     fn ptr(ptr: *const u8) -> Self {
         IcedMessage::Ptr(HaskellMessage { ptr })
     }

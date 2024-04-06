@@ -60,9 +60,9 @@ data Row = Row { attributes :: [Attribute], children :: [Element] }
 instance IntoNative Row where
   toNative details = do
     elements <- buildElements details.children []
-    let len = (length elements)
+    let len = fromIntegral $ length elements
     elementsPtr <- newArray elements
-    selfPtr <- row_with_children (fromIntegral len) elementsPtr
+    selfPtr <- row_with_children len elementsPtr
     free elementsPtr
     updatedSelf <- applyAttributes selfPtr details.attributes
     row_into_element updatedSelf
@@ -86,8 +86,8 @@ instance UseSpacing Attribute where
   spacing value = Spacing value
 
 instance UseLength Attribute where
-  height len = Height len
   width len = Width len
+  height len = Height len
 
 row :: [Attribute] -> [Element] -> Element
 row attributes children = pack Row { .. }

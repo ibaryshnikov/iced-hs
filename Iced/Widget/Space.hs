@@ -56,8 +56,8 @@ instance IntoNative Space where
 --      Height len -> useHeight len selfPtr
 
 --instance UseLength Attribute where
---  height len = Height len
 --  width len = Width len
+--  height len = Height len
 
 makeSpace :: Space -> IO (SelfPtr)
 makeSpace kind = case kind of

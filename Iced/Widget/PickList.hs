@@ -19,6 +19,7 @@ type AttributeFn = SelfPtr -> IO SelfPtr
 
 data Attribute = Placeholder String
 
+-- len options selected on_select
 foreign import ccall safe "pick_list_new"
   pick_list_new :: CUInt -> Ptr CString -> CString -> FunPtr (NativeOnSelect a) -> IO (SelfPtr)
 
@@ -60,12 +61,12 @@ selectedToString Nothing = "" -- treat empty string as None in Rust
 instance (Show option, Read option) => IntoNative (PickList option message) where
   toNative details = do
     strings <- packOptions details.options []
-    let len = (length strings)
+    let len = fromIntegral $ length strings
     stringsPtr <- newArray strings
     selectedPtr <- newCString $ selectedToString details.selected
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
-    selfPtr <- pick_list_new (fromIntegral len) stringsPtr selectedPtr onSelectPtr
-    free stringsPtr -- Rust will free contents, but we still need free the array itself
+    selfPtr <- pick_list_new len stringsPtr selectedPtr onSelectPtr
+    free stringsPtr -- Rust will free contents, but we still need to free the array itself
     updatedSelf <- applyAttributes selfPtr details.attributes
     pick_list_into_element updatedSelf
 
