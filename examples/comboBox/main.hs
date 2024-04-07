@@ -20,7 +20,7 @@ data Language
 
 data Model = Model {
   languages :: ComboBoxState,
-  selectedLanguage :: Maybe Language,
+  selected :: Maybe Language,
   text :: String
 }
 
@@ -29,12 +29,12 @@ data Message = Selected Language | OptionHovered Language | Closed
 update :: Model -> Message -> Model
 update model message = case message of
   Selected language -> model {
-    selectedLanguage = Just language,
+    selected = Just language,
     text = hello language
   }
   OptionHovered language -> model { text = hello language }
   Closed -> model { text = string } where
-    string = case model.selectedLanguage of
+    string = case model.selected of
       Just language -> hello language
       Nothing -> ""
 
@@ -49,7 +49,7 @@ view model =
     spaceHeight (Fixed 150)
   ] where
     combo = comboBox [onOptionHovered OptionHovered, onClose Closed]
-      model.languages "Type a language..." model.selectedLanguage Selected
+      model.languages "Type a language..." model.selected Selected
 
 hello :: Language -> String
 hello language = case language of
@@ -66,7 +66,7 @@ options :: [Language]
 options = [Danish, English, French, German, Italian, Portuguese, Spanish, Other]
 
 initModel :: ComboBoxState -> Model
-initModel state = Model { languages = state, selectedLanguage = Nothing, text = "" }
+initModel state = Model { languages = state, selected = Nothing, text = "" }
 
 main :: IO ()
 main = do

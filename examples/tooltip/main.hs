@@ -7,9 +7,7 @@ import Iced
 import Iced.Attribute
 import Iced.Widget
 
-data Model = Model {
-  position :: Position
-}
+data Model = Model { position :: Position }
 
 data Message = ChangePosition
 

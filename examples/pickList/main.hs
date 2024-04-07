@@ -9,15 +9,13 @@ import Iced.Widget
 
 data Language = Rust | Elm | Ruby | Haskell | C | Javascript | Other deriving (Show, Read)
 
-data Model = Model {
-  selectedLanguage :: Maybe Language
-}
+data Model = Model { selected :: Maybe Language }
 
-data Message = LanguageSelected Language
+data Message = Selected Language
 
 update :: Model -> Message -> Model
 update model message = case message of
-  LanguageSelected language -> model { selectedLanguage = Just language }
+  Selected language -> model { selected = Just language }
 
 options :: [Language]
 options = [C, Elm, Ruby, Haskell, Rust, Javascript, Other]
@@ -32,10 +30,10 @@ view model = scrollable [] $
   ]
   where
     list = pickList [placeholder "Choose a language..."]
-      options model.selectedLanguage LanguageSelected
+      options model.selected Selected
 
 initModel :: Model
-initModel = Model { selectedLanguage = Nothing }
+initModel = Model { selected = Nothing }
 
 main :: IO ()
 main = do Iced.run [] "Pick List - Iced" initModel update view
