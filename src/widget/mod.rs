@@ -4,6 +4,7 @@ mod button;
 mod canvas;
 mod checkbox;
 mod column;
+mod combo_box;
 mod container;
 mod pick_list;
 mod row;
@@ -18,9 +19,48 @@ use crate::IcedMessage;
 
 pub(crate) type ElementPtr = *mut iced::Element<'static, IcedMessage>;
 
-pub(crate) fn c_string_to_rust(input: *mut c_char) -> String {
+pub(crate) fn read_c_string(input: *mut c_char) -> String {
     let c_string = unsafe { CString::from_raw(input) };
     c_string
         .into_string()
         .expect("Should convert CString to String")
+}
+
+fn read_array_of_c_strings(
+    len: usize,
+    array_ptr: *const *mut c_char, // array of CString
+) -> Vec<String> {
+    let slice = unsafe { std::slice::from_raw_parts(array_ptr, len) };
+    let mut strings = vec![];
+    for option_ptr in slice {
+        let option = read_c_string(*option_ptr);
+        strings.push(option);
+    }
+    strings
+}
+
+// "" -> None
+// s -> Some(s)
+fn read_c_string_to_option(input: *mut c_char) -> Option<String> {
+    let string = read_c_string(input);
+    if string.is_empty() {
+        None
+    } else {
+        Some(string)
+    }
+}
+
+type CallbackForCString = unsafe extern "C" fn(string: *mut c_char) -> *const u8;
+
+fn make_callback_with_string_argument(
+    callback: CallbackForCString,
+) -> impl Fn(String) -> IcedMessage {
+    move |input| {
+        let c_string = CString::new(input).expect("Should create a CString");
+        let string_ptr = c_string.into_raw();
+        let message_ptr = unsafe { callback(string_ptr) };
+        // free CString
+        let _ = unsafe { CString::from_raw(string_ptr) };
+        IcedMessage::ptr(message_ptr)
+    }
 }

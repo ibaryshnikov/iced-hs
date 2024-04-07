@@ -2,7 +2,7 @@ use std::ffi::{c_char, CString};
 
 use iced::widget::{text_input, TextInput};
 
-use super::{c_string_to_rust, ElementPtr, IcedMessage};
+use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextInput<'static, IcedMessage>;
 
@@ -10,8 +10,8 @@ type InputCallback = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
 
 #[no_mangle]
 pub extern "C" fn text_input_new(placeholder: *mut c_char, value: *mut c_char) -> SelfPtr {
-    let placeholder = c_string_to_rust(placeholder);
-    let value = c_string_to_rust(value);
+    let placeholder = read_c_string(placeholder);
+    let value = read_c_string(value);
     Box::into_raw(Box::new(text_input(&placeholder, &value)))
 }
 

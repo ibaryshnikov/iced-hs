@@ -3,7 +3,7 @@ use std::ffi::{c_char, c_uchar};
 use iced::theme;
 use iced::widget::{checkbox, Checkbox};
 
-use super::{c_string_to_rust, ElementPtr, IcedMessage};
+use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 
@@ -11,7 +11,7 @@ type ToggleCallback = unsafe extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
 pub extern "C" fn checkbox_new(input: *mut c_char, value: c_uchar) -> SelfPtr {
-    let label = c_string_to_rust(input);
+    let label = read_c_string(input);
     let is_checked = match value {
         0 => false,
         1 => true,

@@ -29,7 +29,7 @@ type Action = Ptr NativeAction
 data Attribute message = AddOnAction (OnAction message)
 
 foreign import ccall safe "content_new"
-  newContent :: Content
+  content_new :: Content
 
 foreign import ccall safe "content_perform"
   content_perform :: Content -> Action -> IO ()
@@ -88,3 +88,6 @@ useOnAction :: OnAction message -> AttributeFn
 useOnAction callback selfPtr = do
   onActionPtr <- makeCallback $ wrapOnAction callback
   text_editor_on_action selfPtr onActionPtr
+
+newContent :: Content
+newContent = content_new

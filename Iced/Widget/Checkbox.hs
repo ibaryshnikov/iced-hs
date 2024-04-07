@@ -77,7 +77,7 @@ instance IntoNative (Checkbox message) where
 instance UseAttribute SelfPtr (Attribute message) where
   useAttribute selfPtr attribute = do
     case attribute of
-      AddOnToggle message -> useOnToggle message selfPtr
+      AddOnToggle callback -> useOnToggle callback selfPtr
       AddStyle value -> useStyle value selfPtr
       None -> return selfPtr
 

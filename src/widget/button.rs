@@ -3,13 +3,13 @@ use std::ffi::c_char;
 use iced::widget::{text, Button};
 use iced::Length;
 
-use super::{c_string_to_rust, ElementPtr, IcedMessage};
+use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Button<'static, IcedMessage>;
 
 #[no_mangle]
 pub extern "C" fn button_new(input: *mut c_char) -> SelfPtr {
-    let string = c_string_to_rust(input);
+    let string = read_c_string(input);
     let button = Button::new(text(string));
     Box::into_raw(Box::new(button))
 }

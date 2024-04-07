@@ -107,7 +107,7 @@ pub extern "C" fn run_app(
         panic!("View callback is NULL");
     };
     let settings = unsafe { *Box::from_raw(settings_ptr) };
-    let title = widget::c_string_to_rust(title_ptr);
+    let title = widget::read_c_string(title_ptr);
     let flags = Flags {
         title,
         model,

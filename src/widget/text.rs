@@ -3,13 +3,13 @@ use std::ffi::{c_char, c_float};
 use iced::widget::{text, Text};
 use iced::Length;
 
-use super::{c_string_to_rust, ElementPtr};
+use super::{read_c_string, ElementPtr};
 
 type SelfPtr = *mut Text<'static>;
 
 #[no_mangle]
 pub extern "C" fn text_new(input: *mut c_char) -> SelfPtr {
-    let string = c_string_to_rust(input);
+    let string = read_c_string(input);
     Box::into_raw(Box::new(text(string)))
 }
 

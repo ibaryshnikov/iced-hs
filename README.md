@@ -70,7 +70,7 @@ is currently small, but growing over time.
    - [x] button
    - [x] checkbox
    - [x] column
-   - [ ] comboBox
+   - [x] comboBox
    - [x] container
    - [ ] image
    - [ ] keyedColumn
@@ -91,7 +91,7 @@ is currently small, but growing over time.
    - [x] textInput
    - [ ] toggler
    - [x] tooltip
- - Add helper functions
+ - [ ] Add helper functions
    - [ ] responsive
    - [ ] lazy
    - [ ] themer
