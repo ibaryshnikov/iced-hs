@@ -35,10 +35,7 @@ view model = container [centerX, centerY, width Fill, height Fill] $
     styledCheckbox (value, label) = checkbox attributes label model.styled
       where attributes = [style value, onToggleIf model.def StyledToggled]
 
-initModel :: Model
-initModel = Model { def = False, styled = False, custom = False }
-
 main :: IO ()
-main = do
-  let bytes = $(includeBytes "fonts/icons.ttf")
-  Iced.run [Fonts bytes] "Checkbox - Iced" initModel update view
+main = Iced.run [Fonts bytes] "Checkbox" model update view
+  where bytes = $(includeBytes "fonts/icons.ttf")
+        model = Model { def = False, styled = False, custom = False }

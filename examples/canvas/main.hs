@@ -27,8 +27,6 @@ shapes = [
     rectangle 30 30 50 50
   ]
 
-initModel :: Model
-initModel = Model { cache = newCache }
-
 main :: IO ()
-main = Iced.run [] "Canvas" initModel update view
+main = Iced.run [] "Canvas" model update view
+  where model = Model { cache = newCache }

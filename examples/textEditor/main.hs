@@ -6,9 +6,7 @@ module Main where
 import Iced
 import Iced.Widget
 
-data Model = Model {
-  content :: Content
-}
+data Model = Model { content :: Content }
 
 data Message = EditorAction Action
 
@@ -19,8 +17,6 @@ update model message = case message of
 view :: Model -> Element
 view model = textEditor [onAction EditorAction] model.content
 
-initModel :: Model
-initModel = Model { content = newContent }
-
 main :: IO ()
-main = do Iced.run [] "TextEditor" initModel update view
+main = Iced.run [] "TextEditor" model update view
+  where model = Model { content = newContent }

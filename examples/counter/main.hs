@@ -18,4 +18,4 @@ view value = column [padding 20, alignItems Center] [
   ]
 
 main :: IO ()
-main = Iced.run [] "Counter - Iced" 0 update view
+main = Iced.run [] "Counter" 0 update view

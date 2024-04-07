@@ -7,31 +7,25 @@ import Iced
 import Iced.Widget
 
 data Model = Model {
-    inputValue :: String,
+    input :: String,
     items :: [String]
 }
 
 data Message = Input String | Submit
 
-initModel :: Model
-initModel = Model {
-  inputValue = "",
-  items = []
-}
-
 update :: Model -> Message -> Model
 update model message = case message of
-  Input s -> model { inputValue = s }
-  Submit -> case model.inputValue of
+  Input value -> model { input = value }
+  Submit -> case model.input of
     "" -> model -- filter empty strings
-    value -> let items = [value] ++ model.items
-      in model { items = items, inputValue = "" }
+    value -> model { items = items, input = "" }
+      where items = [value] ++ model.items
 
 view :: Model -> Element
-view model =
-  let input = textInput [onInput Input, onSubmit Submit] "Placeholder" model.inputValue
-      labels = map (text []) model.items
-  in column [] ([input] ++ labels)
+view model = column [] ([input] ++ labels)
+  where input = textInput [onInput Input, onSubmit Submit] "Placeholder" model.input
+        labels = map (text []) model.items
 
 main :: IO ()
-main = Iced.run [] "TextInput" initModel update view
+main = Iced.run [] "TextInput" model update view
+  where model = Model { input = "", items = [] }

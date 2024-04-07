@@ -32,8 +32,6 @@ view model = scrollable [] $
     list = pickList [placeholder "Choose a language..."]
       options model.selected Selected
 
-initModel :: Model
-initModel = Model { selected = Nothing }
-
 main :: IO ()
-main = do Iced.run [] "Pick List - Iced" initModel update view
+main = Iced.run [] "PickList" model update view
+  where model = Model { selected = Nothing }

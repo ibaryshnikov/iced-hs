@@ -65,12 +65,9 @@ hello language = case language of
 options :: [Language]
 options = [Danish, English, French, German, Italian, Portuguese, Spanish, Other]
 
-initModel :: ComboBoxState -> Model
-initModel state = Model { languages = state, selected = Nothing, text = "" }
-
 main :: IO ()
 main = do
   state <- newComboBoxState options
-  let model = initModel state
-  Iced.run [] "Combo Box - Iced" model update view
+  let model = Model { languages = state, selected = Nothing, text = "" }
+  Iced.run [] "ComboBox" model update view
   freeComboBoxState state
