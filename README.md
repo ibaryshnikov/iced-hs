@@ -79,7 +79,7 @@ is currently small, but growing over time.
    - [ ] progressBar
    - [x] pickList
    - [ ] qrCode
-   - [ ] radio
+   - [x] radio
    - [ ] horizontalRule, verticalRule
    - [x] row
    - [x] scrollable

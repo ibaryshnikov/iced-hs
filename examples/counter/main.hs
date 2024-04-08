@@ -11,7 +11,8 @@ update value Inc = value + 1
 update value Dec = value - 1
 
 view :: Int -> Element
-view value = column [padding 20, alignItems Center] [
+view value =
+  column [padding 20, alignItems Center] [
     button [onPress Inc] "Increment",
     text [size 50] $ show value,
     button [onPress Dec] "Decrement"

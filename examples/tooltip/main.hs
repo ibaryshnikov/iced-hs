@@ -22,12 +22,14 @@ update model message = case message of
       FollowCursor -> Top
 
 view :: Model -> Element
-view model = container [width Fill, height Fill, centerX, centerY] $
-  tooltip [gap 10] content (positionToText model.position) model.position
-  where content = button [onPress ChangePosition] "Press to change position"
+view model =
+  container [width Fill, height Fill, centerX, centerY] $
+  tooltip [gap 10] content (toText model.position) model.position
+  where
+    content = button [onPress ChangePosition] "Press to change position"
 
-positionToText :: Position -> Element
-positionToText position = text [] label where
+toText :: Position -> Element
+toText position = text [] label where
   label = case position of
     FollowCursor -> "Follow Cursor"
     Top -> "Top"
@@ -35,8 +37,6 @@ positionToText position = text [] label where
     LeftSide -> "Left"
     RightSide -> "Right"
 
-initModel :: Model
-initModel = Model { position = FollowCursor }
-
 main :: IO ()
-main = do Iced.run [] "Tooltip - Iced" initModel update view
+main = Iced.run [] "Tooltip" model update view
+  where model = Model { position = FollowCursor }

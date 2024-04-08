@@ -45,10 +45,10 @@ view model =
   column [width Shrink, alignItems Center, spacing 10] [
     text [] model.text,
     text [] "What is your language?",
-    combo,
+    widget,
     spaceHeight (Fixed 150)
   ] where
-    combo = comboBox [onOptionHovered OptionHovered, onClose Closed]
+    widget = comboBox [onOptionHovered OptionHovered, onClose Closed]
       model.languages "Type a language..." model.selected Selected
 
 hello :: Language -> String

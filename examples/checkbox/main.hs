@@ -15,25 +15,26 @@ data Model = Model {
   custom :: Bool
 }
 
-data Message = DefaultToggled Bool | CustomToggled Bool | StyledToggled Bool
+data Message = Default Bool | Custom Bool | Styled Bool
 
 update :: Model -> Message -> Model
 update model message = case message of
-  DefaultToggled value -> model { def = value }
-  StyledToggled value -> model { styled = value }
-  CustomToggled value -> model { custom = value }
+  Default value -> model { def = value }
+  Styled value -> model { styled = value }
+  Custom value -> model { custom = value }
 
 view :: Model -> Element
-view model = container [centerX, centerY, width Fill, height Fill] $
+view model =
+  container [centerX, centerY, width Fill, height Fill] $
   column [spacing 20] [
-    checkbox [onToggle DefaultToggled] "Default" model.def,
-    row [spacing 20] (map styledCheckbox pairs),
-    checkbox [onToggle CustomToggled] "Custom" model.custom
+    checkbox [onToggle Default] "Default" model.def,
+    row [spacing 20] (map styled pairs),
+    checkbox [onToggle Custom] "Custom" model.custom
   ]
   where
     pairs = [(Primary, "Primary"), (Secondary, "Secondary"), (Success, "Success"), (Danger, "Danger")]
-    styledCheckbox (value, label) = checkbox attributes label model.styled
-      where attributes = [style value, onToggleIf model.def StyledToggled]
+    styled (value, label) = checkbox attributes label model.styled
+      where attributes = [style value, onToggleIf model.def Styled]
 
 main :: IO ()
 main = Iced.run [Fonts bytes] "Checkbox" model update view

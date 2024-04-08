@@ -6,6 +6,7 @@ module Iced.Widget (
   module Iced.Widget.ComboBox,
   module Iced.Widget.Container,
   module Iced.Widget.PickList,
+  module Iced.Widget.Radio,
   module Iced.Widget.Row,
   module Iced.Widget.Scrollable,
   module Iced.Widget.Space,
@@ -22,6 +23,7 @@ import Iced.Widget.Column
 import Iced.Widget.ComboBox
 import Iced.Widget.Container
 import Iced.Widget.PickList
+import Iced.Widget.Radio
 import Iced.Widget.Row
 import Iced.Widget.Scrollable
 import Iced.Widget.Space

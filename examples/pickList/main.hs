@@ -21,15 +21,16 @@ options :: [Language]
 options = [C, Elm, Ruby, Haskell, Rust, Javascript, Other]
 
 view :: Model -> Element
-view model = scrollable [] $
+view model =
+  scrollable [] $
   column [width Fill, alignItems Center, spacing 10] [
     spaceHeight (Fixed 600),
     text [] "Which is your favorite language?",
-    list,
+    widget,
     spaceHeight (Fixed 600)
   ]
   where
-    list = pickList [placeholder "Choose a language..."]
+    widget = pickList [placeholder "Choose a language..."]
       options model.selected Selected
 
 main :: IO ()
