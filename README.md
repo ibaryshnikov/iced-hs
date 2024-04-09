@@ -6,21 +6,6 @@ Very experimental, an early proof of concept.
 To learn more about iced check [official website](https://iced.rs) and the [book](https://book.iced.rs)
 
 
-## Usage
-
-First, build rust crate to produce `libiced_hs.a`
-
-```bash
-./build_rust.sh
-```
-
-then pass it to ghc
-
-```bash
-ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
-```
-
-
 ## Platform support
 
 Desktop - Windows, macOS, Linux. Supported targets are the same
@@ -52,6 +37,21 @@ view value = column [] [
 
 main :: IO ()
 main = Iced.run [] "Counter" 0 update view
+```
+
+
+## Usage
+
+First, build rust crate to produce `libiced_hs.a`
+
+```bash
+./build_rust.sh
+```
+
+then pass it to ghc
+
+```bash
+ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 ```
 
 
