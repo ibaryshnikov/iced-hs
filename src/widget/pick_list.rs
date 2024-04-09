@@ -1,6 +1,7 @@
 use std::ffi::c_char;
 
 use iced::widget::{pick_list, PickList};
+use iced::Length;
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -31,6 +32,13 @@ pub extern "C" fn pick_list_placeholder(
     let pick_list = unsafe { Box::from_raw(self_ptr) };
     let placeholder = read_c_string(placeholder_ptr);
     Box::into_raw(Box::new(pick_list.placeholder(placeholder)))
+}
+
+#[no_mangle]
+pub extern "C" fn pick_list_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let pick_list = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(pick_list.width(width)))
 }
 
 #[no_mangle]

@@ -42,13 +42,13 @@ view :: Model -> Element
 view model =
   container [width Fill, height Fill, centerX, centerY] $
   scrollable [] $
-  column [width Shrink, alignItems Center, spacing 10] [
+  column [width Fill, alignItems Center, spacing 10] [
     text [] model.text,
     text [] "What is your language?",
     widget,
     spaceHeight (Fixed 150)
   ] where
-    widget = comboBox [onOptionHovered OptionHovered, onClose Closed]
+    widget = comboBox [onOptionHovered OptionHovered, onClose Closed, width (Fixed 250)]
       model.languages "Type a language..." model.selected Selected
 
 hello :: Language -> String

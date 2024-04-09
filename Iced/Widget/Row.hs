@@ -31,7 +31,7 @@ data Attribute = Spacing Float | AddPadding Padding | AlignItems Alignment
 foreign import ccall safe "row_align_items"
   row_align_items :: SelfPtr -> AlignmentPtr -> IO (SelfPtr)
 
--- column top right bottom left
+-- row top right bottom left
 foreign import ccall safe "row_padding"
   row_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
 
@@ -85,8 +85,10 @@ instance UsePadding Attribute where
 instance UseSpacing Attribute where
   spacing value = Spacing value
 
-instance UseLength Attribute where
+instance UseWidth Attribute where
   width len = Width len
+
+instance UseHeight Attribute where
   height len = Height len
 
 row :: [Attribute] -> [Element] -> Element

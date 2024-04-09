@@ -55,8 +55,10 @@ instance UseAttribute SelfPtr Attribute where
       Width len -> useWidth len selfPtr
       Height len -> useHeight len selfPtr
 
-instance UseLength Attribute where
+instance UseWidth Attribute where
   width len = Width len
+
+instance UseHeight Attribute where
   height len = Height len
 
 container :: [Attribute] -> Element -> Element

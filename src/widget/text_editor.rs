@@ -1,5 +1,8 @@
+use std::ffi::c_float;
+
 use iced::advanced::text::highlighter::PlainText;
 use iced::widget::{text_editor, TextEditor};
+use iced::{Length, Padding};
 use text_editor::{Action, Content};
 
 use super::{ElementPtr, IcedMessage};
@@ -44,6 +47,31 @@ pub extern "C" fn text_editor_on_action(self_ptr: SelfPtr, on_action: ActionCall
         IcedMessage::ptr(message_ptr)
     });
     Box::into_raw(Box::new(text_editor))
+}
+
+#[no_mangle]
+pub extern "C" fn text_editor_padding(
+    self_ptr: SelfPtr,
+    top: c_float,
+    right: c_float,
+    bottom: c_float,
+    left: c_float,
+) -> SelfPtr {
+    let text_editor = unsafe { Box::from_raw(self_ptr) };
+    let padding = Padding {
+        top,
+        right,
+        bottom,
+        left,
+    };
+    Box::into_raw(Box::new(text_editor.padding(padding)))
+}
+
+#[no_mangle]
+pub extern "C" fn text_editor_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+    let text_editor = unsafe { Box::from_raw(self_ptr) };
+    let height = unsafe { *Box::from_raw(height) };
+    Box::into_raw(Box::new(text_editor.height(height)))
 }
 
 #[no_mangle]

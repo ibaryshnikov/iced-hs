@@ -1,6 +1,7 @@
 use std::ffi::{c_char, c_uint};
 
 use iced::widget::{radio, Radio};
+use iced::Length;
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -26,6 +27,13 @@ pub extern "C" fn radio_new(
     };
     let radio = radio(label, value, selected, on_select);
     Box::into_raw(Box::new(radio))
+}
+
+#[no_mangle]
+pub extern "C" fn radio_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let radio = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(radio.width(width)))
 }
 
 #[no_mangle]

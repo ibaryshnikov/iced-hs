@@ -51,8 +51,10 @@ instance UseAttribute SelfPtr (Attribute message) where
       Width len -> useWidth len selfPtr
       Height len -> useHeight len selfPtr
 
-instance UseLength (Attribute message) where
+instance UseWidth (Attribute message) where
   width len = Width len
+
+instance UseHeight (Attribute message) where
   height len = Height len
 
 button :: [Attribute message] -> String -> Element

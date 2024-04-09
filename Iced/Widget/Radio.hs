@@ -11,16 +11,21 @@ import Foreign.C.String
 import Foreign.C.Types
 
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
 
 data NativeRadio
 type SelfPtr = Ptr NativeRadio
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute
+data Attribute = Width Length
 
 -- label value selected on_select
 foreign import ccall safe "radio_new"
   radio_new :: CString -> CUInt -> CUInt -> FunPtr (NativeOnClick a) -> IO (SelfPtr)
+
+foreign import ccall safe "radio_width"
+  radio_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "radio_into_element"
   radio_into_element :: SelfPtr -> IO (ElementPtr)
@@ -68,9 +73,19 @@ instance Enum option => IntoNative (Radio option message) where
     radio_into_element updatedSelf
 
 instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr _attribute = pure selfPtr
+  useAttribute selfPtr attribute = do
+    case attribute of
+      Width len -> useWidth len selfPtr
+
+instance UseWidth Attribute where
+  width len = Width len
 
 radio :: Enum option
       => [Attribute]
       -> String -> option -> Maybe option -> OnClick option message -> Element
 radio attributes label value selected onClick = pack Radio { .. }
+
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
+  let nativeLen = lengthToNative len
+  radio_width selfPtr nativeLen

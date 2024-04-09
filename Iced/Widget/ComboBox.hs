@@ -16,6 +16,8 @@ import Foreign.C.String
 import Foreign.C.Types
 
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
 
 data NativeComboBox
 type SelfPtr = Ptr NativeComboBox
@@ -27,6 +29,7 @@ type ComboBoxState = State
 data Attribute option message
   = AddOnHover (OnOptionHovered option message)
   | OnClose message
+  | Width Length
 
 -- len options
 foreign import ccall safe "combo_box_state_new"
@@ -44,6 +47,9 @@ foreign import ccall safe "combo_box_on_option_hovered"
 
 foreign import ccall safe "combo_box_on_close"
   combo_box_on_close :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+
+foreign import ccall safe "combo_box_width"
+  combo_box_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "combo_box_into_element"
   combo_box_into_element :: SelfPtr -> IO (ElementPtr)
@@ -102,6 +108,10 @@ instance Read option => UseAttribute SelfPtr (Attribute option message) where
     case attribute of
       AddOnHover callback -> useOnHover callback selfPtr
       OnClose message -> useOnClose message selfPtr
+      Width len -> useWidth len selfPtr
+
+instance UseWidth (Attribute option message) where
+  width len = Width len
 
 comboBox :: (Show option, Read option) => [Attribute option message]
                                        -> State
@@ -128,6 +138,11 @@ useOnHover :: Read option => OnOptionHovered option message -> AttributeFn
 useOnHover callback selfPtr = do
   onHoverPtr <- makeOnHoverCallback $ wrapOnHover callback
   combo_box_on_option_hovered selfPtr onHoverPtr
+
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
+  let nativeLen = lengthToNative len
+  combo_box_width selfPtr nativeLen
 
 newComboBoxState :: Show option => [option] -> IO (State)
 newComboBoxState options = do

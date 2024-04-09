@@ -2,6 +2,7 @@ use std::ffi::c_char;
 
 use combo_box::State;
 use iced::widget::{combo_box, ComboBox};
+use iced::Length;
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -57,6 +58,13 @@ pub extern "C" fn combo_box_on_option_hovered(
     let combo_box = unsafe { Box::from_raw(self_ptr) };
     let callback = super::make_callback_with_string_argument(callback_ffi);
     Box::into_raw(Box::new(combo_box.on_option_hovered(callback)))
+}
+
+#[no_mangle]
+pub extern "C" fn combo_box_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let combo_box = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(combo_box.width(width)))
 }
 
 #[no_mangle]

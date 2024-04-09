@@ -15,8 +15,12 @@ module Iced.Widget.TextEditor (
 -- gonna be removed after the addition of Command api
 import System.IO.Unsafe -- hopefully temporally
 import Foreign
+import Foreign.C.Types
 
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
+import Iced.Padding
 
 data NativeTextEditor
 type SelfPtr = Ptr NativeTextEditor
@@ -26,7 +30,10 @@ type Content = Ptr NativeContent
 data NativeAction
 type Action = Ptr NativeAction
 
-data Attribute message = AddOnAction (OnAction message)
+data Attribute message
+  = AddOnAction (OnAction message)
+  | AddPadding Padding
+  | Height Length
 
 foreign import ccall safe "content_new"
   content_new :: Content
@@ -48,6 +55,13 @@ foreign import ccall safe "text_editor_new"
 
 foreign import ccall safe "text_editor_on_action"
   text_editor_on_action :: SelfPtr -> FunPtr (NativeOnAction message) -> IO (SelfPtr)
+
+-- text_editor top right bottom left
+foreign import ccall safe "text_editor_padding"
+  text_editor_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+
+foreign import ccall safe "text_editor_height"
+  text_editor_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "text_editor_into_element"
   text_editor_into_element :: SelfPtr -> IO (ElementPtr)
@@ -77,6 +91,14 @@ instance UseAttribute SelfPtr (Attribute message) where
   useAttribute selfPtr attribute = do
     case attribute of
       AddOnAction callback -> useOnAction callback selfPtr
+      AddPadding value -> usePadding value selfPtr
+      Height len -> useHeight len selfPtr
+
+instance UsePadding (Attribute message) where
+  paddingToAttribute value = AddPadding value
+
+instance UseHeight (Attribute message) where
+  height len = Height len
 
 textEditor :: [Attribute message] -> Content -> Element
 textEditor attributes content = pack TextEditor { .. }
@@ -88,6 +110,15 @@ useOnAction :: OnAction message -> AttributeFn
 useOnAction callback selfPtr = do
   onActionPtr <- makeCallback $ wrapOnAction callback
   text_editor_on_action selfPtr onActionPtr
+
+usePadding :: Padding -> AttributeFn
+usePadding Padding { .. } selfPtr = do
+  text_editor_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+
+useHeight :: Length -> AttributeFn
+useHeight len selfPtr = do
+  let nativeLen = lengthToNative len
+  text_editor_height selfPtr nativeLen
 
 newContent :: Content
 newContent = content_new

@@ -12,12 +12,14 @@ import Foreign.C.String
 import Foreign.C.Types
 
 import Iced.Element
+import Iced.Length
+import Iced.LengthFFI
 
 data NativePickList
 type SelfPtr = Ptr NativePickList
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = Placeholder String
+data Attribute = Placeholder String | Width Length
 
 -- len options selected on_select
 foreign import ccall safe "pick_list_new"
@@ -25,6 +27,9 @@ foreign import ccall safe "pick_list_new"
 
 foreign import ccall safe "pick_list_placeholder"
   pick_list_placeholder :: SelfPtr -> CString -> IO (SelfPtr)
+
+foreign import ccall safe "pick_list_width"
+  pick_list_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
 
 foreign import ccall safe "pick_list_into_element"
   pick_list_into_element :: SelfPtr -> IO (ElementPtr)
@@ -74,6 +79,10 @@ instance UseAttribute SelfPtr Attribute where
   useAttribute selfPtr attribute = do
     case attribute of
       Placeholder value -> usePlaceholder value selfPtr
+      Width len -> useWidth len selfPtr
+
+instance UseWidth Attribute where
+  width len = Width len
 
 pickList :: (Show option, Read option) => [Attribute]
                                        -> [option]
@@ -89,3 +98,8 @@ usePlaceholder :: String -> AttributeFn
 usePlaceholder value selfPtr = do
   placeholderPtr <- newCString value
   pick_list_placeholder selfPtr placeholderPtr
+
+useWidth :: Length -> AttributeFn
+useWidth len selfPtr = do
+  let nativeLen = lengthToNative len
+  pick_list_width selfPtr nativeLen

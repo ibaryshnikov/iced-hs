@@ -85,8 +85,10 @@ instance UseSpacing Attribute where
 instance UsePadding Attribute where
   paddingToAttribute value = AddPadding value
 
-instance UseLength Attribute where
+instance UseWidth Attribute where
   width len = Width len
+
+instance UseHeight Attribute where
   height len = Height len
 
 column :: [Attribute] -> [Element] -> Element

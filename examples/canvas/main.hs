@@ -4,10 +4,11 @@
 module Main where
 
 import Iced
+import Iced.Attribute
 import Iced.Widget
 import Iced.Widget.Canvas.Shape
 
-data Model = Model { cache :: CanvasCache }
+data Model = Model { state :: CanvasState }
 
 data Message
 
@@ -15,7 +16,7 @@ update :: Model -> Message -> Model
 update model _message = model
 
 view :: Model -> Element
-view model = canvas [] shapes model.cache
+view model = canvas [width Fill, height Fill] shapes model.state
 
 shapes :: [Shape]
 shapes = [
@@ -28,5 +29,8 @@ shapes = [
   ]
 
 main :: IO ()
-main = Iced.run [] "Canvas" model update view
-  where model = Model { cache = newCache }
+main = do
+  state <- newCanvasState
+  let model = Model { state = state }
+  Iced.run [] "Canvas" model update view
+  freeCanvasState state

@@ -46,18 +46,7 @@ instance IntoNative Space where
   toNative details = do
     selfPtr <- makeSpace details
     -- currently no attributes for Space
-    -- updatedSelf <- applyAttributes selfPtr details.attributes
     space_into_element selfPtr
-
---instance UseAttribute SelfPtr Attribute where
---  useAttribute selfPtr attribute = do
---    case attribute of
---      Width len -> useWidth len selfPtr
---      Height len -> useHeight len selfPtr
-
---instance UseLength Attribute where
---  width len = Width len
---  height len = Height len
 
 makeSpace :: Space -> IO (SelfPtr)
 makeSpace kind = case kind of
