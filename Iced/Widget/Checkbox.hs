@@ -6,6 +6,7 @@ module Iced.Widget.Checkbox (
   checkbox,
   onToggle,
   onToggleIf,
+  icon,
   style,
   Style(..),
 ) where
@@ -21,11 +22,20 @@ type SelfPtr = Ptr NativeCheckbox
 type AttributeFn = SelfPtr -> IO SelfPtr
 data NativeStyle
 type StylePtr = Ptr NativeStyle
+data NativeIcon
+type IconPtr = Ptr NativeIcon
 
-data Attribute message = AddOnToggle (OnToggle message) | AddStyle Style | None
+data Attribute message
+  = AddOnToggle (OnToggle message)
+  | AddStyle Style
+  | AddIcon Word32
+  | None
 
 foreign import ccall safe "checkbox_new"
   checkbox_new :: CString -> CBool -> IO (SelfPtr)
+
+foreign import ccall safe "checkbox_icon"
+  checkbox_icon :: SelfPtr -> IconPtr -> IO (SelfPtr)
 
 foreign import ccall safe "checkbox_on_toggle"
   checkbox_on_toggle :: SelfPtr -> FunPtr (NativeOnToggle a) -> IO (SelfPtr)
@@ -51,6 +61,10 @@ foreign import ccall safe "checkbox_success"
 
 foreign import ccall safe "checkbox_danger"
   checkbox_danger :: StylePtr
+
+-- use decimal code points
+foreign import ccall safe "checkbox_icon_new"
+  checkbox_icon_new :: CUInt -> IconPtr
 
 wrapOnToggle :: OnToggle message -> NativeOnToggle message
 wrapOnToggle callback c_bool = do
@@ -78,6 +92,7 @@ instance UseAttribute SelfPtr (Attribute message) where
   useAttribute selfPtr attribute = do
     case attribute of
       AddOnToggle callback -> useOnToggle callback selfPtr
+      AddIcon codePoint -> useIcon codePoint selfPtr
       AddStyle value -> useStyle value selfPtr
       None -> return selfPtr
 
@@ -102,6 +117,14 @@ styleToNative value = case value of
   Secondary -> checkbox_secondary
   Success -> checkbox_success
   Danger -> checkbox_danger
+
+icon :: Word32 -> Attribute message
+icon codePoint = AddIcon codePoint
+
+useIcon :: Word32 -> AttributeFn
+useIcon codePoint selfPtr = do
+  let iconPtr = checkbox_icon_new (CUInt codePoint)
+  checkbox_icon selfPtr iconPtr
 
 style :: Style -> Attribute message
 style value = AddStyle value

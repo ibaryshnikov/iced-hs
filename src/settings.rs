@@ -10,9 +10,9 @@ pub extern "C" fn settings_new() -> *mut Settings<()> {
 }
 
 #[no_mangle]
-pub extern "C" fn settings_add_fonts(settings_ptr: *mut Settings<()>, data: *const u8, len: usize) {
+pub extern "C" fn settings_add_font(settings_ptr: *mut Settings<()>, data: *const u8, len: usize) {
     let mut settings = unsafe { Box::from_raw(settings_ptr) };
-    let fonts = unsafe { from_raw_parts(data, len) };
-    settings.fonts = vec![Cow::from(fonts)];
+    let font = unsafe { from_raw_parts(data, len) };
+    settings.fonts.push(Cow::from(font));
     std::mem::forget(settings);
 }

@@ -1,4 +1,4 @@
-module Iced.Application (run, Attribute(..)) where
+module Iced.Application (run, addFont) where
 
 import Data.Word
 import Foreign
@@ -7,7 +7,7 @@ import Foreign.C.String
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Settings
 
-data Attribute = Fonts [Word8]
+data Attribute = Font [Word8]
 
 type Update model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 
@@ -47,7 +47,7 @@ view_hs view modelPtr = do
 useAttribute :: SettingsPtr -> Attribute -> IO ()
 useAttribute settingsPtr attribute = do
   case attribute of
-    Fonts bytes -> addFonts settingsPtr bytes
+    Font bytes -> useFont settingsPtr bytes
 
 applyAttributes :: SettingsPtr -> [Attribute] -> IO ()
 applyAttributes _settingsPtr [] = pure ()
@@ -64,3 +64,6 @@ run attributes title model update view = do
   settingsPtr <- newSettings
   applyAttributes settingsPtr attributes
   run_app_ffi settingsPtr titlePtr modelPtr updatePtr viewPtr
+
+addFont :: [Word8] -> Attribute
+addFont bytes = Font bytes
