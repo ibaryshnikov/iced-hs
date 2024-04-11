@@ -1,9 +1,9 @@
-module Iced.LengthFFI where
+module Iced.Attribute.LengthFFI where
 
 import Foreign
 import Foreign.C.Types
 
-import Iced.Length
+import Iced.Attribute.Length
 
 data NativeLength
 type LengthPtr = Ptr NativeLength

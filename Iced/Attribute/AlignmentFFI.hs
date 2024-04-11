@@ -1,8 +1,8 @@
-module Iced.AlignmentFFI where
+module Iced.Attribute.AlignmentFFI where
 
 import Foreign
 
-import Iced.Alignment
+import Iced.Attribute.Alignment
 
 data NativeAlignment
 type AlignmentPtr = Ptr NativeAlignment

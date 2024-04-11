@@ -15,9 +15,9 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
 
 data NativeComboBox
 type SelfPtr = Ptr NativeComboBox

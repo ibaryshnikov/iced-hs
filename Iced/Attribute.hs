@@ -1,13 +1,13 @@
 module Iced.Attribute (
-    module Iced.Alignment,
-    module Iced.Length,
-    module Iced.Padding,
-    module Iced.Size,
-    module Iced.Spacing,
+    module Iced.Attribute.Alignment,
+    module Iced.Attribute.Length,
+    module Iced.Attribute.Padding,
+    module Iced.Attribute.Size,
+    module Iced.Attribute.Spacing,
 ) where
 
-import Iced.Alignment
-import Iced.Length
-import Iced.Padding
-import Iced.Size
-import Iced.Spacing
+import Iced.Attribute.Alignment
+import Iced.Attribute.Length
+import Iced.Attribute.Padding
+import Iced.Attribute.Size
+import Iced.Attribute.Spacing

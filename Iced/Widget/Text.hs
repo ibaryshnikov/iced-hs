@@ -10,10 +10,10 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
+import Iced.Attribute.Size
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
-import Iced.Size
 
 data NativeText
 type SelfPtr = Ptr NativeText

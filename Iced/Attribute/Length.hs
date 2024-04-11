@@ -1,4 +1,4 @@
-module Iced.Length where
+module Iced.Attribute.Length where
 
 import Data.Word
 

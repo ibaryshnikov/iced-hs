@@ -10,11 +10,11 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
+import Iced.Attribute.Size
+import Iced.Attribute.Spacing
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
-import Iced.Size
-import Iced.Spacing
 
 data NativeToggler
 type SelfPtr = Ptr NativeToggler

@@ -13,9 +13,9 @@ module Iced.Widget.Canvas (
 import Foreign
 import System.IO.Unsafe -- to run clearCache without IO
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
 import Iced.Widget.Canvas.Path
 import Iced.Widget.Canvas.Shape
 

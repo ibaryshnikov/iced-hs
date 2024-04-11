@@ -1,4 +1,4 @@
-module Iced.Alignment where
+module Iced.Attribute.Alignment where
 
 data Alignment = Start | Center | End
 

@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Padding where
+module Iced.Attribute.Padding where
 
 data Padding = Padding {
   top :: Float,

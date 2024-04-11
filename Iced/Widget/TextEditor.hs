@@ -17,10 +17,10 @@ import System.IO.Unsafe -- hopefully temporally
 import Foreign
 import Foreign.C.Types
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
+import Iced.Attribute.Padding
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
-import Iced.Padding
 
 data NativeTextEditor
 type SelfPtr = Ptr NativeTextEditor

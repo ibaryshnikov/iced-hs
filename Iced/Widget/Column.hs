@@ -9,13 +9,13 @@ module Iced.Widget.Column (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Alignment
-import Iced.AlignmentFFI
+import Iced.Attribute.Alignment
+import Iced.Attribute.AlignmentFFI
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
+import Iced.Attribute.Padding
+import Iced.Attribute.Spacing
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
-import Iced.Padding
-import Iced.Spacing
 
 data NativeColumn
 type SelfPtr = Ptr NativeColumn

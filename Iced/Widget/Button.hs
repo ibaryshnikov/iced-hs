@@ -7,9 +7,9 @@ module Iced.Widget.Button (button, onPress) where
 import Foreign
 import Foreign.C.String
 
+import Iced.Attribute.Length
+import Iced.Attribute.LengthFFI
 import Iced.Element
-import Iced.Length
-import Iced.LengthFFI
 
 data NativeButton
 type SelfPtr = Ptr NativeButton
