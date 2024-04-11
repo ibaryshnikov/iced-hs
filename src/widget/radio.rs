@@ -7,14 +7,14 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Radio<IcedMessage>;
 
-type OnSelect = unsafe extern "C" fn(selected: c_uint) -> *const u8;
+type OnSelectFFI = unsafe extern "C" fn(selected: c_uint) -> *const u8;
 
 #[no_mangle]
 pub extern "C" fn radio_new(
     label_ptr: *mut c_char, // CString
     value: c_uint,          // Case number starting with 1
     selected_raw: c_uint,   // Case number, 0 converted to None
-    on_select_ffi: OnSelect,
+    on_select_ffi: OnSelectFFI,
 ) -> SelfPtr {
     let label = read_c_string(label_ptr);
     let selected = match selected_raw {

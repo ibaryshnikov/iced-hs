@@ -31,6 +31,7 @@ data Attribute message
   | AddIcon Word32
   | None
 
+-- label is_checked
 foreign import ccall safe "checkbox_new"
   checkbox_new :: CString -> CBool -> IO (SelfPtr)
 

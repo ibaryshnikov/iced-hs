@@ -41,14 +41,13 @@ update model message = case message of
 view :: Model -> Element
 view model =
   container [width Fill, height Fill, centerX, centerY] $
-  scrollable [] $
   column [width Fill, alignItems Center, spacing 10] [
     text [] model.text,
     text [] "What is your language?",
     widget,
     spaceHeight (Fixed 150)
   ] where
-    widget = comboBox [onOptionHovered OptionHovered, onClose Closed, width (Fixed 250)]
+    widget = comboBox [width (Fixed 250), onOptionHovered OptionHovered, onClose Closed]
       model.languages "Type a language..." model.selected Selected
 
 hello :: Language -> String

@@ -89,7 +89,7 @@ is currently small, but growing over time.
    - [x] text
    - [x] textEditor
    - [x] textInput
-   - [ ] toggler
+   - [x] toggler
    - [x] tooltip
  - [ ] Add helper functions
    - [ ] responsive

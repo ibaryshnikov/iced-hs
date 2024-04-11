@@ -9,8 +9,8 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;
 
-type OnSelect = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
-type OnOptionHovered = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnOptionHoveredFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
 pub extern "C" fn combo_box_state_new(
@@ -32,12 +32,12 @@ pub extern "C" fn combo_box_new(
     state_ptr: StatePtr,
     placeholder_ptr: *mut c_char, // CString
     selected_ptr: *mut c_char,    // CString
-    on_select_ffi: OnSelect,
+    on_select_ffi: OnSelectFFI,
 ) -> SelfPtr {
     let state = unsafe { Box::from_raw(state_ptr) };
     let placeholder = read_c_string(placeholder_ptr);
     let selected = super::read_c_string_to_option(selected_ptr);
-    let on_select = super::make_callback_with_string_argument(on_select_ffi);
+    let on_select = super::wrap_callback_with_string(on_select_ffi);
     // track State in Haskell
     let combo_box = combo_box(Box::leak(state), &placeholder, selected.as_ref(), on_select);
     Box::into_raw(Box::new(combo_box))
@@ -53,10 +53,10 @@ pub extern "C" fn combo_box_on_close(self_ptr: SelfPtr, message_ptr: *const u8) 
 #[no_mangle]
 pub extern "C" fn combo_box_on_option_hovered(
     self_ptr: SelfPtr,
-    callback_ffi: OnOptionHovered,
+    callback_ffi: OnOptionHoveredFFI,
 ) -> SelfPtr {
     let combo_box = unsafe { Box::from_raw(self_ptr) };
-    let callback = super::make_callback_with_string_argument(callback_ffi);
+    let callback = super::wrap_callback_with_string(callback_ffi);
     Box::into_raw(Box::new(combo_box.on_option_hovered(callback)))
 }
 

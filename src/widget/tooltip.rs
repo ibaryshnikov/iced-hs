@@ -3,7 +3,7 @@ use std::ffi::{c_float, c_uchar};
 use iced::widget::tooltip::Position;
 use iced::widget::{self, Tooltip};
 
-use super::{ElementPtr, IcedMessage};
+use super::{read_c_bool, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Tooltip<'static, IcedMessage>;
 
@@ -21,7 +21,7 @@ pub extern "C" fn tooltip_new(
         3 => Position::Bottom,
         4 => Position::Left,
         5 => Position::Right,
-        other => panic!("Unexpected Position value: {}", other),
+        other => panic!("Unexpected Position value: {other}"),
     };
     Box::into_raw(Box::new(widget::tooltip(content, tooltip, position)))
 }
@@ -41,11 +41,7 @@ pub extern "C" fn tooltip_padding(self_ptr: SelfPtr, padding: c_float) -> SelfPt
 #[no_mangle]
 pub extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uchar) -> SelfPtr {
     let tooltip = unsafe { Box::from_raw(self_ptr) };
-    let snap = match snap_raw {
-        0 => false,
-        1 => true,
-        other => panic!("Unexpected snap value: {}", other),
-    };
+    let snap = read_c_bool(snap_raw);
     Box::into_raw(Box::new(tooltip.snap_within_viewport(snap)))
 }
 

@@ -1,4 +1,4 @@
-use std::ffi::{c_char, CString};
+use std::ffi::{c_char, c_uchar, CString};
 
 mod button;
 mod canvas;
@@ -14,6 +14,7 @@ mod space;
 mod text;
 mod text_editor;
 mod text_input;
+mod toggler;
 mod tooltip;
 
 use crate::IcedMessage;
@@ -25,6 +26,14 @@ pub(crate) fn read_c_string(input: *mut c_char) -> String {
     c_string
         .into_string()
         .expect("Should convert CString to String")
+}
+
+fn read_c_bool(input: c_uchar) -> bool {
+    match input {
+        0 => false,
+        1 => true,
+        other => panic!("Non boolean value passed as CBool: {other}"),
+    }
 }
 
 fn read_array_of_c_strings(
@@ -51,17 +60,24 @@ fn read_c_string_to_option(input: *mut c_char) -> Option<String> {
     }
 }
 
-type CallbackForCString = unsafe extern "C" fn(string: *mut c_char) -> *const u8;
+type CallbackForCString = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
 
-fn make_callback_with_string_argument(
-    callback: CallbackForCString,
-) -> impl Fn(String) -> IcedMessage {
+fn wrap_callback_with_string(callback: CallbackForCString) -> impl Fn(String) -> IcedMessage {
     move |input| {
         let c_string = CString::new(input).expect("Should create a CString");
         let string_ptr = c_string.into_raw();
         let message_ptr = unsafe { callback(string_ptr) };
         // free CString
         let _ = unsafe { CString::from_raw(string_ptr) };
+        IcedMessage::ptr(message_ptr)
+    }
+}
+
+type CallbackForCBool = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+
+fn wrap_callback_with_bool(callback: CallbackForCBool) -> impl Fn(bool) -> IcedMessage {
+    move |input| {
+        let message_ptr = unsafe { callback(input.into()) };
         IcedMessage::ptr(message_ptr)
     }
 }

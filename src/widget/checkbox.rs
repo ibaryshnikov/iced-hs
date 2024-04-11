@@ -4,32 +4,25 @@ use checkbox::Icon;
 use iced::widget::{checkbox, text, Checkbox};
 use iced::{theme, Font};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
 
-type ToggleCallback = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn checkbox_new(input: *mut c_char, value: c_uchar) -> SelfPtr {
+pub extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
     let label = read_c_string(input);
-    let is_checked = match value {
-        0 => false,
-        1 => true,
-        _ => panic!("Non boolean value passed to checkbox"),
-    };
+    let is_checked = read_c_bool(is_checked_raw);
     Box::into_raw(Box::new(checkbox(label, is_checked)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle: ToggleCallback) -> SelfPtr {
+pub extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle_ffi: OnToggleFFI) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
-    let checkbox = checkbox.on_toggle(move |new_value| {
-        let message_ptr = unsafe { on_toggle(new_value.into()) };
-        IcedMessage::ptr(message_ptr)
-    });
-    Box::into_raw(Box::new(checkbox))
+    let on_toggle = super::wrap_callback_with_bool(on_toggle_ffi);
+    Box::into_raw(Box::new(checkbox.on_toggle(on_toggle)))
 }
 
 #[no_mangle]

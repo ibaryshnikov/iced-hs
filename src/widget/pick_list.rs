@@ -7,19 +7,18 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 
-type OnSelect = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
 pub extern "C" fn pick_list_new(
     len: usize,
     options_ptr: *const *mut c_char, // array of CString
     selected_ptr: *mut c_char,       // CString
-    on_select_ffi: OnSelect,
+    on_select_ffi: OnSelectFFI,
 ) -> SelfPtr {
     let selected = super::read_c_string_to_option(selected_ptr);
-
     let options = super::read_array_of_c_strings(len, options_ptr);
-    let on_select = super::make_callback_with_string_argument(on_select_ffi);
+    let on_select = super::wrap_callback_with_string(on_select_ffi);
     let pick_list = pick_list(options, selected, on_select);
     Box::into_raw(Box::new(pick_list))
 }

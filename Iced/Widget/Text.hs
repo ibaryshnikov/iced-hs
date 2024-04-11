@@ -4,7 +4,6 @@
 
 module Iced.Widget.Text (
   text,
-  size,
 ) where
 
 import Foreign
@@ -14,6 +13,7 @@ import Foreign.C.Types
 import Iced.Element
 import Iced.Length
 import Iced.LengthFFI
+import Iced.Size
 
 data NativeText
 type SelfPtr = Ptr NativeText
@@ -52,6 +52,9 @@ instance UseAttribute SelfPtr Attribute where
       Width len -> useWidth len selfPtr
       Height len -> useHeight len selfPtr
 
+instance UseSize Attribute where
+  size value = Size value
+
 instance UseWidth Attribute where
   width len = Width len
 
@@ -60,9 +63,6 @@ instance UseHeight Attribute where
 
 text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }
-
-size :: Float -> Attribute
-size value = Size value
 
 useSize :: Float -> AttributeFn
 useSize value selfPtr = do
