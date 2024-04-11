@@ -9,24 +9,21 @@ import Iced.Settings
 
 data Attribute = Font [Word8]
 
-type Update model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
-
-type View model = StablePtr model -> IO (ElementPtr)
+foreign import ccall safe "run_app"
+  run_app :: SettingsPtr
+          -> CString
+          -> StablePtr model
+          -> FunPtr (NativeUpdate model message)
+          -> FunPtr (NativeView model)
+          -> IO ()
 
 foreign import ccall "wrapper"
-  makeUpdateCallback :: Update model message -> IO (FunPtr (Update model message))
+  makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-foreign import ccall "wrapper"
-  makeViewCallback :: View model -> IO (FunPtr (View model))
+type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 
-foreign import ccall safe "run_app" run_app_ffi ::
-  SettingsPtr -> CString -> StablePtr model
-  -> FunPtr (Update model message) -> FunPtr (View model) -> IO ()
-
-type UpdateCallback model message = model -> message -> model
-
-update_hs :: UpdateCallback model message -> StablePtr model -> StablePtr message -> IO (StablePtr model)
-update_hs update model_ptr message_ptr = do
+wrapUpdate :: Update model message -> StablePtr model -> StablePtr message -> IO (StablePtr model)
+wrapUpdate update model_ptr message_ptr = do
   model <- deRefStablePtr model_ptr
   message <- deRefStablePtr message_ptr
   let newModel = update model message
@@ -37,10 +34,13 @@ update_hs update model_ptr message_ptr = do
   -- others are Input String, and must be deallocated
   newStablePtr newModel
 
-type ViewCallback model = model -> Element
+foreign import ccall "wrapper"
+  makeViewCallback :: NativeView model -> IO (FunPtr (NativeView model))
 
-view_hs :: ViewCallback model -> StablePtr model -> IO (ElementPtr)
-view_hs view modelPtr = do
+type NativeView model = StablePtr model -> IO (ElementPtr)
+
+wrapView :: View model -> StablePtr model -> IO (ElementPtr)
+wrapView view modelPtr = do
   model <- deRefStablePtr modelPtr
   elementToNative $ view model
 
@@ -55,15 +55,18 @@ applyAttributes settingsPtr (attribute:remaining) = do
   useAttribute settingsPtr attribute
   applyAttributes settingsPtr remaining
 
-run :: [Attribute] -> String -> model -> UpdateCallback model message -> ViewCallback model -> IO ()
+type Update model message = model -> message -> model
+type View model = model -> Element
+
+run :: [Attribute] -> String -> model -> Update model message -> View model -> IO ()
 run attributes title model update view = do
   titlePtr <- newCString title
   modelPtr <- newStablePtr model
-  updatePtr <- makeUpdateCallback $ update_hs update
-  viewPtr <- makeViewCallback $ view_hs view
+  updatePtr <- makeUpdateCallback $ wrapUpdate update
+  viewPtr <- makeViewCallback $ wrapView view
   settingsPtr <- newSettings
   applyAttributes settingsPtr attributes
-  run_app_ffi settingsPtr titlePtr modelPtr updatePtr viewPtr
+  run_app settingsPtr titlePtr modelPtr updatePtr viewPtr
 
 addFont :: [Word8] -> Attribute
 addFont bytes = Font bytes
