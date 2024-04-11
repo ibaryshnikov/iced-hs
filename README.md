@@ -80,6 +80,7 @@ is currently small, but growing over time.
    - [x] pickList
    - [ ] qrCode
    - [x] radio
+   - [x] responsive
    - [ ] horizontalRule, verticalRule
    - [x] row
    - [x] scrollable
@@ -92,7 +93,6 @@ is currently small, but growing over time.
    - [x] toggler
    - [x] tooltip
  - [ ] Add helper functions
-   - [ ] responsive
    - [ ] lazy
    - [ ] themer
    - [ ] focusNext, focusPrevious

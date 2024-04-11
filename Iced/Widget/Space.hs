@@ -58,6 +58,20 @@ makeSpace kind = case kind of
   Horizontal -> horizontal_space_new
   Vertical -> vertical_space_new
 
+-- todo: find a way to fix Ambiguous type variable error
+-- in
+-- spaceWidth :: IntoLength a => a -> Element
+-- spaceWidth value = pack $ Width (intoLength value)
+--
+--class IntoLength a where
+--  intoLength :: a -> Length
+--
+--instance IntoLength Float where
+--  intoLength a = Fixed a
+--
+--instance IntoLength Length where
+--  intoLength a = a
+
 space :: Length -> Length -> Element
 space w h = pack $ Space w h
 

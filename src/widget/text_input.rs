@@ -17,7 +17,7 @@ pub extern "C" fn text_input_new(placeholder: *mut c_char, value: *mut c_char) -
 
 #[no_mangle]
 pub extern "C" fn text_input_on_input(self_ptr: SelfPtr, on_input_ffi: OnInputFFI) -> SelfPtr {
-    let mut text_input = unsafe { *Box::from_raw(self_ptr) };
+    let text_input = unsafe { *Box::from_raw(self_ptr) };
     let on_input = super::wrap_callback_with_string(on_input_ffi);
     Box::into_raw(Box::new(text_input.on_input(on_input)))
 }
