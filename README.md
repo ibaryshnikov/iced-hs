@@ -39,6 +39,31 @@ main :: IO ()
 main = Iced.run [] "Counter" 0 update view
 ```
 
+For `update` function there are two
+signatures accepted:
+
+```haskell
+update :: Model -> Message -> Model
+update :: Model -> Message -> (Model, Command)
+```
+
+When return type is `Model`, then `Command`
+is assumed to be `None`. `Command` api itself
+is currently WIP, but here's the foundation for it.
+
+There are also two possible signatures for `title`:
+
+```haskell
+title :: String
+title :: Model -> String
+```
+
+For example
+
+```haskell
+title :: Int -> String
+title value = "Counter " ++ show value
+```
 
 ## Usage
 
@@ -110,6 +135,11 @@ is currently small, but growing over time.
  - [ ] Subscriptions
    - [ ] keyboard events
    - [ ] other events
- - [ ] Command api, changing `update` to `:: Model -> Message -> (Model, Command)`
+ - [ ] Command api
+   - [x] implement two signatures for `update` function:
+     - `Model -> Message -> Model`
+     - `Model -> Message -> (Model, Command)`
+   - [ ] `Command.perform`
+   - [ ] other commands
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles and themes

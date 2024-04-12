@@ -1,9 +1,15 @@
-module Iced.Application (run, addFont) where
+{-# LANGUAGE FunctionalDependencies #-}
+
+module Iced.Application (
+  run,
+  addFont,
+) where
 
 import Data.Word
 import Foreign
 import Foreign.C.String
 
+import Iced.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Settings
 
@@ -11,35 +17,47 @@ data Attribute = Font [Word8]
 
 foreign import ccall safe "run_app"
   run_app :: SettingsPtr
-          -> CString
+          -> FunPtr (NativeTitle model)
           -> StablePtr model
           -> FunPtr (NativeUpdate model message)
           -> FunPtr (NativeView model)
           -> IO ()
 
+type NativeTitle model = StablePtr model -> IO (CString)
+foreign import ccall "wrapper"
+  makeTitleCallback :: NativeTitle model -> IO (FunPtr (NativeTitle model))
+
+wrapTitle :: IntoTitle title model String
+          => Title title
+          -> NativeTitle model
+wrapTitle title modelPtr = do
+  model <- deRefStablePtr modelPtr
+  newCString $ intoTitle title model
+
+type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
 foreign import ccall "wrapper"
   makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
-
-wrapUpdate :: Update model message -> StablePtr model -> StablePtr message -> IO (StablePtr model)
-wrapUpdate update model_ptr message_ptr = do
-  model <- deRefStablePtr model_ptr
-  message <- deRefStablePtr message_ptr
-  let newModel = update model message
+wrapUpdate :: IntoCommand model message result (model, Command)
+           => Update model message result
+           -> NativeUpdate model message
+wrapUpdate update modelPtr messagePtr = do
+  model <- deRefStablePtr modelPtr
+  message <- deRefStablePtr messagePtr
+  -- keep command for future use
+  let (newModel, _command) = intoCommand update model message
   -- better call it from Rust after we change the pointer to a new one
-  freeStablePtr model_ptr
-  -- do something with message_ptr too
+  freeStablePtr modelPtr
+  -- do something with messagePtr too
   -- some messages are just Inc | Dec, and persist
   -- others are Input String, and must be deallocated
   newStablePtr newModel
 
+type NativeView model = StablePtr model -> IO (ElementPtr)
 foreign import ccall "wrapper"
   makeViewCallback :: NativeView model -> IO (FunPtr (NativeView model))
 
-type NativeView model = StablePtr model -> IO (ElementPtr)
-
-wrapView :: View model -> StablePtr model -> IO (ElementPtr)
+wrapView :: View model -> NativeView model
 wrapView view modelPtr = do
   model <- deRefStablePtr modelPtr
   elementToNative $ view model
@@ -55,12 +73,53 @@ applyAttributes settingsPtr (attribute:remaining) = do
   useAttribute settingsPtr attribute
   applyAttributes settingsPtr remaining
 
-type Update model message = model -> message -> model
+type Title title = title
+type Update model message result = model -> message -> result
 type View model = model -> Element
 
-run :: [Attribute] -> String -> model -> Update model message -> View model -> IO ()
+--
+-- key class to support two signatures
+-- of update function, namely:
+-- update :: Model -> Message -> Model
+-- update :: Model -> Message -> (Model, Command)
+--
+class IntoCommand model message result tuple | model message result -> tuple where
+  intoCommand :: (model -> message -> result) -> model -> message -> tuple
+
+instance IntoCommand model message model (model, Command) where
+  intoCommand update model message = (update model message, None)
+
+instance IntoCommand model message (model, Command) (model, Command) where
+  intoCommand update = update
+
+--
+-- this class will allow two signatures
+-- for title function:
+-- title :: String
+-- title :: Model -> String
+--
+class IntoTitle title model result | title model -> result where
+  intoTitle :: title -> model -> result
+
+instance IntoTitle String model String where
+  intoTitle title _model = title
+
+instance IntoTitle (model -> String) model String where
+  intoTitle title = title
+
+run :: (
+       IntoCommand model message result (model, Command),
+       IntoTitle title model String
+       )
+    => [Attribute]
+    -> Title title
+    -> model
+    -> Update model message result
+    -> View model
+    -> IO ()
+
 run attributes title model update view = do
-  titlePtr <- newCString title
+  titlePtr <- makeTitleCallback $ wrapTitle title
   modelPtr <- newStablePtr model
   updatePtr <- makeUpdateCallback $ wrapUpdate update
   viewPtr <- makeViewCallback $ wrapView view
