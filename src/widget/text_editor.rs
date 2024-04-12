@@ -1,33 +1,39 @@
-use std::ffi::c_float;
+use std::ffi::{c_char, c_float};
 
 use iced::advanced::text::highlighter::PlainText;
 use iced::widget::{text_editor, TextEditor};
 use iced::{Length, Padding};
 use text_editor::{Action, Content};
 
-use super::{ElementPtr, IcedMessage};
+use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextEditor<'static, PlainText, IcedMessage>;
 
 type OnActionFFI = unsafe extern "C" fn(action: *mut Action) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn content_new() -> *mut Content {
+pub extern "C" fn text_editor_content_new() -> *mut Content {
     Box::into_raw(Box::new(Content::new()))
 }
 
 #[no_mangle]
-pub extern "C" fn content_free(pointer: *mut Content) {
-    let _ = unsafe { Box::from_raw(pointer) };
+pub extern "C" fn text_editor_content_with_text(input_ptr: *mut c_char) -> *mut Content {
+    let input = read_c_string(input_ptr);
+    Box::into_raw(Box::new(Content::with_text(&input)))
 }
 
 #[no_mangle]
-pub extern "C" fn content_perform(pointer: *mut Content, action: *mut Action) {
+pub extern "C" fn text_editor_content_perform(pointer: *mut Content, action: *mut Action) {
     let mut content = unsafe { Box::from_raw(pointer) };
     let action = unsafe { Box::from_raw(action) };
     content.perform(*action);
     // don't drop content yet
     std::mem::forget(content);
+}
+
+#[no_mangle]
+pub extern "C" fn text_editor_content_free(pointer: *mut Content) {
+    let _ = unsafe { Box::from_raw(pointer) };
 }
 
 #[no_mangle]

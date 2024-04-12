@@ -58,7 +58,7 @@ title :: String
 title :: Model -> String
 ```
 
-For example
+For example:
 
 ```haskell
 title :: Int -> String
@@ -139,7 +139,8 @@ is currently small, but growing over time.
    - [x] implement two signatures for `update` function:
      - `Model -> Message -> Model`
      - `Model -> Message -> (Model, Command)`
-   - [ ] `Command.perform`
+   - [x] `Command.Perform` - initial version, handling `IO (Message)`
+   - [ ] handle Rust `Future`
    - [ ] other commands
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles and themes

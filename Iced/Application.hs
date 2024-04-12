@@ -34,24 +34,49 @@ wrapTitle title modelPtr = do
   model <- deRefStablePtr modelPtr
   newCString $ intoTitle title model
 
-type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (StablePtr model)
+type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (UpdateResultPtr)
 foreign import ccall "wrapper"
   makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-wrapUpdate :: IntoCommand model message result (model, Command)
+wrapUpdate :: IntoCommand model message result (model, Command message)
            => Update model message result
            -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
   model <- deRefStablePtr modelPtr
   message <- deRefStablePtr messagePtr
   -- keep command for future use
-  let (newModel, _command) = intoCommand update model message
+  let (newModel, command) = intoCommand update model message
   -- better call it from Rust after we change the pointer to a new one
   freeStablePtr modelPtr
   -- do something with messagePtr too
   -- some messages are just Inc | Dec, and persist
   -- others are Input String, and must be deallocated
-  newStablePtr newModel
+  newModelPtr <- newStablePtr newModel
+  updateResultPtr <- update_result_new newModelPtr
+  case command of
+    None -> return updateResultPtr
+    Perform callback -> do
+      callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
+      update_result_add_command updateResultPtr callbackPtr
+      return updateResultPtr
+
+data NativeUpdateResult
+type UpdateResultPtr = Ptr NativeUpdateResult
+
+foreign import ccall safe "update_result_new"
+  update_result_new :: StablePtr model -> IO (UpdateResultPtr)
+
+foreign import ccall safe "update_result_add_command"
+  update_result_add_command :: UpdateResultPtr-> FunPtr (NativeCommandPerform message) -> IO ()
+
+type NativeCommandPerform message = IO (StablePtr message)
+foreign import ccall "wrapper"
+  makeCommandPerformCallback :: NativeCommandPerform message -> IO (FunPtr (NativeCommandPerform message))
+
+wrapCommandPerform :: IO (message) -> NativeCommandPerform message
+wrapCommandPerform callback = do
+  message <- callback
+  newStablePtr message
 
 type NativeView model = StablePtr model -> IO (ElementPtr)
 foreign import ccall "wrapper"
@@ -86,10 +111,10 @@ type View model = model -> Element
 class IntoCommand model message result tuple | model message result -> tuple where
   intoCommand :: (model -> message -> result) -> model -> message -> tuple
 
-instance IntoCommand model message model (model, Command) where
+instance IntoCommand model message model (model, Command message) where
   intoCommand update model message = (update model message, None)
 
-instance IntoCommand model message (model, Command) (model, Command) where
+instance IntoCommand model message (model, Command message) (model, Command message) where
   intoCommand update = update
 
 --
@@ -108,7 +133,7 @@ instance IntoTitle (model -> String) model String where
   intoTitle title = title
 
 run :: (
-       IntoCommand model message result (model, Command),
+       IntoCommand model message result (model, Command message),
        IntoTitle title model String
        )
     => [Attribute]

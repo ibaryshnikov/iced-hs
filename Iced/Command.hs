@@ -1,4 +1,4 @@
 module Iced.Command where
 
 -- placeholder for a future Command api
-data Command = Perform | None
+data Command message = Perform (IO (message)) | None

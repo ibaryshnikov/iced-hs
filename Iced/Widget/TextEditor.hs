@@ -5,6 +5,7 @@
 module Iced.Widget.TextEditor (
   textEditor,
   newContent,
+  contentWithText,
   applyAction,
   Action,
   Content,
@@ -15,6 +16,7 @@ module Iced.Widget.TextEditor (
 -- gonna be removed after the addition of Command api
 import System.IO.Unsafe -- hopefully temporally
 import Foreign
+import Foreign.C.String
 import Foreign.C.Types
 
 import Iced.Attribute.Length
@@ -35,19 +37,22 @@ data Attribute message
   | AddPadding Padding
   | Height Length
 
-foreign import ccall safe "content_new"
-  content_new :: Content
+foreign import ccall safe "text_editor_content_new"
+  text_editor_content_new :: Content
 
-foreign import ccall safe "content_perform"
-  content_perform :: Content -> Action -> IO ()
+foreign import ccall safe "text_editor_content_with_text"
+  text_editor_content_with_text :: CString -> IO (Content)
+
+foreign import ccall safe "text_editor_content_perform"
+  text_editor_content_perform :: Content -> Action -> IO ()
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall safe "free_content"
---  free_content :: Content -> ()
+--foreign import ccall safe "text_editor_content_free"
+--  text_editor_content_free :: Content -> ()
 
 applyAction :: Content -> Action -> Content
 applyAction content action = unsafePerformIO $ do -- todo: make it a Command
-  content_perform content action
+  text_editor_content_perform content action
   return content
 
 foreign import ccall safe "text_editor_new"
@@ -121,4 +126,9 @@ useHeight len selfPtr = do
   text_editor_height selfPtr nativeLen
 
 newContent :: Content
-newContent = content_new
+newContent = text_editor_content_new
+
+contentWithText :: String -> IO (Content)
+contentWithText value = do
+  stringPtr <- newCString value
+  text_editor_content_with_text stringPtr

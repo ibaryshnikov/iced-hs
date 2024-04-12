@@ -3,16 +3,18 @@ use std::ffi::c_char;
 use iced::{Application, Command, Element, Settings, Theme};
 
 mod alignment;
+mod command;
 mod length;
 mod settings;
 mod widget;
 
+use command::UpdateResult;
 use widget::read_c_string;
 
 type Model = *const u8;
 type Message = *const u8;
 type Title = unsafe extern "C" fn(model: Model) -> *mut c_char;
-type Update = unsafe extern "C" fn(model: Model, message: Message) -> Model;
+type Update = unsafe extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
 type View = unsafe extern "C" fn(model: Model) -> widget::ElementPtr;
 
 #[derive(Debug, Clone)]
@@ -25,6 +27,7 @@ unsafe impl Sync for HaskellMessage {}
 #[derive(Clone, Debug)]
 pub enum IcedMessage {
     Ptr(HaskellMessage),
+    None,
 }
 
 impl IcedMessage {
@@ -72,8 +75,37 @@ impl Application for App {
     fn update(&mut self, message: IcedMessage) -> Command<IcedMessage> {
         match message {
             IcedMessage::Ptr(message) => {
-                self.model = unsafe { (self.update_hs)(self.model, message.ptr) };
+                let result_ptr = unsafe { (self.update_hs)(self.model, message.ptr) };
+                let result = unsafe { Box::from_raw(result_ptr) };
+                self.model = result.model_ptr;
+                if let Some(command_hs) = result.command {
+                    let (sender, receiver) = tokio::sync::oneshot::channel();
+                    let _handle = std::thread::spawn(move || {
+                        let message_ptr = unsafe { command_hs() };
+                        let message = IcedMessage::ptr(message_ptr);
+                        if sender.send(message).is_err() {
+                            println!("Error writing to channel in Command::perform");
+                        }
+                    });
+                    let command = Command::perform(
+                        async move {
+                            match receiver.await {
+                                Ok(message) => Some(message),
+                                Err(e) => {
+                                    println!(
+                                        "Error reading from channel in Command::perform: {}",
+                                        e
+                                    );
+                                    None
+                                }
+                            }
+                        },
+                        |maybe_message| maybe_message.unwrap_or(IcedMessage::None),
+                    );
+                    return command;
+                }
             }
+            IcedMessage::None => (),
         }
 
         Command::none()
