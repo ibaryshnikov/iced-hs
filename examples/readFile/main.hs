@@ -22,7 +22,7 @@ update :: Model -> Message -> (Model, Command Message)
 update model message = case message of
   EditorAction action -> (model { content = applyAction model.content action }, None)
   FileContents content -> (model { content = content }, None)
-  ReadFile -> (model, Perform commandFn)
+  ReadFile -> (model, PerformIO commandFn)
 
 view :: Model -> Element
 view model = column [] [

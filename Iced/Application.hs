@@ -12,6 +12,7 @@ import Foreign.C.String
 import Iced.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Settings
+import Iced.Time
 
 data Attribute = Font [Word8]
 
@@ -51,14 +52,24 @@ wrapUpdate update modelPtr messagePtr = do
   -- do something with messagePtr too
   -- some messages are just Inc | Dec, and persist
   -- others are Input String, and must be deallocated
-  newModelPtr <- newStablePtr newModel
-  updateResultPtr <- update_result_new newModelPtr
-  case command of
-    None -> return updateResultPtr
-    Perform callback -> do
-      callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
-      update_result_add_command updateResultPtr callbackPtr
-      return updateResultPtr
+  packResult newModel command
+
+packResult :: model -> Command message -> IO (UpdateResultPtr)
+packResult model command = do
+  modelPtr <- newStablePtr model
+  resultPtr <- update_result_new modelPtr
+  packCommand resultPtr command
+
+packCommand :: UpdateResultPtr -> Command message -> IO (UpdateResultPtr)
+packCommand resultPtr None = pure resultPtr
+packCommand resultPtr (PerformIO callback) = do
+  callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
+  update_result_add_command_io resultPtr callbackPtr
+  return resultPtr
+packCommand resultPtr (Perform packedFuture) = do
+  future <- intoFuture packedFuture
+  update_result_add_command_future resultPtr future
+  return resultPtr
 
 data NativeUpdateResult
 type UpdateResultPtr = Ptr NativeUpdateResult
@@ -66,8 +77,13 @@ type UpdateResultPtr = Ptr NativeUpdateResult
 foreign import ccall safe "update_result_new"
   update_result_new :: StablePtr model -> IO (UpdateResultPtr)
 
-foreign import ccall safe "update_result_add_command"
-  update_result_add_command :: UpdateResultPtr-> FunPtr (NativeCommandPerform message) -> IO ()
+-- update_result future
+foreign import ccall safe "update_result_add_command_future"
+  update_result_add_command_future :: UpdateResultPtr -> Future -> IO ()
+
+-- update_result callback
+foreign import ccall safe "update_result_add_command_io"
+  update_result_add_command_io :: UpdateResultPtr-> FunPtr (NativeCommandPerform message) -> IO ()
 
 type NativeCommandPerform message = IO (StablePtr message)
 foreign import ccall "wrapper"

@@ -4,15 +4,17 @@ use iced::{Application, Command, Element, Settings, Theme};
 
 mod alignment;
 mod command;
+mod future;
 mod length;
 mod settings;
+mod time;
 mod widget;
 
 use command::UpdateResult;
 use widget::read_c_string;
 
-type Model = *const u8;
-type Message = *const u8;
+pub(crate) type Model = *const u8;
+pub(crate) type Message = *const u8;
 type Title = unsafe extern "C" fn(model: Model) -> *mut c_char;
 type Update = unsafe extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
 type View = unsafe extern "C" fn(model: Model) -> widget::ElementPtr;
@@ -77,38 +79,11 @@ impl Application for App {
             IcedMessage::Ptr(message) => {
                 let result_ptr = unsafe { (self.update_hs)(self.model, message.ptr) };
                 let result = unsafe { Box::from_raw(result_ptr) };
-                self.model = result.model_ptr;
-                if let Some(command_hs) = result.command {
-                    let (sender, receiver) = tokio::sync::oneshot::channel();
-                    let _handle = std::thread::spawn(move || {
-                        let message_ptr = unsafe { command_hs() };
-                        let message = IcedMessage::ptr(message_ptr);
-                        if sender.send(message).is_err() {
-                            println!("Error writing to channel in Command::perform");
-                        }
-                    });
-                    let command = Command::perform(
-                        async move {
-                            match receiver.await {
-                                Ok(message) => Some(message),
-                                Err(e) => {
-                                    println!(
-                                        "Error reading from channel in Command::perform: {}",
-                                        e
-                                    );
-                                    None
-                                }
-                            }
-                        },
-                        |maybe_message| maybe_message.unwrap_or(IcedMessage::None),
-                    );
-                    return command;
-                }
+                self.model = result.model;
+                result.command.perform()
             }
-            IcedMessage::None => (),
+            IcedMessage::None => Command::none(),
         }
-
-        Command::none()
     }
     fn view(&self) -> Element<IcedMessage> {
         unsafe { *Box::from_raw((self.view_hs)(self.model)) }

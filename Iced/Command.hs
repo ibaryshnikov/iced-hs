@@ -1,4 +1,18 @@
-module Iced.Command where
+module Iced.Command (
+--  perform,
+--  performIO,
+  Command(..),
+) where
 
--- placeholder for a future Command api
-data Command message = Perform (IO (message)) | None
+import Iced.Time
+
+data Command message
+  = Perform (Sleep message) -- the type will change
+  | PerformIO (IO message)
+  | None
+
+--perform :: Future -> Command message
+--perform future = Perform future
+--
+--performIO :: IO (message) -> Command message
+--performIO io = PerformIO io

@@ -44,12 +44,11 @@ signatures accepted:
 
 ```haskell
 update :: Model -> Message -> Model
-update :: Model -> Message -> (Model, Command)
+update :: Model -> Message -> (Model, Command Message)
 ```
 
-When return type is `Model`, then `Command`
-is assumed to be `None`. `Command` api itself
-is currently WIP, but here's the foundation for it.
+When return type is `Model` the `Command`
+is assumed to be `None`.
 
 There are also two possible signatures for `title`:
 
@@ -138,9 +137,9 @@ is currently small, but growing over time.
  - [ ] Command api
    - [x] implement two signatures for `update` function:
      - `Model -> Message -> Model`
-     - `Model -> Message -> (Model, Command)`
-   - [x] `Command.Perform` - initial version, handling `IO (Message)`
-   - [ ] handle Rust `Future`
+     - `Model -> Message -> (Model, Command Message)`
+   - [x] `Command.Perform`   for Rust `Future`
+   - [x] `Command.PerformIO` for Haskell `IO`
    - [ ] other commands
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles and themes

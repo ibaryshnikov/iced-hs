@@ -23,12 +23,9 @@ pub extern "C" fn text_editor_content_with_text(input_ptr: *mut c_char) -> *mut 
 }
 
 #[no_mangle]
-pub extern "C" fn text_editor_content_perform(pointer: *mut Content, action: *mut Action) {
-    let mut content = unsafe { Box::from_raw(pointer) };
-    let action = unsafe { Box::from_raw(action) };
-    content.perform(*action);
-    // don't drop content yet
-    std::mem::forget(content);
+pub extern "C" fn text_editor_content_perform(content: &mut Content, action: *mut Action) {
+    let action = unsafe { *Box::from_raw(action) };
+    content.perform(action);
 }
 
 #[no_mangle]
