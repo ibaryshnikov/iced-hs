@@ -39,30 +39,6 @@ main :: IO ()
 main = Iced.run [] "Counter" 0 update view
 ```
 
-For `update` function there are two
-signatures accepted:
-
-```haskell
-update :: Model -> Message -> Model
-update :: Model -> Message -> (Model, Command Message)
-```
-
-When return type is `Model` the `Command`
-is assumed to be `None`.
-
-There are also two possible signatures for `title`:
-
-```haskell
-title :: String
-title :: Model -> String
-```
-
-For example:
-
-```haskell
-title :: Int -> String
-title value = "Counter " ++ show value
-```
 
 ## Usage
 
