@@ -17,6 +17,7 @@ import Foreign.C.Types
 
 import Iced.Attribute.Length
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeComboBox
@@ -28,6 +29,7 @@ type ComboBoxState = State
 
 data Attribute option message
   = AddOnHover (OnOptionHovered option message)
+  | AddPadding Padding
   | OnClose message
   | Width Length
 
@@ -47,6 +49,10 @@ foreign import ccall safe "combo_box_on_option_hovered"
 
 foreign import ccall safe "combo_box_on_close"
   combo_box_on_close :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+
+-- combo_box top right bottom left
+foreign import ccall safe "combo_box_padding"
+  combo_box_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "combo_box_width"
   combo_box_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
@@ -107,8 +113,15 @@ instance Read option => UseAttribute SelfPtr (Attribute option message) where
   useAttribute selfPtr attribute = do
     case attribute of
       AddOnHover callback -> useOnHover callback selfPtr
+      AddPadding value -> usePadding value selfPtr
       OnClose message -> useOnClose message selfPtr
       Width len -> useWidth len selfPtr
+
+instance UsePadding (Attribute option message) where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute (Attribute option message) where
+  paddingToAttribute value = AddPadding value
 
 instance UseWidth (Attribute option message) where
   width len = Width len
@@ -138,6 +151,10 @@ useOnHover :: Read option => OnOptionHovered option message -> AttributeFn
 useOnHover callback selfPtr = do
   onHoverPtr <- makeOnHoverCallback $ wrapOnHover callback
   combo_box_on_option_hovered selfPtr onHoverPtr
+
+usePadding :: Padding -> AttributeFn
+usePadding Padding { .. } selfPtr = do
+  combo_box_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do

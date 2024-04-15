@@ -1,7 +1,7 @@
-use std::ffi::c_char;
+use std::ffi::{c_char, c_float};
 
 use iced::widget::{text, Button};
-use iced::Length;
+use iced::{Length, Padding};
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -19,6 +19,24 @@ pub extern "C" fn button_on_press(self_ptr: SelfPtr, message_ptr: *const u8) -> 
     let button = unsafe { Box::from_raw(self_ptr) };
     let message = IcedMessage::ptr(message_ptr);
     Box::into_raw(Box::new(button.on_press(message)))
+}
+
+#[no_mangle]
+pub extern "C" fn button_padding(
+    self_ptr: SelfPtr,
+    top: c_float,
+    right: c_float,
+    bottom: c_float,
+    left: c_float,
+) -> SelfPtr {
+    let button = unsafe { Box::from_raw(self_ptr) };
+    let padding = Padding {
+        top,
+        right,
+        bottom,
+        left,
+    };
+    Box::into_raw(Box::new(button.padding(padding)))
 }
 
 #[no_mangle]

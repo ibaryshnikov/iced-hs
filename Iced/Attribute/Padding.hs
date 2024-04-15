@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 module Iced.Attribute.Padding where
 
@@ -9,15 +10,13 @@ data Padding = Padding {
   left :: Float
 }
 
-class UsePadding attribute where
+class UsePadding a where
+  padding :: Float -> a
+
+class PaddingToAttribute attribute where
   paddingToAttribute :: Padding -> attribute
-  padding :: Float -> attribute
-  padding value = paddingToAttribute Padding {
-    top = value,
-    right = value,
-    bottom = value,
-    left = value
-  }
+
+class PaddingToAttribute attribute => UsePadding2 attribute where
   padding2 :: Float -> Float -> attribute
   padding2 a b = paddingToAttribute Padding {
     top = a,
@@ -25,5 +24,11 @@ class UsePadding attribute where
     bottom = a,
     left = b
   }
+
+instance PaddingToAttribute attribute => UsePadding2 attribute
+
+class PaddingToAttribute attribute => UsePadding4 attribute where
   padding4 :: Float -> Float -> Float -> Float -> attribute
   padding4 top right bottom left = paddingToAttribute Padding { .. }
+
+instance PaddingToAttribute attribute => UsePadding4 attribute

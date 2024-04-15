@@ -13,17 +13,22 @@ import Foreign.C.Types
 
 import Iced.Attribute.Length
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.Padding
 import Iced.Element
 
 data NativePickList
 type SelfPtr = Ptr NativePickList
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = Placeholder String | Width Length
+data Attribute = AddPadding Padding | Placeholder String | Width Length
 
 -- len options selected on_select
 foreign import ccall safe "pick_list_new"
   pick_list_new :: CUInt -> Ptr CString -> CString -> FunPtr (NativeOnSelect a) -> IO (SelfPtr)
+
+-- pick_list top right bottom left
+foreign import ccall safe "pick_list_padding"
+  pick_list_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "pick_list_placeholder"
   pick_list_placeholder :: SelfPtr -> CString -> IO (SelfPtr)
@@ -78,8 +83,15 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
 instance UseAttribute SelfPtr Attribute where
   useAttribute selfPtr attribute = do
     case attribute of
+      AddPadding value -> usePadding value selfPtr
       Placeholder value -> usePlaceholder value selfPtr
       Width len -> useWidth len selfPtr
+
+instance UsePadding Attribute where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute Attribute where
+  paddingToAttribute value = AddPadding value
 
 instance UseWidth Attribute where
   width len = Width len
@@ -93,6 +105,10 @@ pickList attributes options selected onSelect = pack PickList { .. }
 
 placeholder :: String -> Attribute
 placeholder value = Placeholder value
+
+usePadding :: Padding -> AttributeFn
+usePadding Padding { .. } selfPtr = do
+  pick_list_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 usePlaceholder :: String -> AttributeFn
 usePlaceholder value selfPtr = do

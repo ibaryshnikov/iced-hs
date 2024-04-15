@@ -6,22 +6,28 @@ module Iced.Widget.Button (button, onPress) where
 
 import Foreign
 import Foreign.C.String
+import Foreign.C.Types
 
 import Iced.Attribute.Length
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeButton
 type SelfPtr = Ptr NativeButton
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute message = OnPress message | Width Length | Height Length
+data Attribute message = AddPadding Padding | OnPress message | Width Length | Height Length
 
 foreign import ccall safe "button_new"
   button_new :: CString -> IO (SelfPtr)
 
 foreign import ccall safe "button_on_press"
   button_on_press :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+
+-- button top right bottom left
+foreign import ccall safe "button_padding"
+  button_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
 
 foreign import ccall safe "button_width"
   button_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
@@ -48,8 +54,15 @@ instance UseAttribute SelfPtr (Attribute message) where
   useAttribute selfPtr attribute = do
     case attribute of
       OnPress message -> useOnPress message selfPtr
+      AddPadding value -> usePadding value selfPtr
       Width len -> useWidth len selfPtr
       Height len -> useHeight len selfPtr
+
+instance UsePadding (Attribute message) where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute (Attribute message) where
+  paddingToAttribute value = AddPadding value
 
 instance UseWidth (Attribute message) where
   width len = Width len
@@ -69,6 +82,10 @@ useOnPress message selfPtr = do
   -- a new StablePtr for each message separately
   messagePtr <- newStablePtr message
   button_on_press selfPtr messagePtr
+
+usePadding :: Padding -> AttributeFn
+usePadding Padding { .. } selfPtr = do
+  button_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do

@@ -14,6 +14,7 @@ import Foreign
 import Foreign.C.Types
 
 import Iced.Element
+import Iced.Attribute.Padding
 
 data NativeTooltip
 type SelfPtr = Ptr NativeTooltip
@@ -78,6 +79,9 @@ instance UseAttribute SelfPtr Attribute where
       Gap value -> useGap value selfPtr
       AddPadding value -> usePadding value selfPtr
       SnapWithViewport snap -> useSnapWithViewport snap selfPtr
+
+instance UsePadding Attribute where
+  padding value = AddPadding value
 
 tooltip :: [Attribute] -> Element -> Element -> Position -> Element
 tooltip attributes content tooltipElement position = pack Tooltip { .. }

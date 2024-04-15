@@ -80,6 +80,9 @@ instance UseAlignment Attribute where
   alignItems value = AlignItems value
 
 instance UsePadding Attribute where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute Attribute where
   paddingToAttribute value = AddPadding value
 
 instance UseSpacing Attribute where

@@ -1,6 +1,7 @@
-use std::ffi::c_char;
+use std::ffi::{c_char, c_float};
 
 use iced::widget::{text_input, TextInput};
+use iced::Padding;
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -27,6 +28,24 @@ pub extern "C" fn text_input_on_submit(self_ptr: SelfPtr, on_submit_ptr: *const 
     let text_input = unsafe { Box::from_raw(self_ptr) };
     let text_input = text_input.on_submit(IcedMessage::ptr(on_submit_ptr));
     Box::into_raw(Box::new(text_input))
+}
+
+#[no_mangle]
+pub extern "C" fn text_input_padding(
+    self_ptr: SelfPtr,
+    top: c_float,
+    right: c_float,
+    bottom: c_float,
+    left: c_float,
+) -> SelfPtr {
+    let text_input = unsafe { Box::from_raw(self_ptr) };
+    let padding = Padding {
+        top,
+        right,
+        bottom,
+        left,
+    };
+    Box::into_raw(Box::new(text_input.padding(padding)))
 }
 
 #[no_mangle]

@@ -1,7 +1,7 @@
-use std::ffi::c_char;
+use std::ffi::{c_char, c_float};
 
 use iced::widget::{pick_list, PickList};
-use iced::Length;
+use iced::{Length, Padding};
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -21,6 +21,24 @@ pub extern "C" fn pick_list_new(
     let on_select = super::wrap_callback_with_string(on_select_ffi);
     let pick_list = pick_list(options, selected, on_select);
     Box::into_raw(Box::new(pick_list))
+}
+
+#[no_mangle]
+pub extern "C" fn pick_list_padding(
+    self_ptr: SelfPtr,
+    top: c_float,
+    right: c_float,
+    bottom: c_float,
+    left: c_float,
+) -> SelfPtr {
+    let pick_list = unsafe { Box::from_raw(self_ptr) };
+    let padding = Padding {
+        top,
+        right,
+        bottom,
+        left,
+    };
+    Box::into_raw(Box::new(pick_list.padding(padding)))
 }
 
 #[no_mangle]

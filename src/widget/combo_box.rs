@@ -1,8 +1,8 @@
-use std::ffi::c_char;
+use std::ffi::{c_char, c_float};
 
 use combo_box::State;
 use iced::widget::{combo_box, ComboBox};
-use iced::Length;
+use iced::{Length, Padding};
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
@@ -58,6 +58,24 @@ pub extern "C" fn combo_box_on_option_hovered(
     let combo_box = unsafe { Box::from_raw(self_ptr) };
     let callback = super::wrap_callback_with_string(callback_ffi);
     Box::into_raw(Box::new(combo_box.on_option_hovered(callback)))
+}
+
+#[no_mangle]
+pub extern "C" fn combo_box_padding(
+    self_ptr: SelfPtr,
+    top: c_float,
+    right: c_float,
+    bottom: c_float,
+    left: c_float,
+) -> SelfPtr {
+    let combo_box = unsafe { Box::from_raw(self_ptr) };
+    let padding = Padding {
+        top,
+        right,
+        bottom,
+        left,
+    };
+    Box::into_raw(Box::new(combo_box.padding(padding)))
 }
 
 #[no_mangle]

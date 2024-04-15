@@ -83,6 +83,9 @@ instance UseSpacing Attribute where
   spacing value = Spacing value
 
 instance UsePadding Attribute where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute Attribute where
   paddingToAttribute value = AddPadding value
 
 instance UseWidth Attribute where

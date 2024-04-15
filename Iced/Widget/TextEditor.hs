@@ -100,6 +100,9 @@ instance UseAttribute SelfPtr (Attribute message) where
       Height len -> useHeight len selfPtr
 
 instance UsePadding (Attribute message) where
+  padding v = AddPadding $ Padding v v v v
+
+instance PaddingToAttribute (Attribute message) where
   paddingToAttribute value = AddPadding value
 
 instance UseHeight (Attribute message) where
