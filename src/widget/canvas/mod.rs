@@ -1,11 +1,15 @@
-use canvas::{Cache, Fill, Frame, Geometry, Path, Program};
+use canvas::{Cache, Frame, Geometry, Program};
 use iced::widget::{canvas, Canvas};
 use iced::{mouse, Length, Rectangle, Renderer, Theme};
 
 use super::{ElementPtr, IcedMessage};
 
+mod fill;
+mod frame;
+mod gradient;
 mod path;
 mod path_builder;
+mod style;
 
 type SelfPtr = *mut Canvas<&'static CanvasState, IcedMessage>;
 type Draw = unsafe extern "C" fn(frame: *mut Frame);
@@ -89,10 +93,4 @@ pub extern "C" fn canvas_height(self_ptr: SelfPtr, height: *mut Length) -> SelfP
 pub extern "C" fn canvas_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let canvas = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(canvas.into()))
-}
-
-#[no_mangle]
-pub extern "C" fn frame_fill(frame: &mut Frame, path_pointer: *mut Path) {
-    let path = unsafe { Box::from_raw(path_pointer) };
-    frame.fill(&path, Fill::default());
 }

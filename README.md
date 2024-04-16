@@ -1,10 +1,12 @@
 # iced-hs
 
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
-Very experimental, an early proof of concept.
+Very experimental.
 
 To learn more about iced check [official website](https://iced.rs) and the [book](https://book.iced.rs)
 
+The api is inspired by [Elm](https://elm-lang.org/) and [elm-ui](https://github.com/mdgriffith/elm-ui).
+Canvas is inspired by [elm-canvas](https://github.com/joakin/elm-canvas)
 
 ## Platform support
 

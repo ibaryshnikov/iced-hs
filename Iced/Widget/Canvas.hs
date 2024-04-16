@@ -16,8 +16,9 @@ import System.IO.Unsafe -- to run clearCache without IO
 import Iced.Attribute.Length
 import Iced.Attribute.LengthFFI
 import Iced.Element
-import Iced.Widget.Canvas.Path
-import Iced.Widget.Canvas.Shape
+import Iced.Widget.Canvas.Frame
+import Iced.Widget.Canvas.FrameAction
+import Iced.Widget.Canvas.FramePtr
 
 data NativeCanvasState
 type CanvasStatePtr = Ptr NativeCanvasState
@@ -25,8 +26,6 @@ type CanvasState = CanvasStatePtr; -- to export
 data NativeCanvas
 type SelfPtr = Ptr NativeCanvas
 type AttributeFn = SelfPtr -> IO SelfPtr
-data NativeFrame
-type FramePtr = Ptr NativeFrame
 
 data Attribute = Width Length | Height Length
 
@@ -57,27 +56,29 @@ foreign import ccall safe "canvas_height"
 foreign import ccall safe "canvas_into_element"
   canvas_into_element :: SelfPtr -> IO (ElementPtr)
 
-foreign import ccall safe "frame_fill"
-  frame_fill :: FramePtr -> PathPtr -> IO ()
-
 type NativeDraw = FramePtr -> IO ()
 foreign import ccall "wrapper"
   makeDrawCallback :: NativeDraw -> IO (FunPtr (NativeDraw))
 
 data Canvas = Canvas {
   attributes :: [Attribute],
-  shapes :: [Shape],
+  actions :: [FrameAction],
   cache :: CanvasStatePtr
 }
 
-drawCallback :: [Shape] -> NativeDraw
-drawCallback shapes framePtr = do
-  pathPtr <- newPath shapes
-  frame_fill framePtr pathPtr
+drawActions :: [FrameAction] -> FramePtr -> IO ()
+drawActions [] _framePtr = pure ()
+drawActions (action:remaining) framePtr = do
+  case action of
+    FrameFill shapes color -> frameFill framePtr shapes color
+  drawActions remaining framePtr
+
+drawCallback :: [FrameAction] -> NativeDraw
+drawCallback actions framePtr = drawActions actions framePtr
 
 instance IntoNative Canvas where
   toNative details = do
-    drawCallbackPtr <- makeDrawCallback $ drawCallback details.shapes
+    drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
     canvas_set_draw details.cache drawCallbackPtr
     selfPtr <- canvas_new details.cache
     updatedSelf <- applyAttributes selfPtr details.attributes
@@ -95,8 +96,8 @@ instance UseWidth Attribute where
 instance UseHeight Attribute where
   height len = Height len
 
-canvas :: [Attribute] -> [Shape] -> CanvasStatePtr -> Element
-canvas attributes shapes cache = pack Canvas { .. }
+canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element
+canvas attributes actions cache = pack Canvas { .. }
 
 useWidth :: Length -> AttributeFn
 useWidth len selfPtr = do
