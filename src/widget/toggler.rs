@@ -10,7 +10,7 @@ type SelfPtr = *mut Toggler<'static, IcedMessage>;
 type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn toggler_new(
+extern "C" fn toggler_new(
     label_ptr: *mut c_char,
     is_toggled_raw: c_uchar,
     on_toggle_ffi: OnToggleFFI,
@@ -22,26 +22,26 @@ pub extern "C" fn toggler_new(
 }
 
 #[no_mangle]
-pub extern "C" fn toggler_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
+extern "C" fn toggler_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
     let toggler = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(toggler.size(size)))
 }
 
 #[no_mangle]
-pub extern "C" fn toggler_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
+extern "C" fn toggler_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
     let toggler = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(toggler.spacing(pixels)))
 }
 
 #[no_mangle]
-pub extern "C" fn toggler_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+extern "C" fn toggler_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
     let toggler = unsafe { Box::from_raw(self_ptr) };
     let width = unsafe { *Box::from_raw(width) };
     Box::into_raw(Box::new(toggler.width(width)))
 }
 
 #[no_mangle]
-pub extern "C" fn toggler_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn toggler_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let toggler = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(toggler.into()))
 }

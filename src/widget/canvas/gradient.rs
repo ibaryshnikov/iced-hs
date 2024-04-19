@@ -7,13 +7,13 @@ use iced::widget::canvas;
 use iced::{Color, Point};
 
 #[no_mangle]
-pub extern "C" fn canvas_gradient_from_linear(linear_ptr: *mut Linear) -> *mut Gradient {
+extern "C" fn canvas_gradient_from_linear(linear_ptr: *mut Linear) -> *mut Gradient {
     let linear = unsafe { *Box::from_raw(linear_ptr) };
     Box::into_raw(Box::new(Gradient::Linear(linear)))
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_gradient_linear_new(
+extern "C" fn canvas_gradient_linear_new(
     start_x: c_float,
     start_y: c_float,
     end_x: c_float,
@@ -27,7 +27,7 @@ pub extern "C" fn canvas_gradient_linear_new(
 const STOPS_LEN: usize = 8;
 
 #[no_mangle]
-pub extern "C" fn canvas_gradient_linear_new_with_stops(
+extern "C" fn canvas_gradient_linear_new_with_stops(
     start_x: c_float,
     start_y: c_float,
     end_x: c_float,
@@ -48,7 +48,7 @@ pub extern "C" fn canvas_gradient_linear_new_with_stops(
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_gradient_linear_add_stop(
+extern "C" fn canvas_gradient_linear_add_stop(
     linear: &mut Linear,
     offset: c_float,
     r: c_float,

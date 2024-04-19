@@ -4,14 +4,14 @@ use iced::widget::canvas::{Fill, Frame, Path};
 use iced::{Point, Size};
 
 #[no_mangle]
-pub extern "C" fn canvas_frame_fill(frame: &mut Frame, path_ptr: *mut Path, fill_ptr: *mut Fill) {
+extern "C" fn canvas_frame_fill(frame: &mut Frame, path_ptr: *mut Path, fill_ptr: *mut Fill) {
     let path = unsafe { Box::from_raw(path_ptr) };
     let fill = unsafe { *Box::from_raw(fill_ptr) };
     frame.fill(&path, fill);
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_frame_fill_rectangle(
+extern "C" fn canvas_frame_fill_rectangle(
     frame: &mut Frame,
     top_left_x: c_float,
     top_left_y: c_float,

@@ -5,3 +5,4 @@ module Iced (
 
 import Iced.Application
 import Iced.Element
+import Iced.Internal()

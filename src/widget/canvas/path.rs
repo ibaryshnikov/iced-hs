@@ -8,18 +8,18 @@ use canvas::path::Builder;
 type PathCallback = unsafe extern "C" fn(builder: &mut Builder);
 
 #[no_mangle]
-pub extern "C" fn path_new(callback: PathCallback) -> *mut Path {
+extern "C" fn path_new(callback: PathCallback) -> *mut Path {
     let path = Path::new(|builder| unsafe { callback(builder) });
     Box::into_raw(Box::new(path))
 }
 
 #[no_mangle]
-pub extern "C" fn path_free(pointer: *mut Path) {
+extern "C" fn path_free(pointer: *mut Path) {
     let _ = unsafe { Box::from_raw(pointer) };
 }
 
 #[no_mangle]
-pub extern "C" fn path_line(
+extern "C" fn path_line(
     from_x: c_float,
     from_y: c_float,
     to_x: c_float,
@@ -30,7 +30,7 @@ pub extern "C" fn path_line(
 }
 
 #[no_mangle]
-pub extern "C" fn path_circle(x: c_float, y: c_float, radius: c_float) -> *mut Path {
+extern "C" fn path_circle(x: c_float, y: c_float, radius: c_float) -> *mut Path {
     let path = Path::circle(Point { x, y }, radius);
     Box::into_raw(Box::new(path))
 }

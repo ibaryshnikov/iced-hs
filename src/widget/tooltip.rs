@@ -8,7 +8,7 @@ use super::{read_c_bool, ElementPtr, IcedMessage};
 type SelfPtr = *mut Tooltip<'static, IcedMessage>;
 
 #[no_mangle]
-pub extern "C" fn tooltip_new(
+extern "C" fn tooltip_new(
     content_ptr: ElementPtr,
     tooltip_ptr: ElementPtr,
     position_raw: c_uchar,
@@ -27,19 +27,19 @@ pub extern "C" fn tooltip_new(
 }
 
 #[no_mangle]
-pub extern "C" fn tooltip_gap(self_ptr: SelfPtr, gap: c_float) -> SelfPtr {
+extern "C" fn tooltip_gap(self_ptr: SelfPtr, gap: c_float) -> SelfPtr {
     let tooltip = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(tooltip.gap(gap)))
 }
 
 #[no_mangle]
-pub extern "C" fn tooltip_padding(self_ptr: SelfPtr, padding: c_float) -> SelfPtr {
+extern "C" fn tooltip_padding(self_ptr: SelfPtr, padding: c_float) -> SelfPtr {
     let tooltip = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(tooltip.padding(padding)))
 }
 
 #[no_mangle]
-pub extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uchar) -> SelfPtr {
+extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uchar) -> SelfPtr {
     let tooltip = unsafe { Box::from_raw(self_ptr) };
     let snap = read_c_bool(snap_raw);
     Box::into_raw(Box::new(tooltip.snap_within_viewport(snap)))
@@ -47,7 +47,7 @@ pub extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uc
 
 // todo
 // #[no_mangle]
-// pub extern "C" fn tooltip_style(
+// extern "C" fn tooltip_style(
 //     self_ptr: SelfPtr,
 //     style_ptr: Some style struct,
 // ) -> SelfPtr {
@@ -57,7 +57,7 @@ pub extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uc
 // }
 
 #[no_mangle]
-pub extern "C" fn tooltip_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn tooltip_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let tooltip = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(tooltip.into()))
 }

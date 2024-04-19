@@ -139,8 +139,6 @@ onClose message = OnClose message
 
 useOnClose :: message -> AttributeFn
 useOnClose message selfPtr = do
-  -- pass a callback instead which will create
-  -- a new StablePtr for each message separately
   messagePtr <- newStablePtr message
   combo_box_on_close selfPtr messagePtr
 

@@ -10,7 +10,7 @@ type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn pick_list_new(
+extern "C" fn pick_list_new(
     len: usize,
     options_ptr: *const *mut c_char, // array of CString
     selected_ptr: *mut c_char,       // CString
@@ -24,7 +24,7 @@ pub extern "C" fn pick_list_new(
 }
 
 #[no_mangle]
-pub extern "C" fn pick_list_padding(
+extern "C" fn pick_list_padding(
     self_ptr: SelfPtr,
     top: c_float,
     right: c_float,
@@ -42,24 +42,21 @@ pub extern "C" fn pick_list_padding(
 }
 
 #[no_mangle]
-pub extern "C" fn pick_list_placeholder(
-    self_ptr: SelfPtr,
-    placeholder_ptr: *mut c_char,
-) -> SelfPtr {
+extern "C" fn pick_list_placeholder(self_ptr: SelfPtr, placeholder_ptr: *mut c_char) -> SelfPtr {
     let pick_list = unsafe { Box::from_raw(self_ptr) };
     let placeholder = read_c_string(placeholder_ptr);
     Box::into_raw(Box::new(pick_list.placeholder(placeholder)))
 }
 
 #[no_mangle]
-pub extern "C" fn pick_list_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+extern "C" fn pick_list_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
     let pick_list = unsafe { Box::from_raw(self_ptr) };
     let width = unsafe { *Box::from_raw(width) };
     Box::into_raw(Box::new(pick_list.width(width)))
 }
 
 #[no_mangle]
-pub extern "C" fn pick_list_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn pick_list_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let pick_list = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(pick_list.into()))
 }

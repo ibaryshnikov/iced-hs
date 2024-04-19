@@ -13,7 +13,7 @@ type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 type OnOptionHoveredFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn combo_box_state_new(
+extern "C" fn combo_box_state_new(
     len: usize,
     options_ptr: *const *mut c_char, // array of CString
 ) -> StatePtr {
@@ -23,12 +23,12 @@ pub extern "C" fn combo_box_state_new(
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_state_free(state_ptr: StatePtr) {
+extern "C" fn combo_box_state_free(state_ptr: StatePtr) {
     let _ = unsafe { Box::from_raw(state_ptr) };
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_new(
+extern "C" fn combo_box_new(
     state_ptr: StatePtr,
     placeholder_ptr: *mut c_char, // CString
     selected_ptr: *mut c_char,    // CString
@@ -44,14 +44,14 @@ pub extern "C" fn combo_box_new(
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_on_close(self_ptr: SelfPtr, message_ptr: *const u8) -> SelfPtr {
+extern "C" fn combo_box_on_close(self_ptr: SelfPtr, message_ptr: *const u8) -> SelfPtr {
     let combo_box = unsafe { Box::from_raw(self_ptr) };
     let message = IcedMessage::ptr(message_ptr);
     Box::into_raw(Box::new(combo_box.on_close(message)))
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_on_option_hovered(
+extern "C" fn combo_box_on_option_hovered(
     self_ptr: SelfPtr,
     callback_ffi: OnOptionHoveredFFI,
 ) -> SelfPtr {
@@ -61,7 +61,7 @@ pub extern "C" fn combo_box_on_option_hovered(
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_padding(
+extern "C" fn combo_box_padding(
     self_ptr: SelfPtr,
     top: c_float,
     right: c_float,
@@ -79,14 +79,14 @@ pub extern "C" fn combo_box_padding(
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+extern "C" fn combo_box_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
     let combo_box = unsafe { Box::from_raw(self_ptr) };
     let width = unsafe { *Box::from_raw(width) };
     Box::into_raw(Box::new(combo_box.width(width)))
 }
 
 #[no_mangle]
-pub extern "C" fn combo_box_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn combo_box_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let combo_box = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(combo_box.into()))
 }

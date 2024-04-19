@@ -7,18 +7,18 @@ use canvas::path::arc::Elliptical;
 use canvas::path::{Arc, Builder, Path};
 
 #[no_mangle]
-pub extern "C" fn path_builder_new() -> *mut Builder {
+extern "C" fn path_builder_new() -> *mut Builder {
     Box::into_raw(Box::new(Builder::new()))
 }
 
 // using path_builder_build is preferred
 #[no_mangle]
-pub extern "C" fn path_builder_free(pointer: *mut Builder) {
+extern "C" fn path_builder_free(pointer: *mut Builder) {
     _ = unsafe { Box::from_raw(pointer) };
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_arc(
+extern "C" fn path_builder_arc(
     builder: &mut Builder,
     x: c_float,
     y: c_float,
@@ -35,7 +35,7 @@ pub extern "C" fn path_builder_arc(
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_arc_to(
+extern "C" fn path_builder_arc_to(
     builder: &mut Builder,
     a_x: c_float,
     a_y: c_float,
@@ -47,7 +47,7 @@ pub extern "C" fn path_builder_arc_to(
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_bezier_curve_to(
+extern "C" fn path_builder_bezier_curve_to(
     builder: &mut Builder,
     control_a_x: c_float,
     control_a_y: c_float,
@@ -64,29 +64,24 @@ pub extern "C" fn path_builder_bezier_curve_to(
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_build(pointer: *mut Builder) -> *mut Path {
+extern "C" fn path_builder_build(pointer: *mut Builder) -> *mut Path {
     let builder = unsafe { Box::from_raw(pointer) };
     let path = builder.build();
     Box::into_raw(Box::new(path))
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_circle(
-    builder: &mut Builder,
-    x: c_float,
-    y: c_float,
-    radius: c_float,
-) {
+extern "C" fn path_builder_circle(builder: &mut Builder, x: c_float, y: c_float, radius: c_float) {
     builder.circle(Point { x, y }, radius);
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_close(builder: &mut Builder) {
+extern "C" fn path_builder_close(builder: &mut Builder) {
     builder.close()
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_ellipse(
+extern "C" fn path_builder_ellipse(
     builder: &mut Builder,
     center_x: c_float,
     center_y: c_float,
@@ -106,17 +101,17 @@ pub extern "C" fn path_builder_ellipse(
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_line_to(builder: &mut Builder, x: c_float, y: c_float) {
+extern "C" fn path_builder_line_to(builder: &mut Builder, x: c_float, y: c_float) {
     builder.line_to(Point { x, y });
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_move_to(builder: &mut Builder, x: c_float, y: c_float) {
+extern "C" fn path_builder_move_to(builder: &mut Builder, x: c_float, y: c_float) {
     builder.move_to(Point { x, y });
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_quadratic_curve_to(
+extern "C" fn path_builder_quadratic_curve_to(
     builder: &mut Builder,
     control_x: c_float,
     control_y: c_float,
@@ -127,7 +122,7 @@ pub extern "C" fn path_builder_quadratic_curve_to(
 }
 
 #[no_mangle]
-pub extern "C" fn path_builder_rectangle(
+extern "C" fn path_builder_rectangle(
     builder: &mut Builder,
     top_left_x: c_float,
     top_left_y: c_float,

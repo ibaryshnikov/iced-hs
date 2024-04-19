@@ -45,7 +45,7 @@ fn perform_io(callback: CommandCallback) -> Command<IcedMessage> {
 }
 
 #[no_mangle]
-pub extern "C" fn update_result_new(model: Model) -> *mut UpdateResult {
+extern "C" fn update_result_new(model: Model) -> *mut UpdateResult {
     Box::into_raw(Box::new(UpdateResult {
         model,
         command: CommandKind::None,
@@ -53,7 +53,7 @@ pub extern "C" fn update_result_new(model: Model) -> *mut UpdateResult {
 }
 
 #[no_mangle]
-pub extern "C" fn update_result_add_command_io(
+extern "C" fn update_result_add_command_io(
     result: &mut UpdateResult,
     maybe_callback: Option<CommandCallback>,
 ) {
@@ -64,7 +64,7 @@ pub extern "C" fn update_result_add_command_io(
 }
 
 #[no_mangle]
-pub extern "C" fn update_result_add_command_future(
+extern "C" fn update_result_add_command_future(
     result: &mut UpdateResult,
     future_ptr: *mut PinnedFuture,
 ) {

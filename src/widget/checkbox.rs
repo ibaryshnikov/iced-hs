@@ -12,61 +12,61 @@ type IconPtr = *mut Icon<Font>;
 type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
-pub extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
+extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
     let label = read_c_string(input);
     let is_checked = read_c_bool(is_checked_raw);
     Box::into_raw(Box::new(checkbox(label, is_checked)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle_ffi: OnToggleFFI) -> SelfPtr {
+extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle_ffi: OnToggleFFI) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     let on_toggle = super::wrap_callback_with_bool(on_toggle_ffi);
     Box::into_raw(Box::new(checkbox.on_toggle(on_toggle)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_icon(self_ptr: SelfPtr, icon_ptr: IconPtr) -> SelfPtr {
+extern "C" fn checkbox_icon(self_ptr: SelfPtr, icon_ptr: IconPtr) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     let icon = unsafe { *Box::from_raw(icon_ptr) };
     Box::into_raw(Box::new(checkbox.icon(icon)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
+extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     let style = unsafe { *Box::from_raw(style_ptr) };
     Box::into_raw(Box::new(checkbox.style(style)))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn checkbox_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let checkbox = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(checkbox.into()))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_primary() -> *mut theme::Checkbox {
+extern "C" fn checkbox_primary() -> *mut theme::Checkbox {
     Box::into_raw(Box::new(theme::Checkbox::Primary))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_secondary() -> *mut theme::Checkbox {
+extern "C" fn checkbox_secondary() -> *mut theme::Checkbox {
     Box::into_raw(Box::new(theme::Checkbox::Secondary))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_success() -> *mut theme::Checkbox {
+extern "C" fn checkbox_success() -> *mut theme::Checkbox {
     Box::into_raw(Box::new(theme::Checkbox::Success))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_danger() -> *mut theme::Checkbox {
+extern "C" fn checkbox_danger() -> *mut theme::Checkbox {
     Box::into_raw(Box::new(theme::Checkbox::Danger))
 }
 
 #[no_mangle]
-pub extern "C" fn checkbox_icon_new(code_point_raw: c_uint) -> IconPtr {
+extern "C" fn checkbox_icon_new(code_point_raw: c_uint) -> IconPtr {
     let code_point = char::from_u32(code_point_raw).unwrap_or_default();
     let icon = Icon {
         font: Font::with_name("icons"),

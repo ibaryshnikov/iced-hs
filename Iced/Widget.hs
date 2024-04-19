@@ -10,6 +10,7 @@ module Iced.Widget (
   module Iced.Widget.Responsive,
   module Iced.Widget.Row,
   module Iced.Widget.Scrollable,
+  module Iced.Widget.Slider,
   module Iced.Widget.Space,
   module Iced.Widget.Text,
   module Iced.Widget.TextEditor,
@@ -29,6 +30,7 @@ import Iced.Widget.Radio
 import Iced.Widget.Responsive
 import Iced.Widget.Row
 import Iced.Widget.Scrollable
+import Iced.Widget.Slider
 import Iced.Widget.Space
 import Iced.Widget.Text
 import Iced.Widget.TextEditor

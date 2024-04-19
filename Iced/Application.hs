@@ -43,15 +43,13 @@ wrapUpdate :: IntoCommand model message result (model, Command message)
            => Update model message result
            -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
+  -- modelPtr is freed by Rust when it changes
   model <- deRefStablePtr modelPtr
+  -- messagePtr is dropped by Rust when
+  -- the message is no longer in use
+  -- still need to take care of closures like Input String
   message <- deRefStablePtr messagePtr
-  -- keep command for future use
   let (newModel, command) = intoCommand update model message
-  -- better call it from Rust after we change the pointer to a new one
-  freeStablePtr modelPtr
-  -- do something with messagePtr too
-  -- some messages are just Inc | Dec, and persist
-  -- others are Input String, and must be deallocated
   packResult newModel command
 
 packResult :: model -> Command message -> IO (UpdateResultPtr)
@@ -167,6 +165,9 @@ run attributes title model update view = do
   settingsPtr <- newSettings
   applyAttributes settingsPtr attributes
   run_app settingsPtr titlePtr modelPtr updatePtr viewPtr
+  freeHaskellFunPtr titlePtr
+  freeHaskellFunPtr updatePtr
+  freeHaskellFunPtr viewPtr
 
 addFont :: [Word8] -> Attribute
 addFont bytes = Font bytes

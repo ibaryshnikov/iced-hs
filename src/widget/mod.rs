@@ -11,6 +11,7 @@ mod radio;
 mod responsive;
 mod row;
 mod scrollable;
+mod slider;
 mod space;
 mod text;
 mod text_editor;
@@ -20,9 +21,9 @@ mod tooltip;
 
 use crate::IcedMessage;
 
-pub(crate) type ElementPtr = *mut iced::Element<'static, IcedMessage>;
+pub type ElementPtr = *mut iced::Element<'static, IcedMessage>;
 
-pub(crate) fn read_c_string(input: *mut c_char) -> String {
+pub fn read_c_string(input: *mut c_char) -> String {
     let c_string = unsafe { CString::from_raw(input) };
     c_string
         .into_string()

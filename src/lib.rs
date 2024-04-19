@@ -1,4 +1,5 @@
 use std::ffi::c_char;
+use std::sync::Arc;
 
 use iced::{Application, Command, Element, Settings, Theme};
 
@@ -13,29 +14,40 @@ mod widget;
 use command::UpdateResult;
 use widget::read_c_string;
 
-pub(crate) type Model = *const u8;
-pub(crate) type Message = *const u8;
+type Model = *const u8;
+type Message = *const u8;
 type Title = unsafe extern "C" fn(model: Model) -> *mut c_char;
 type Update = unsafe extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
 type View = unsafe extern "C" fn(model: Model) -> widget::ElementPtr;
 
+extern "C" {
+    fn free_stable_ptr(ptr: *const u8);
+}
+
 #[derive(Debug, Clone)]
-pub struct HaskellMessage {
+struct HaskellMessage {
     ptr: *const u8,
 }
 unsafe impl Send for HaskellMessage {}
 unsafe impl Sync for HaskellMessage {}
 
+impl Drop for HaskellMessage {
+    fn drop(&mut self) {
+        unsafe { free_stable_ptr(self.ptr) }
+    }
+}
+
 #[derive(Clone, Debug)]
-pub enum IcedMessage {
-    Ptr(HaskellMessage),
+enum IcedMessage {
+    Ptr(Arc<HaskellMessage>),
     None,
 }
 
 impl IcedMessage {
     // StablePtr to Haskell message
     fn ptr(ptr: *const u8) -> Self {
-        IcedMessage::Ptr(HaskellMessage { ptr })
+        let message = HaskellMessage { ptr };
+        IcedMessage::Ptr(Arc::new(message))
     }
 }
 
@@ -79,7 +91,13 @@ impl Application for App {
             IcedMessage::Ptr(message) => {
                 let result_ptr = unsafe { (self.update_hs)(self.model, message.ptr) };
                 let result = unsafe { Box::from_raw(result_ptr) };
-                self.model = result.model;
+                // when pointer changes, free the old one
+                // in fact, it almost always changes
+                if self.model != result.model {
+                    let old_ptr = self.model;
+                    self.model = result.model;
+                    unsafe { free_stable_ptr(old_ptr) }
+                }
                 result.command.perform()
             }
             IcedMessage::None => Command::none(),
@@ -102,9 +120,8 @@ fn make_settings(settings: Settings<()>, flags: Flags) -> Settings<Flags> {
     }
 }
 
-#[allow(clippy::not_unsafe_ptr_arg_deref)]
 #[no_mangle]
-pub extern "C" fn run_app(
+extern "C" fn run_app(
     settings_ptr: *mut Settings<()>,
     maybe_title: Option<Title>,
     model: Model,

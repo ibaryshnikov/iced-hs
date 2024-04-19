@@ -78,8 +78,6 @@ onPress message = OnPress message
 
 useOnPress :: message -> AttributeFn
 useOnPress message selfPtr = do
-  -- pass a callback instead which will create
-  -- a new StablePtr for each message separately
   messagePtr <- newStablePtr message
   button_on_press selfPtr messagePtr
 

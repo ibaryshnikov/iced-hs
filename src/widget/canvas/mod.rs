@@ -41,7 +41,7 @@ impl<Message> Program<Message> for CanvasState {
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_state_new(draw: Draw) -> *mut CanvasState {
+extern "C" fn canvas_state_new(draw: Draw) -> *mut CanvasState {
     let state = CanvasState {
         cache: Cache::default(),
         draw_hs: Some(draw),
@@ -50,47 +50,47 @@ pub extern "C" fn canvas_state_new(draw: Draw) -> *mut CanvasState {
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_set_draw(state: &mut CanvasState, draw: Draw) {
+extern "C" fn canvas_set_draw(state: &mut CanvasState, draw: Draw) {
     state.draw_hs = Some(draw);
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_remove_draw(state: &mut CanvasState) {
+extern "C" fn canvas_remove_draw(state: &mut CanvasState) {
     state.draw_hs = None;
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_clear_cache(state: &mut CanvasState) {
+extern "C" fn canvas_clear_cache(state: &mut CanvasState) {
     state.cache.clear();
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_state_free(pointer: *mut CanvasState) {
+extern "C" fn canvas_state_free(pointer: *mut CanvasState) {
     let _ = unsafe { Box::from_raw(pointer) };
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_new(state: &'static CanvasState) -> SelfPtr {
+extern "C" fn canvas_new(state: &'static CanvasState) -> SelfPtr {
     let canvas = canvas(state);
     Box::into_raw(Box::new(canvas))
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+extern "C" fn canvas_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
     let canvas = unsafe { Box::from_raw(self_ptr) };
     let width = unsafe { *Box::from_raw(width) };
     Box::into_raw(Box::new(canvas.width(width)))
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+extern "C" fn canvas_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
     let canvas = unsafe { Box::from_raw(self_ptr) };
     let height = unsafe { *Box::from_raw(height) };
     Box::into_raw(Box::new(canvas.height(height)))
 }
 
 #[no_mangle]
-pub extern "C" fn canvas_into_element(self_ptr: SelfPtr) -> ElementPtr {
+extern "C" fn canvas_into_element(self_ptr: SelfPtr) -> ElementPtr {
     let canvas = unsafe { *Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(canvas.into()))
 }
