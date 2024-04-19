@@ -21,8 +21,12 @@ data NativeColumn
 type SelfPtr = Ptr NativeColumn
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = Spacing Float | AddPadding Padding | AlignItems Alignment
- | Width Length | Height Length
+data Attribute
+  = Spacing Float
+  | AddPadding Padding
+  | AlignItems Alignment
+  | Width Length
+  | Height Length
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_column"
@@ -88,10 +92,10 @@ instance UsePadding Attribute where
 instance PaddingToAttribute Attribute where
   paddingToAttribute value = AddPadding value
 
-instance UseWidth Attribute where
+instance UseWidth Length Attribute where
   width len = Width len
 
-instance UseHeight Attribute where
+instance UseHeight Length Attribute where
   height len = Height len
 
 column :: [Attribute] -> [Element] -> Element

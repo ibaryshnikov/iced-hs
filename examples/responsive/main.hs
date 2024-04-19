@@ -8,13 +8,12 @@ import Iced.Attribute
 import Iced.Size
 import Iced.Widget
 
-data Model = Model { value :: Float }
+data Model = Model { value :: Int }
 
-data Message = Inc | Dec
+data Message = WidthChanged Int
 
 update :: Model -> Message -> Model
-update model Inc = model { value = model.value + 10 }
-update model Dec = model { value = model.value - 10 }
+update model (WidthChanged value) = model { value = value }
 
 view :: Model -> Element
 view model =
@@ -24,11 +23,11 @@ view model =
     spaceHeight (Fixed 20),
     row [alignItems Center, spacing 6] [
       text [width (Fixed 200)] $ "Container width: " ++ show model.value,
-      button [onPress Dec] "-",
-      button [onPress Inc] "+"
+      slider [width (Fixed 200)] 0 500 model.value WidthChanged
     ],
     spaceHeight (Fixed 20),
-    container [width (Fixed model.value), height (Fixed 100)] $ responsive label
+    container [width (Fixed $ fromIntegral model.value), height (Fixed 100)] $
+      responsive label
   ]
 
 label :: Size -> Element

@@ -17,6 +17,7 @@ module Iced.Widget (
   module Iced.Widget.TextInput,
   module Iced.Widget.Toggler,
   module Iced.Widget.Tooltip,
+  module Iced.Widget.VerticalSlider,
 ) where
 
 import Iced.Widget.Button
@@ -37,3 +38,4 @@ import Iced.Widget.TextEditor
 import Iced.Widget.TextInput
 import Iced.Widget.Toggler
 import Iced.Widget.Tooltip
+import Iced.Widget.VerticalSlider

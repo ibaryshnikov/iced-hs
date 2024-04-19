@@ -1,21 +1,52 @@
+{-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Main where
 
 import Iced
 import Iced.Attribute
 import Iced.Widget
 
-data Message = Changed Int
+data Model = Model {
+  vertical :: Int,
+  horizontal :: Int
+}
 
-update :: Int -> Message -> Int
-update _oldValue (Changed value) = value
+data Message
+  = ChangedVertical Int
+  | ChangedHorizontal Int
+  | ReleasedVertical
+  | ReleasedHorizontal
 
-view :: Int -> Element
-view value =
+update :: Model -> Message -> Model
+update model (ChangedVertical value) = model { vertical = value }
+update model (ChangedHorizontal value) = model { horizontal = value }
+update model ReleasedVertical = model { horizontal = model.vertical }
+update model ReleasedHorizontal = model { vertical = model.horizontal }
+
+view :: Model -> Element
+view model =
   container [centerX, centerY, width Fill, height Fill] $
-  column [alignItems Center] [
-    text [] $ show value,
-    slider [width (Fixed 100)] 0 100 value Changed
+  column [alignItems Center, spacing 10, width (Fixed 150)] [
+    label "Vertical" model.vertical,
+    label "Horizontal" model.horizontal,
+    spaceHeight (Fixed 20),
+    verticalSlider [height (Fixed 150), onRelease ReleasedVertical]
+      0 100 model.vertical ChangedVertical,
+    spaceHeight (Fixed 20),
+    slider [width (Fixed 150), onRelease ReleasedHorizontal]
+      0 100 model.horizontal ChangedHorizontal
+  ]
+
+label :: String -> Int -> Element
+label prefix value =
+  row [] [
+    text [] prefix,
+    horizontalSpace,
+    text [] $ show value
   ]
 
 main :: IO ()
-main = Iced.run [] "Slider" 50 update view
+main = Iced.run [] "Slider" model update view
+  where
+    model = Model { vertical = 50, horizontal = 50 }

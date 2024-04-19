@@ -86,7 +86,7 @@ is currently small, but growing over time.
    - [ ] horizontalRule, verticalRule
    - [x] row
    - [x] scrollable
-   - [ ] slider, verticalSlider
+   - [x] slider, verticalSlider
    - [x] horizontalSpace, verticalSpace
    - [ ] svg
    - [x] text

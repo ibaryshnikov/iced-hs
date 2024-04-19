@@ -55,10 +55,10 @@ instance UseAttribute SelfPtr Attribute where
 instance UseSize Attribute where
   size value = Size value
 
-instance UseWidth Attribute where
+instance UseWidth Length Attribute where
   width len = Width len
 
-instance UseHeight Attribute where
+instance UseHeight Length Attribute where
   height len = Height len
 
 text :: [Attribute] -> String -> Element

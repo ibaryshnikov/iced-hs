@@ -18,6 +18,7 @@ mod text_editor;
 mod text_input;
 mod toggler;
 mod tooltip;
+mod vertical_slider;
 
 use crate::IcedMessage;
 

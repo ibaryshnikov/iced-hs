@@ -105,7 +105,7 @@ instance UsePadding (Attribute message) where
 instance PaddingToAttribute (Attribute message) where
   paddingToAttribute value = AddPadding value
 
-instance UseHeight (Attribute message) where
+instance UseHeight Length (Attribute message) where
   height len = Height len
 
 textEditor :: [Attribute message] -> Content -> Element

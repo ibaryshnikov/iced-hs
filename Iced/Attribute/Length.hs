@@ -4,8 +4,8 @@ import Data.Word
 
 data Length = Fill | FillPortion Word16 | Shrink | Fixed Float
 
-class UseWidth a where
-  width :: Length -> a
+class UseWidth value attribute where
+  width :: value -> attribute
 
-class UseHeight a where
-  height :: Length -> a
+class UseHeight value attribute where
+  height :: value -> attribute

@@ -123,7 +123,7 @@ instance UsePadding (Attribute option message) where
 instance PaddingToAttribute (Attribute option message) where
   paddingToAttribute value = AddPadding value
 
-instance UseWidth (Attribute option message) where
+instance UseWidth Length (Attribute option message) where
   width len = Width len
 
 comboBox :: (Show option, Read option) => [Attribute option message]

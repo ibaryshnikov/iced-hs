@@ -45,8 +45,8 @@ wrapUpdate :: IntoCommand model message result (model, Command message)
 wrapUpdate update modelPtr messagePtr = do
   -- modelPtr is freed by Rust when it changes
   model <- deRefStablePtr modelPtr
-  -- messagePtr is dropped by Rust when
-  -- the message is no longer in use
+  -- messagePtr is freed by Rust when
+  -- the message is no longer in use.
   -- still need to take care of closures like Input String
   message <- deRefStablePtr messagePtr
   let (newModel, command) = intoCommand update model message

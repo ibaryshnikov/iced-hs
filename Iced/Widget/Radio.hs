@@ -77,7 +77,7 @@ instance UseAttribute SelfPtr Attribute where
     case attribute of
       Width len -> useWidth len selfPtr
 
-instance UseWidth Attribute where
+instance UseWidth Length Attribute where
   width len = Width len
 
 radio :: Enum option

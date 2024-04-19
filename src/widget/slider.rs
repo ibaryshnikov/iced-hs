@@ -25,10 +25,28 @@ extern "C" fn slider_new(
 }
 
 #[no_mangle]
+extern "C" fn slider_default(self_ptr: SelfPtr, value: c_int) -> SelfPtr {
+    let slider = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(slider.default(value)))
+}
+
+#[no_mangle]
 extern "C" fn slider_on_release(self_ptr: SelfPtr, message_ptr: *const u8) -> SelfPtr {
     let slider = unsafe { Box::from_raw(self_ptr) };
     let message = IcedMessage::ptr(message_ptr);
     Box::into_raw(Box::new(slider.on_release(message)))
+}
+
+#[no_mangle]
+extern "C" fn slider_step(self_ptr: SelfPtr, value: c_int) -> SelfPtr {
+    let slider = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(slider.step(value)))
+}
+
+#[no_mangle]
+extern "C" fn slider_shift_step(self_ptr: SelfPtr, value: c_int) -> SelfPtr {
+    let slider = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(slider.shift_step(value)))
 }
 
 #[no_mangle]

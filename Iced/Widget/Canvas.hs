@@ -90,10 +90,10 @@ instance UseAttribute SelfPtr Attribute where
       Width len -> useWidth len selfPtr
       Height len -> useHeight len selfPtr
 
-instance UseWidth Attribute where
+instance UseWidth Length Attribute where
   width len = Width len
 
-instance UseHeight Attribute where
+instance UseHeight Length Attribute where
   height len = Height len
 
 canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element

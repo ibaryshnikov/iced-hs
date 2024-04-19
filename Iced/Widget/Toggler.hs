@@ -77,7 +77,7 @@ instance UseSize Attribute where
 instance UseSpacing Attribute where
   spacing value = Spacing value
 
-instance UseWidth Attribute where
+instance UseWidth Length Attribute where
   width len = Width len
 
 toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element

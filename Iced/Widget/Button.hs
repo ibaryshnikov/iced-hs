@@ -64,10 +64,10 @@ instance UsePadding (Attribute message) where
 instance PaddingToAttribute (Attribute message) where
   paddingToAttribute value = AddPadding value
 
-instance UseWidth (Attribute message) where
+instance UseWidth Length (Attribute message) where
   width len = Width len
 
-instance UseHeight (Attribute message) where
+instance UseHeight Length (Attribute message) where
   height len = Height len
 
 button :: [Attribute message] -> String -> Element
