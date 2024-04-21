@@ -24,8 +24,8 @@ data NativeCanvasState
 type CanvasStatePtr = Ptr NativeCanvasState
 type CanvasState = CanvasStatePtr; -- to export
 data NativeCanvas
-type SelfPtr = Ptr NativeCanvas
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeCanvas
+type AttributeFn = Self -> IO Self
 
 data Attribute = Width Length | Height Length
 
@@ -45,16 +45,16 @@ foreign import ccall safe "canvas_state_free"
   canvas_state_free :: CanvasStatePtr -> IO ()
 
 foreign import ccall safe "canvas_new"
-  canvas_new :: CanvasStatePtr -> IO (SelfPtr)
+  canvas_new :: CanvasStatePtr -> IO Self
 
 foreign import ccall safe "canvas_width"
-  canvas_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  canvas_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "canvas_height"
-  canvas_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  canvas_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "canvas_into_element"
-  canvas_into_element :: SelfPtr -> IO (ElementPtr)
+  canvas_into_element :: Self -> IO ElementPtr
 
 type NativeDraw = FramePtr -> IO ()
 foreign import ccall "wrapper"
@@ -80,15 +80,15 @@ instance IntoNative Canvas where
   toNative details = do
     drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
     canvas_set_draw details.cache drawCallbackPtr
-    selfPtr <- canvas_new details.cache
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- canvas_new details.cache
+    updatedSelf <- applyAttributes self details.attributes
     canvas_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UseWidth Length Attribute where
   width len = Width len
@@ -100,14 +100,14 @@ canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element
 canvas attributes actions cache = pack Canvas { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  canvas_width selfPtr nativeLen
+  canvas_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  canvas_height selfPtr nativeLen
+  canvas_height self nativeLen
 
 newCanvasState :: IO (CanvasStatePtr)
 newCanvasState = canvas_state_new

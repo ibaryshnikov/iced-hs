@@ -15,20 +15,20 @@ import Iced.Attribute.LengthFFI
 import Iced.Element
 
 data NativeRadio
-type SelfPtr = Ptr NativeRadio
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeRadio
+type AttributeFn = Self -> IO Self
 
 data Attribute = Width Length
 
 -- label value selected on_select
 foreign import ccall safe "radio_new"
-  radio_new :: CString -> CUInt -> CUInt -> FunPtr (NativeOnClick a) -> IO (SelfPtr)
+  radio_new :: CString -> CUInt -> CUInt -> FunPtr (NativeOnClick a) -> IO Self
 
 foreign import ccall safe "radio_width"
-  radio_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  radio_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "radio_into_element"
-  radio_into_element :: SelfPtr -> IO (ElementPtr)
+  radio_into_element :: Self -> IO ElementPtr
 
 type NativeOnClick message = CUInt -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -68,14 +68,14 @@ instance Enum option => IntoNative (Radio option message) where
     let value = fromIntegral $ optionToInt details.value
     let selected = fromIntegral $ selectedToInt details.selected
     onSelectPtr <- makeCallback $ wrapOnClick details.onClick
-    selfPtr <- radio_new labelPtr value selected onSelectPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- radio_new labelPtr value selected onSelectPtr
+    updatedSelf <- applyAttributes self details.attributes
     radio_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Width len -> useWidth len selfPtr
+      Width len -> useWidth len self
 
 instance UseWidth Length Attribute where
   width len = Width len
@@ -86,6 +86,6 @@ radio :: Enum option
 radio attributes label value selected onClick = pack Radio { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  radio_width selfPtr nativeLen
+  radio_width self nativeLen

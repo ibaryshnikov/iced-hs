@@ -13,37 +13,37 @@ import Iced.Attribute.LengthFFI
 import Iced.Element
 
 data NativeScrollable
-type SelfPtr = Ptr NativeScrollable
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeScrollable
+type AttributeFn = Self -> IO Self
 
 data Attribute = Width Length | Height Length
 
 foreign import ccall safe "scrollable_new"
-  scrollable_new :: ElementPtr -> IO (SelfPtr)
+  scrollable_new :: ElementPtr -> IO Self
 
 foreign import ccall safe "scrollable_width"
-  scrollable_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  scrollable_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "scrollable_height"
-  scrollable_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  scrollable_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "scrollable_into_element"
-  scrollable_into_element :: SelfPtr -> IO (ElementPtr)
+  scrollable_into_element :: Self -> IO ElementPtr
 
 data Scrollable = Scrollable { attributes :: [Attribute], content :: Element }
 
 instance IntoNative Scrollable where
   toNative details = do
     contentPtr <- elementToNative details.content
-    selfPtr <- scrollable_new contentPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- scrollable_new contentPtr
+    updatedSelf <- applyAttributes self details.attributes
     scrollable_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UseWidth Length Attribute where
   width len = Width len
@@ -55,11 +55,11 @@ scrollable :: [Attribute] -> Element -> Element
 scrollable attributes content = pack Scrollable { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  scrollable_width selfPtr nativeLen
+  scrollable_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  scrollable_height selfPtr nativeLen
+  scrollable_height self nativeLen

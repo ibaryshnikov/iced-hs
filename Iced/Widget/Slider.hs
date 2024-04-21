@@ -15,8 +15,8 @@ import Iced.Attribute.SliderCommon
 import Iced.Element
 
 data NativeSlider
-type SelfPtr = Ptr NativeSlider
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeSlider
+type AttributeFn = Self -> IO Self
 
 data Attribute message
   = OnRelease message
@@ -28,28 +28,28 @@ data Attribute message
 
 -- range_from range_to value on_change
 foreign import ccall safe "slider_new"
-  slider_new :: CInt -> CInt -> CInt -> FunPtr (NativeOnChange a) -> IO (SelfPtr)
+  slider_new :: CInt -> CInt -> CInt -> FunPtr (NativeOnChange a) -> IO Self
 
 foreign import ccall safe "slider_default"
-  slider_default :: SelfPtr -> CInt -> IO (SelfPtr)
+  slider_default :: Self -> CInt -> IO Self
 
 foreign import ccall safe "slider_on_release"
-  slider_on_release :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+  slider_on_release :: Self -> StablePtr a -> IO Self
 
 foreign import ccall safe "slider_step"
-  slider_step :: SelfPtr -> CInt -> IO (SelfPtr)
+  slider_step :: Self -> CInt -> IO Self
 
 foreign import ccall safe "slider_shift_step"
-  slider_shift_step :: SelfPtr -> CInt -> IO (SelfPtr)
+  slider_shift_step :: Self -> CInt -> IO Self
 
 foreign import ccall safe "slider_width"
-  slider_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  slider_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "slider_height"
-  slider_height :: SelfPtr -> CFloat -> IO (SelfPtr)
+  slider_height :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "slider_into_element"
-  slider_into_element :: SelfPtr -> IO (ElementPtr)
+  slider_into_element :: Self -> IO ElementPtr
 
 
 type NativeOnChange message = CInt -> IO (StablePtr message)
@@ -76,19 +76,19 @@ instance IntoNative (Slider message) where
     let rangeTo = fromIntegral details.rangeTo
     let value = fromIntegral details.value
     onChangePtr <- makeCallback $ wrapOnChange details.onChange
-    selfPtr <- slider_new rangeFrom rangeTo value onChangePtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- slider_new rangeFrom rangeTo value onChangePtr
+    updatedSelf <- applyAttributes self details.attributes
     slider_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      AddDefault value -> useDefault value selfPtr
-      OnRelease message -> useOnRelease message selfPtr
-      AddStep value -> useStep value selfPtr
-      AddShiftStep value -> useShiftStep value selfPtr
-      Width len -> useWidth len selfPtr
-      Height value -> useHeight value selfPtr
+      AddDefault value -> useDefault value self
+      OnRelease message -> useOnRelease message self
+      AddStep value -> useStep value self
+      AddShiftStep value -> useShiftStep value self
+      Width len -> useWidth len self
+      Height value -> useHeight value self
 
 instance SliderCommon (Attribute message) where
   addDefault value = AddDefault value
@@ -108,23 +108,23 @@ slider :: [Attribute message] -> Int -> Int -> Int -> OnChange message -> Elemen
 slider attributes rangeFrom rangeTo value onChange = pack Slider { .. }
 
 useDefault :: Int -> AttributeFn
-useDefault value selfPtr = slider_default selfPtr $ fromIntegral value
+useDefault value self = slider_default self $ fromIntegral value
 
 useOnRelease :: message -> AttributeFn
-useOnRelease message selfPtr = do
+useOnRelease message self = do
   messagePtr <- newStablePtr message
-  slider_on_release selfPtr messagePtr
+  slider_on_release self messagePtr
 
 useStep :: Int -> AttributeFn
-useStep value selfPtr = slider_step selfPtr $ fromIntegral value
+useStep value self = slider_step self $ fromIntegral value
 
 useShiftStep :: Int -> AttributeFn
-useShiftStep value selfPtr = slider_shift_step selfPtr $ fromIntegral value
+useShiftStep value self = slider_shift_step self $ fromIntegral value
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  slider_width selfPtr nativeLen
+  slider_width self nativeLen
 
 useHeight :: Float -> AttributeFn
-useHeight value selfPtr = slider_height selfPtr (CFloat value)
+useHeight value self = slider_height self (CFloat value)

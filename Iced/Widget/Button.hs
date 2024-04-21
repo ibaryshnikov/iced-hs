@@ -14,29 +14,29 @@ import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeButton
-type SelfPtr = Ptr NativeButton
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeButton
+type AttributeFn = Self -> IO Self
 
 data Attribute message = AddPadding Padding | OnPress message | Width Length | Height Length
 
 foreign import ccall safe "button_new"
-  button_new :: CString -> IO (SelfPtr)
+  button_new :: CString -> IO Self
 
 foreign import ccall safe "button_on_press"
-  button_on_press :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+  button_on_press :: Self -> StablePtr a -> IO Self
 
 -- button top right bottom left
 foreign import ccall safe "button_padding"
-  button_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  button_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "button_width"
-  button_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  button_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "button_height"
-  button_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  button_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "button_into_element"
-  button_into_element :: SelfPtr -> IO (ElementPtr)
+  button_into_element :: Self -> IO ElementPtr
 
 data Button message = Button {
   attributes :: [Attribute message],
@@ -46,17 +46,17 @@ data Button message = Button {
 instance IntoNative (Button message) where
   toNative details = do
     labelPtr <- newCString details.label
-    selfPtr <- button_new labelPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- button_new labelPtr
+    updatedSelf <- applyAttributes self details.attributes
     button_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      OnPress message -> useOnPress message selfPtr
-      AddPadding value -> usePadding value selfPtr
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      OnPress message -> useOnPress message self
+      AddPadding value -> usePadding value self
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v
@@ -77,20 +77,20 @@ onPress :: message -> Attribute message
 onPress message = OnPress message
 
 useOnPress :: message -> AttributeFn
-useOnPress message selfPtr = do
+useOnPress message self = do
   messagePtr <- newStablePtr message
-  button_on_press selfPtr messagePtr
+  button_on_press self messagePtr
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  button_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  button_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  button_width selfPtr nativeLen
+  button_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  button_height selfPtr nativeLen
+  button_height self nativeLen

@@ -25,8 +25,8 @@ import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeTextEditor
-type SelfPtr = Ptr NativeTextEditor
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeTextEditor
+type AttributeFn = Self -> IO Self
 data NativeContent
 type Content = Ptr NativeContent
 data NativeAction
@@ -56,20 +56,20 @@ applyAction content action = unsafePerformIO $ do -- todo: make it a Command
   return content
 
 foreign import ccall safe "text_editor_new"
-  text_editor_new :: Content -> IO (SelfPtr)
+  text_editor_new :: Content -> IO Self
 
 foreign import ccall safe "text_editor_on_action"
-  text_editor_on_action :: SelfPtr -> FunPtr (NativeOnAction message) -> IO (SelfPtr)
+  text_editor_on_action :: Self -> FunPtr (NativeOnAction message) -> IO Self
 
 -- text_editor top right bottom left
 foreign import ccall safe "text_editor_padding"
-  text_editor_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  text_editor_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "text_editor_height"
-  text_editor_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  text_editor_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "text_editor_into_element"
-  text_editor_into_element :: SelfPtr -> IO (ElementPtr)
+  text_editor_into_element :: Self -> IO ElementPtr
 
 type NativeOnAction message = Action -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -88,16 +88,16 @@ data TextEditor message = TextEditor {
 
 instance IntoNative (TextEditor message) where
   toNative details = do
-    selfPtr <- text_editor_new details.content
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- text_editor_new details.content
+    updatedSelf <- applyAttributes self details.attributes
     text_editor_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      AddOnAction callback -> useOnAction callback selfPtr
-      AddPadding value -> usePadding value selfPtr
-      Height len -> useHeight len selfPtr
+      AddOnAction callback -> useOnAction callback self
+      AddPadding value -> usePadding value self
+      Height len -> useHeight len self
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v
@@ -115,18 +115,18 @@ onAction :: OnAction message -> Attribute message
 onAction callback = AddOnAction callback
 
 useOnAction :: OnAction message -> AttributeFn
-useOnAction callback selfPtr = do
+useOnAction callback self = do
   onActionPtr <- makeCallback $ wrapOnAction callback
-  text_editor_on_action selfPtr onActionPtr
+  text_editor_on_action self onActionPtr
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  text_editor_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  text_editor_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  text_editor_height selfPtr nativeLen
+  text_editor_height self nativeLen
 
 newContent :: Content
 newContent = text_editor_content_new

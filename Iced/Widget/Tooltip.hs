@@ -17,8 +17,8 @@ import Iced.Element
 import Iced.Attribute.Padding
 
 data NativeTooltip
-type SelfPtr = Ptr NativeTooltip
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeTooltip
+type AttributeFn = Self -> IO Self
 data NativeStyle
 type StylePtr = Ptr NativeStyle
 data Position = FollowCursor | Top | Bottom | LeftSide | RightSide
@@ -27,27 +27,27 @@ data Attribute = Gap Float | AddPadding Float | SnapWithViewport Bool -- | Style
 
 -- content tooltip position
 foreign import ccall safe "tooltip_new"
-  tooltip_new :: ElementPtr -> ElementPtr -> CUChar -> IO (SelfPtr)
+  tooltip_new :: ElementPtr -> ElementPtr -> CUChar -> IO Self
 
 -- tooltip gap
 foreign import ccall safe "tooltip_gap"
-  tooltip_gap :: SelfPtr -> CFloat -> IO (SelfPtr)
+  tooltip_gap :: Self -> CFloat -> IO Self
 
 -- tooltip padding
 foreign import ccall safe "tooltip_padding"
-  tooltip_padding :: SelfPtr -> CFloat -> IO (SelfPtr)
+  tooltip_padding :: Self -> CFloat -> IO Self
 
 -- tooltip snap
 foreign import ccall safe "tooltip_snap_within_viewport"
-  tooltip_snap_within_viewport :: SelfPtr -> CBool -> IO (SelfPtr)
+  tooltip_snap_within_viewport :: Self -> CBool -> IO Self
 
 -- skip for now
 -- tooltip style
 foreign import ccall safe "tooltip_style"
-  tooltip_style :: SelfPtr -> StylePtr -> IO (SelfPtr)
+  tooltip_style :: Self -> StylePtr -> IO Self
 
 foreign import ccall safe "tooltip_into_element"
-  tooltip_into_element :: SelfPtr -> IO (ElementPtr)
+  tooltip_into_element :: Self -> IO ElementPtr
 
 data Tooltip = Tooltip {
   attributes :: [Attribute],
@@ -69,16 +69,16 @@ instance IntoNative Tooltip where
     contentPtr <- elementToNative details.content
     tooltipPtr <- elementToNative details.tooltipElement
     let position = positionToNative details.position
-    selfPtr <- tooltip_new contentPtr tooltipPtr (CUChar position)
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- tooltip_new contentPtr tooltipPtr (CUChar position)
+    updatedSelf <- applyAttributes self details.attributes
     tooltip_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Gap value -> useGap value selfPtr
-      AddPadding value -> usePadding value selfPtr
-      SnapWithViewport snap -> useSnapWithViewport snap selfPtr
+      Gap value -> useGap value self
+      AddPadding value -> usePadding value self
+      SnapWithViewport snap -> useSnapWithViewport snap self
 
 instance UsePadding Attribute where
   padding value = AddPadding value
@@ -90,16 +90,16 @@ gap :: Float -> Attribute
 gap value = Gap value
 
 useGap :: Float -> AttributeFn
-useGap value selfPtr = do
-  tooltip_gap selfPtr (CFloat value)
+useGap value self = do
+  tooltip_gap self (CFloat value)
 
 usePadding :: Float -> AttributeFn
-usePadding value selfPtr = do
-  tooltip_padding selfPtr (CFloat value)
+usePadding value self = do
+  tooltip_padding self (CFloat value)
 
 snapWithViewport :: Bool -> Attribute
 snapWithViewport snap = SnapWithViewport snap
 
 useSnapWithViewport :: Bool -> AttributeFn
-useSnapWithViewport snap selfPtr = do
-  tooltip_snap_within_viewport selfPtr (fromBool snap)
+useSnapWithViewport snap self = do
+  tooltip_snap_within_viewport self (fromBool snap)

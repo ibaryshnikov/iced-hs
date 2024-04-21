@@ -17,38 +17,38 @@ import Iced.Attribute.LengthFFI
 import Iced.Element
 
 data NativeSpace
-type SelfPtr = Ptr NativeSpace
+type Self = Ptr NativeSpace
 
 -- width height
 foreign import ccall safe "space_new"
-  space_new :: LengthPtr -> LengthPtr -> IO (SelfPtr)
+  space_new :: LengthPtr -> LengthPtr -> IO Self
 
 -- width
 foreign import ccall safe "space_with_width"
-  space_with_width :: LengthPtr -> IO (SelfPtr)
+  space_with_width :: LengthPtr -> IO Self
 
 -- height
 foreign import ccall safe "space_with_height"
-  space_with_height :: LengthPtr -> IO (SelfPtr)
+  space_with_height :: LengthPtr -> IO Self
 
 foreign import ccall safe "horizontal_space_new"
-  horizontal_space_new :: IO (SelfPtr)
+  horizontal_space_new :: IO Self
 
 foreign import ccall safe "vertical_space_new"
-  vertical_space_new :: IO (SelfPtr)
+  vertical_space_new :: IO Self
 
 foreign import ccall safe "space_into_element"
-  space_into_element :: SelfPtr -> IO (ElementPtr)
+  space_into_element :: Self -> IO ElementPtr
 
 data Space = Space Length Length | Width Length | Height Length | Horizontal | Vertical
 
 instance IntoNative Space where
   toNative details = do
-    selfPtr <- makeSpace details
+    self <- makeSpace details
     -- currently no attributes for Space
-    space_into_element selfPtr
+    space_into_element self
 
-makeSpace :: Space -> IO (SelfPtr)
+makeSpace :: Space -> IO Self
 makeSpace kind = case kind of
   Space w h -> space_new widthPtr heightPtr where
     widthPtr = lengthToNative w

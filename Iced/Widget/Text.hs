@@ -16,41 +16,41 @@ import Iced.Attribute.Size
 import Iced.Element
 
 data NativeText
-type SelfPtr = Ptr NativeText
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeText
+type AttributeFn = Self -> IO Self
 
 data Attribute = Size Float | Width Length | Height Length
 
 foreign import ccall safe "text_new"
-  text_new :: CString -> IO (SelfPtr)
+  text_new :: CString -> IO Self
 
 foreign import ccall safe "text_size"
-  text_size :: SelfPtr -> CFloat -> IO (SelfPtr)
+  text_size :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "text_width"
-  text_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  text_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "text_height"
-  text_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  text_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "text_into_element"
-  text_into_element :: SelfPtr -> IO (ElementPtr)
+  text_into_element :: Self -> IO ElementPtr
 
 data Text = Text { attributes :: [Attribute], value :: String }
 
 instance IntoNative Text where
   toNative details = do
     valuePtr <- newCString details.value
-    selfPtr <- text_new valuePtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- text_new valuePtr
+    updatedSelf <- applyAttributes self details.attributes
     text_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Size value -> useSize value selfPtr
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      Size value -> useSize value self
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UseSize Attribute where
   size value = Size value
@@ -65,15 +65,15 @@ text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }
 
 useSize :: Float -> AttributeFn
-useSize value selfPtr = do
-  text_size selfPtr (CFloat value)
+useSize value self = do
+  text_size self (CFloat value)
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  text_width selfPtr nativeLen
+  text_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  text_height selfPtr nativeLen
+  text_height self nativeLen

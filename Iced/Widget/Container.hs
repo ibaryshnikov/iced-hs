@@ -17,50 +17,50 @@ import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeContainer
-type SelfPtr = Ptr NativeContainer
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeContainer
+type AttributeFn = Self -> IO Self
 
 data Attribute = AddPadding Padding | CenterX | CenterY | Width Length | Height Length
 
 foreign import ccall safe "container_new"
-  container_new :: ElementPtr -> IO (SelfPtr)
+  container_new :: ElementPtr -> IO Self
 
 foreign import ccall safe "container_center_x"
-  container_center_x :: SelfPtr -> IO (SelfPtr)
+  container_center_x :: Self -> IO Self
 
 foreign import ccall safe "container_center_y"
-  container_center_y :: SelfPtr -> IO (SelfPtr)
+  container_center_y :: Self -> IO Self
 
 -- container top right bottom left
 foreign import ccall safe "container_padding"
-  container_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  container_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "container_width"
-  container_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  container_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "container_height"
-  container_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  container_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "container_into_element"
-  container_into_element :: SelfPtr -> IO (ElementPtr)
+  container_into_element :: Self -> IO ElementPtr
 
 data Container = Container { attributes :: [Attribute], content :: Element }
 
 instance IntoNative Container where
   toNative details = do
     contentPtr <- elementToNative details.content
-    selfPtr <- container_new contentPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- container_new contentPtr
+    updatedSelf <- applyAttributes self details.attributes
     container_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      AddPadding value -> usePadding value selfPtr
-      CenterX -> useCenterX selfPtr
-      CenterY -> useCenterY selfPtr
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      AddPadding value -> usePadding value self
+      CenterX -> useCenterX self
+      CenterY -> useCenterY self
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
@@ -90,15 +90,15 @@ useCenterY :: AttributeFn
 useCenterY = container_center_y
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  container_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  container_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  container_width selfPtr nativeLen
+  container_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  container_height selfPtr nativeLen
+  container_height self nativeLen

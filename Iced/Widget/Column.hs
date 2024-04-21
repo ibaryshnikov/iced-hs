@@ -18,8 +18,8 @@ import Iced.Attribute.Spacing
 import Iced.Element
 
 data NativeColumn
-type SelfPtr = Ptr NativeColumn
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeColumn
+type AttributeFn = Self -> IO Self
 
 data Attribute
   = Spacing Float
@@ -30,34 +30,34 @@ data Attribute
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "new_column"
---  new_column :: IO (SelfPtr)
+--  new_column :: IO Self
 
 foreign import ccall safe "column_align_items"
-  column_align_items :: SelfPtr -> AlignmentPtr -> IO (SelfPtr)
+  column_align_items :: Self -> AlignmentPtr -> IO Self
 
 -- column top right bottom left
 foreign import ccall safe "column_padding"
-  column_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  column_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 -- column value
 foreign import ccall safe "column_spacing"
-  column_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
+  column_spacing :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "column_with_children"
-  column_with_children :: CUInt -> Ptr ElementPtr -> IO (SelfPtr)
+  column_with_children :: CUInt -> Ptr ElementPtr -> IO Self
 
 -- this function is for future use, commented to hide warnings
 --foreign import ccall safe "column_extend"
---  column_extend :: SelfPtr -> CUInt -> Ptr ElementPtr -> IO (SelfPtr)
+--  column_extend :: Self -> CUInt -> Ptr ElementPtr -> IO Self
 
 foreign import ccall safe "column_width"
-  column_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  column_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "column_height"
-  column_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  column_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "column_into_element"
-  column_into_element :: SelfPtr -> IO (ElementPtr)
+  column_into_element :: Self -> IO ElementPtr
 
 data Column = Column { attributes :: [Attribute], children :: [Element] }
 
@@ -66,19 +66,19 @@ instance IntoNative Column where
     elements <- buildElements details.children []
     let len = fromIntegral $ length elements
     elementsPtr <- newArray elements
-    selfPtr <- column_with_children len elementsPtr
+    self <- column_with_children len elementsPtr
     free elementsPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    updatedSelf <- applyAttributes self details.attributes
     column_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Spacing value -> useSpacing value selfPtr
-      AddPadding value -> usePadding value selfPtr
-      AlignItems value -> useAlignItems value selfPtr
-      Width len -> useWidth len selfPtr
-      Height len -> useHeight len selfPtr
+      Spacing value -> useSpacing value self
+      AddPadding value -> usePadding value self
+      AlignItems value -> useAlignItems value self
+      Width len -> useWidth len self
+      Height len -> useHeight len self
 
 instance UseAlignment Attribute where
   alignItems value = AlignItems value
@@ -102,24 +102,24 @@ column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  column_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  column_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useSpacing :: Float -> AttributeFn
-useSpacing value selfPtr = do
-  column_spacing selfPtr (CFloat value)
+useSpacing value self = do
+  column_spacing self (CFloat value)
 
 useAlignItems :: Alignment -> AttributeFn
-useAlignItems value selfPtr = do
+useAlignItems value self = do
   let nativeAlignment = alignmentToNative value
-  column_align_items selfPtr nativeAlignment
+  column_align_items self nativeAlignment
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  column_width selfPtr nativeLen
+  column_width self nativeLen
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  column_height selfPtr nativeLen
+  column_height self nativeLen

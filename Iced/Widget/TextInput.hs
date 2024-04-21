@@ -13,8 +13,8 @@ import Iced.Attribute.Padding
 import Iced.Element
 
 data NativeTextInput
-type SelfPtr = Ptr NativeTextInput
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeTextInput
+type AttributeFn = Self -> IO Self
 
 data Attribute message
   = AddOnInput (OnInput message)
@@ -22,20 +22,20 @@ data Attribute message
   | AddPadding Padding
 
 foreign import ccall safe "text_input_new"
-  text_input_new :: CString -> CString -> IO (SelfPtr)
+  text_input_new :: CString -> CString -> IO Self
 
 foreign import ccall safe "text_input_on_input"
-  text_input_on_input :: SelfPtr -> FunPtr (NativeOnInput a) -> IO (SelfPtr)
+  text_input_on_input :: Self -> FunPtr (NativeOnInput a) -> IO Self
 
 foreign import ccall safe "text_input_on_submit"
-  text_input_on_submit :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+  text_input_on_submit :: Self -> StablePtr a -> IO Self
 
 -- text_input top right bottom left
 foreign import ccall safe "text_input_padding"
-  text_input_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  text_input_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "text_input_into_element"
-  text_input_into_element :: SelfPtr -> IO (ElementPtr)
+  text_input_into_element :: Self -> IO ElementPtr
 
 type NativeOnInput message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -58,16 +58,16 @@ instance IntoNative (TextInput message) where
   toNative details = do
     placeholderPtr <- newCString details.placeholder
     valuePtr <- newCString details.value
-    selfPtr <- text_input_new placeholderPtr valuePtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- text_input_new placeholderPtr valuePtr
+    updatedSelf <- applyAttributes self details.attributes
     text_input_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      AddOnInput callback -> useOnInput callback selfPtr
-      AddOnSubmit message -> useOnSubmit message selfPtr
-      AddPadding value -> usePadding value selfPtr
+      AddOnInput callback -> useOnInput callback self
+      AddOnSubmit message -> useOnSubmit message self
+      AddPadding value -> usePadding value self
 
 instance UseOnInput (OnInput message) (Attribute message) where
   onInput = AddOnInput
@@ -82,18 +82,18 @@ textInput :: [Attribute message] -> String -> String -> Element
 textInput attributes placeholder value = pack TextInput { .. }
 
 useOnInput :: OnInput message -> AttributeFn
-useOnInput callback selfPtr = do
+useOnInput callback self = do
   onInputPtr <- makeCallback $ wrapOnInput callback
-  text_input_on_input selfPtr onInputPtr
+  text_input_on_input self onInputPtr
 
 onSubmit :: message -> Attribute message
 onSubmit message = AddOnSubmit message
 
 useOnSubmit :: message -> AttributeFn
-useOnSubmit message selfPtr = do
+useOnSubmit message self = do
     onSubmitPtr <- newStablePtr message
-    text_input_on_submit selfPtr onSubmitPtr
+    text_input_on_submit self onSubmitPtr
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  text_input_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  text_input_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

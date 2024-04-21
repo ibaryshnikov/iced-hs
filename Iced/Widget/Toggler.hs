@@ -17,26 +17,26 @@ import Iced.Attribute.Spacing
 import Iced.Element
 
 data NativeToggler
-type SelfPtr = Ptr NativeToggler
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeToggler
+type AttributeFn = Self -> IO Self
 
 data Attribute = Size Float | Spacing Float | Width Length
 
 -- label is_toggled on_toggle
 foreign import ccall safe "toggler_new"
-  toggler_new :: CString -> CBool -> FunPtr (NativeOnToggle a) -> IO (SelfPtr)
+  toggler_new :: CString -> CBool -> FunPtr (NativeOnToggle a) -> IO Self
 
 foreign import ccall safe "toggler_size"
-  toggler_size :: SelfPtr -> CFloat -> IO (SelfPtr)
+  toggler_size :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "toggler_spacing"
-  toggler_spacing :: SelfPtr -> CFloat -> IO (SelfPtr)
+  toggler_spacing :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "toggler_width"
-  toggler_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  toggler_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "toggler_into_element"
-  toggler_into_element :: SelfPtr -> IO (ElementPtr)
+  toggler_into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -60,16 +60,16 @@ instance IntoNative (Toggler message) where
     labelPtr <- newCString details.label
     let isToggled = fromBool details.isToggled
     onTogglePtr <- makeCallback $ wrapOnToggle details.onToggle
-    selfPtr <- toggler_new labelPtr isToggled onTogglePtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- toggler_new labelPtr isToggled onTogglePtr
+    updatedSelf <- applyAttributes self details.attributes
     toggler_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      Size value -> useSize value selfPtr
-      Spacing value -> useSpacing value selfPtr
-      Width len -> useWidth len selfPtr
+      Size value -> useSize value self
+      Spacing value -> useSpacing value self
+      Width len -> useWidth len self
 
 instance UseSize Attribute where
   size value = Size value
@@ -84,14 +84,14 @@ toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element
 toggler attributes label isToggled onToggle = pack Toggler { .. }
 
 useSize :: Float -> AttributeFn
-useSize value selfPtr = do
-  toggler_size selfPtr (CFloat value)
+useSize value self = do
+  toggler_size self (CFloat value)
 
 useSpacing :: Float -> AttributeFn
-useSpacing value selfPtr = do
-  toggler_spacing selfPtr (CFloat value)
+useSpacing value self = do
+  toggler_spacing self (CFloat value)
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  toggler_width selfPtr nativeLen
+  toggler_width self nativeLen

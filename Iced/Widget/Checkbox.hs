@@ -18,8 +18,8 @@ import Foreign.C.Types
 import Iced.Element
 
 data NativeCheckbox
-type SelfPtr = Ptr NativeCheckbox
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeCheckbox
+type AttributeFn = Self -> IO Self
 data NativeStyle
 type StylePtr = Ptr NativeStyle
 data NativeIcon
@@ -33,19 +33,19 @@ data Attribute message
 
 -- label is_checked
 foreign import ccall safe "checkbox_new"
-  checkbox_new :: CString -> CBool -> IO (SelfPtr)
+  checkbox_new :: CString -> CBool -> IO Self
 
 foreign import ccall safe "checkbox_icon"
-  checkbox_icon :: SelfPtr -> IconPtr -> IO (SelfPtr)
+  checkbox_icon :: Self -> IconPtr -> IO Self
 
 foreign import ccall safe "checkbox_on_toggle"
-  checkbox_on_toggle :: SelfPtr -> FunPtr (NativeOnToggle a) -> IO (SelfPtr)
+  checkbox_on_toggle :: Self -> FunPtr (NativeOnToggle a) -> IO Self
 
 foreign import ccall safe "checkbox_style"
-  checkbox_style :: SelfPtr -> StylePtr -> IO (SelfPtr)
+  checkbox_style :: Self -> StylePtr -> IO Self
 
 foreign import ccall safe "checkbox_into_element"
-  checkbox_into_element :: SelfPtr -> IO (ElementPtr)
+  checkbox_into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -85,17 +85,17 @@ instance IntoNative (Checkbox message) where
   toNative details = do
     let checked = fromBool details.value
     labelPtr <- newCString details.label
-    selfPtr <- checkbox_new labelPtr checked
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- checkbox_new labelPtr checked
+    updatedSelf <- applyAttributes self details.attributes
     checkbox_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      AddOnToggle callback -> useOnToggle callback selfPtr
-      AddIcon codePoint -> useIcon codePoint selfPtr
-      AddStyle value -> useStyle value selfPtr
-      None -> return selfPtr
+      AddOnToggle callback -> useOnToggle callback self
+      AddIcon codePoint -> useIcon codePoint self
+      AddStyle value -> useStyle value self
+      None -> return self
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
 checkbox attributes label value = pack Checkbox { .. }
@@ -108,9 +108,9 @@ onToggleIf True callback = onToggle callback
 onToggleIf False _ = None
 
 useOnToggle :: OnToggle message -> AttributeFn
-useOnToggle callback selfPtr = do
+useOnToggle callback self = do
   onTogglePtr <- makeCallback $ wrapOnToggle callback
-  checkbox_on_toggle selfPtr onTogglePtr
+  checkbox_on_toggle self onTogglePtr
 
 styleToNative :: Style -> StylePtr
 styleToNative value = case value of
@@ -123,14 +123,14 @@ icon :: Word32 -> Attribute message
 icon codePoint = AddIcon codePoint
 
 useIcon :: Word32 -> AttributeFn
-useIcon codePoint selfPtr = do
+useIcon codePoint self = do
   let iconPtr = checkbox_icon_new (CUInt codePoint)
-  checkbox_icon selfPtr iconPtr
+  checkbox_icon self iconPtr
 
 style :: Style -> Attribute message
 style value = AddStyle value
 
 useStyle :: Style -> AttributeFn
-useStyle value selfPtr = do
+useStyle value self = do
   let stylePtr = styleToNative value
-  checkbox_style selfPtr stylePtr
+  checkbox_style self stylePtr

@@ -17,27 +17,27 @@ import Iced.Attribute.Padding
 import Iced.Element
 
 data NativePickList
-type SelfPtr = Ptr NativePickList
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativePickList
+type AttributeFn = Self -> IO Self
 
 data Attribute = AddPadding Padding | Placeholder String | Width Length
 
 -- len options selected on_select
 foreign import ccall safe "pick_list_new"
-  pick_list_new :: CUInt -> Ptr CString -> CString -> FunPtr (NativeOnSelect a) -> IO (SelfPtr)
+  pick_list_new :: CUInt -> Ptr CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
 
 -- pick_list top right bottom left
 foreign import ccall safe "pick_list_padding"
-  pick_list_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  pick_list_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "pick_list_placeholder"
-  pick_list_placeholder :: SelfPtr -> CString -> IO (SelfPtr)
+  pick_list_placeholder :: Self -> CString -> IO Self
 
 foreign import ccall safe "pick_list_width"
-  pick_list_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  pick_list_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "pick_list_into_element"
-  pick_list_into_element :: SelfPtr -> IO (ElementPtr)
+  pick_list_into_element :: Self -> IO ElementPtr
 
 type NativeOnSelect message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -75,17 +75,17 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
     stringsPtr <- newArray strings
     selectedPtr <- newCString $ selectedToString details.selected
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
-    selfPtr <- pick_list_new len stringsPtr selectedPtr onSelectPtr
+    self <- pick_list_new len stringsPtr selectedPtr onSelectPtr
     free stringsPtr -- Rust will free contents, but we still need to free the array itself
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    updatedSelf <- applyAttributes self details.attributes
     pick_list_into_element updatedSelf
 
-instance UseAttribute SelfPtr Attribute where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self Attribute where
+  useAttribute self attribute = do
     case attribute of
-      AddPadding value -> usePadding value selfPtr
-      Placeholder value -> usePlaceholder value selfPtr
-      Width len -> useWidth len selfPtr
+      AddPadding value -> usePadding value self
+      Placeholder value -> usePlaceholder value self
+      Width len -> useWidth len self
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
@@ -107,15 +107,15 @@ placeholder :: String -> Attribute
 placeholder value = Placeholder value
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  pick_list_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding Padding { .. } self = do
+  pick_list_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 usePlaceholder :: String -> AttributeFn
-usePlaceholder value selfPtr = do
+usePlaceholder value self = do
   placeholderPtr <- newCString value
-  pick_list_placeholder selfPtr placeholderPtr
+  pick_list_placeholder self placeholderPtr
 
 useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
+useWidth len self = do
   let nativeLen = lengthToNative len
-  pick_list_width selfPtr nativeLen
+  pick_list_width self nativeLen

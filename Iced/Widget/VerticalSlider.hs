@@ -15,8 +15,8 @@ import Iced.Attribute.SliderCommon
 import Iced.Element
 
 data NativeVerticalSlider
-type SelfPtr = Ptr NativeVerticalSlider
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeVerticalSlider
+type AttributeFn = Self -> IO Self
 
 data Attribute message
   = OnRelease message
@@ -32,28 +32,28 @@ foreign import ccall safe "vertical_slider_new"
                       -> CInt
                       -> CInt
                       -> FunPtr (NativeOnChange a)
-                      -> IO (SelfPtr)
+                      -> IO Self
 
 foreign import ccall safe "vertical_slider_default"
-  vertical_slider_default :: SelfPtr -> CInt -> IO (SelfPtr)
+  vertical_slider_default :: Self -> CInt -> IO Self
 
 foreign import ccall safe "vertical_slider_on_release"
-  vertical_slider_on_release :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+  vertical_slider_on_release :: Self -> StablePtr a -> IO Self
 
 foreign import ccall safe "vertical_slider_step"
-  vertical_slider_step :: SelfPtr -> CInt -> IO (SelfPtr)
+  vertical_slider_step :: Self -> CInt -> IO Self
 
 foreign import ccall safe "vertical_slider_shift_step"
-  vertical_slider_shift_step :: SelfPtr -> CInt -> IO (SelfPtr)
+  vertical_slider_shift_step :: Self -> CInt -> IO Self
 
 foreign import ccall safe "vertical_slider_width"
-  vertical_slider_width :: SelfPtr -> CFloat -> IO (SelfPtr)
+  vertical_slider_width :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "vertical_slider_height"
-  vertical_slider_height :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  vertical_slider_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "vertical_slider_into_element"
-  vertical_slider_into_element :: SelfPtr -> IO (ElementPtr)
+  vertical_slider_into_element :: Self -> IO ElementPtr
 
 
 type NativeOnChange message = CInt -> IO (StablePtr message)
@@ -80,19 +80,19 @@ instance IntoNative (VerticalSlider message) where
     let rangeTo = fromIntegral details.rangeTo
     let value = fromIntegral details.value
     onChangePtr <- makeCallback $ wrapOnChange details.onChange
-    selfPtr <- vertical_slider_new rangeFrom rangeTo value onChangePtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
+    self <- vertical_slider_new rangeFrom rangeTo value onChangePtr
+    updatedSelf <- applyAttributes self details.attributes
     vertical_slider_into_element updatedSelf
 
-instance UseAttribute SelfPtr (Attribute message) where
-  useAttribute selfPtr attribute = do
+instance UseAttribute Self (Attribute message) where
+  useAttribute self attribute = do
     case attribute of
-      AddDefault value -> useDefault value selfPtr
-      OnRelease message -> useOnRelease message selfPtr
-      AddStep value -> useStep value selfPtr
-      AddShiftStep value -> useShiftStep value selfPtr
-      Width len -> useWidth len selfPtr
-      Height value -> useHeight value selfPtr
+      AddDefault value -> useDefault value self
+      OnRelease message -> useOnRelease message self
+      AddStep value -> useStep value self
+      AddShiftStep value -> useShiftStep value self
+      Width len -> useWidth len self
+      Height value -> useHeight value self
 
 instance SliderCommon (Attribute message) where
   addDefault value = AddDefault value
@@ -118,27 +118,27 @@ verticalSlider attributes rangeFrom rangeTo value onChange =
   pack VerticalSlider { .. }
 
 useDefault :: Int -> AttributeFn
-useDefault value selfPtr =
-  vertical_slider_default selfPtr $ fromIntegral value
+useDefault value self =
+  vertical_slider_default self $ fromIntegral value
 
 useOnRelease :: message -> AttributeFn
-useOnRelease message selfPtr = do
+useOnRelease message self = do
   messagePtr <- newStablePtr message
-  vertical_slider_on_release selfPtr messagePtr
+  vertical_slider_on_release self messagePtr
 
 useStep :: Int -> AttributeFn
-useStep value selfPtr =
-  vertical_slider_step selfPtr $ fromIntegral value
+useStep value self =
+  vertical_slider_step self $ fromIntegral value
 
 useShiftStep :: Int -> AttributeFn
-useShiftStep value selfPtr =
-  vertical_slider_shift_step selfPtr $ fromIntegral value
+useShiftStep value self =
+  vertical_slider_shift_step self $ fromIntegral value
 
 useWidth :: Float -> AttributeFn
-useWidth value selfPtr = do
-  vertical_slider_width selfPtr (CFloat value)
+useWidth value self = do
+  vertical_slider_width self (CFloat value)
 
 useHeight :: Length -> AttributeFn
-useHeight len selfPtr = do
+useHeight len self = do
   let nativeLen = lengthToNative len
-  vertical_slider_height selfPtr nativeLen
+  vertical_slider_height self nativeLen
