@@ -7,6 +7,7 @@ mod alignment;
 mod command;
 mod future;
 mod length;
+mod line_height;
 mod settings;
 mod time;
 mod widget;

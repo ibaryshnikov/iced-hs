@@ -11,74 +11,92 @@ module Iced.Widget.ComboBox (
   onClose,
 ) where
 
+import Control.Monad
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Attribute.Length
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.LineHeightFFI
+import Iced.Attribute.OnInput
 import Iced.Attribute.Padding
+import Iced.Attribute.Size
 import Iced.Element
 
 data NativeComboBox
-type SelfPtr = Ptr NativeComboBox
-type AttributeFn = SelfPtr -> IO SelfPtr
+type Self = Ptr NativeComboBox
 data NativeState
 type State = Ptr NativeState
-type ComboBoxState = State
+type ComboBoxState = State -- to export
 
 data Attribute option message
-  = AddOnHover (OnOptionHovered option message)
+  = AddLineHeight LineHeight
+  | AddOnInput (OnInput message)
+  | AddOnHover (OnOptionHovered option message)
   | AddPadding Padding
   | OnClose message
+  | Size Float
   | Width Length
 
 -- len options
 foreign import ccall safe "combo_box_state_new"
-  combo_box_state_new :: CUInt -> Ptr CString -> IO (State)
+  combo_box_state_new :: CUInt -> Ptr CString -> IO State
 
 foreign import ccall safe "combo_box_state_free"
   combo_box_state_free :: State -> IO ()
 
 -- state placeholder selected on_select
 foreign import ccall safe "combo_box_new"
-  combo_box_new :: State -> CString -> CString -> FunPtr (NativeOnSelect a) -> IO (SelfPtr)
+  combo_box_new :: State -> CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
+
+foreign import ccall safe "combo_box_on_input"
+  combo_box_on_input :: Self -> FunPtr (NativeOnInput a) -> IO Self
 
 foreign import ccall safe "combo_box_on_option_hovered"
-  combo_box_on_option_hovered :: SelfPtr -> FunPtr (NativeOnHover a) -> IO (SelfPtr)
+  combo_box_on_option_hovered :: Self -> FunPtr (NativeOnHover a) -> IO Self
+
+foreign import ccall safe "combo_box_line_height"
+  combo_box_line_height :: Self -> LineHeightPtr -> IO Self
 
 foreign import ccall safe "combo_box_on_close"
-  combo_box_on_close :: SelfPtr -> StablePtr a -> IO (SelfPtr)
+  combo_box_on_close :: Self -> StablePtr a -> IO Self
 
 -- combo_box top right bottom left
 foreign import ccall safe "combo_box_padding"
-  combo_box_padding :: SelfPtr -> CFloat -> CFloat -> CFloat -> CFloat -> IO (SelfPtr)
+  combo_box_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+
+foreign import ccall safe "combo_box_size"
+  combo_box_size :: Self -> CFloat -> IO Self
 
 foreign import ccall safe "combo_box_width"
-  combo_box_width :: SelfPtr -> LengthPtr -> IO (SelfPtr)
+  combo_box_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "combo_box_into_element"
-  combo_box_into_element :: SelfPtr -> IO (ElementPtr)
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnSelect message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeOnSelectCallback :: NativeOnSelect message -> IO (FunPtr (NativeOnSelect message))
 
 wrapOnSelect :: Read option => OnSelect option message -> NativeOnSelect message
-wrapOnSelect callback c_string = do
-  string <- peekCString c_string
-  newStablePtr $ callback $ read string
+wrapOnSelect callback = newStablePtr . callback . read <=< peekCString
+
+type NativeOnInput message = CString -> IO (StablePtr message)
+foreign import ccall "wrapper"
+  makeCallback :: NativeOnInput message -> IO (FunPtr (NativeOnInput message))
+
+wrapOnInput :: OnInput message -> NativeOnInput message
+wrapOnInput callback = newStablePtr . callback <=< peekCString
 
 type NativeOnHover message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeOnHoverCallback :: NativeOnHover message -> IO (FunPtr (NativeOnHover message))
 
-wrapOnHover :: Read option => OnSelect option message -> NativeOnHover message
-wrapOnHover callback c_string = do
-  string <- peekCString c_string
-  newStablePtr $ callback $ read string
+wrapOnHover :: Read option => OnOptionHovered option message -> NativeOnHover message
+wrapOnHover callback = newStablePtr . callback . read <=< peekCString
 
 type OnSelect option message = option -> message
+type OnInput message = String -> message
 type OnOptionHovered option message = option -> message
 
 data ComboBox option message where
@@ -102,29 +120,40 @@ selectedToString Nothing = "" -- treat empty string as None in Rust
 
 instance (Show option, Read option) => IntoNative (ComboBox option message) where
   toNative details = do
-    placeholderPtr <- newCString details.placeholder
-    selectedPtr <- newCString $ selectedToString details.selected
-    onSelectPtr <- makeOnSelectCallback $ wrapOnSelect details.onSelect
-    selfPtr <- combo_box_new details.state placeholderPtr selectedPtr onSelectPtr
-    updatedSelf <- applyAttributes selfPtr details.attributes
-    combo_box_into_element updatedSelf
+    placeholder <- newCString details.placeholder
+    selected <- newCString $ selectedToString details.selected
+    onSelect <- makeOnSelectCallback $ wrapOnSelect details.onSelect
+    self <- combo_box_new details.state placeholder selected onSelect
+    into_element =<< applyAttributes self details.attributes
 
-instance Read option => UseAttribute SelfPtr (Attribute option message) where
-  useAttribute selfPtr attribute = do
+instance Read option => UseAttribute Self (Attribute option message) where
+  useAttribute self attribute = do
     case attribute of
-      AddOnHover callback -> useOnHover callback selfPtr
-      AddPadding value -> usePadding value selfPtr
-      OnClose message -> useOnClose message selfPtr
-      Width len -> useWidth len selfPtr
+      AddLineHeight value -> useLineHeight self value
+      AddOnInput callback -> useOnInput self callback
+      AddOnHover callback -> useOnHover self callback
+      AddPadding value -> usePadding self value
+      OnClose message -> useOnClose self message
+      Size value -> useSize self value
+      Width value -> useWidth self value
+
+instance UseLineHeight (Attribute option message) where
+  lineHeight = AddLineHeight
+
+instance UseOnInput (OnInput message) (Attribute option message) where
+  onInput = AddOnInput
 
 instance UsePadding (Attribute option message) where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute (Attribute option message) where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
+
+instance UseSize (Attribute option message) where
+  size = Size
 
 instance UseWidth Length (Attribute option message) where
-  width len = Width len
+  width = Width
 
 comboBox :: (Show option, Read option) => [Attribute option message]
                                        -> State
@@ -134,32 +163,39 @@ comboBox :: (Show option, Read option) => [Attribute option message]
                                        -> Element
 comboBox attributes state placeholder selected onSelect = pack ComboBox { .. }
 
-onClose :: message -> Attribute option message
-onClose message = OnClose message
+useLineHeight :: Self -> LineHeight -> IO Self
+useLineHeight self = combo_box_line_height self . lineHeightToNative
 
-useOnClose :: message -> AttributeFn
-useOnClose message selfPtr = do
-  messagePtr <- newStablePtr message
-  combo_box_on_close selfPtr messagePtr
+onClose :: message -> Attribute option message
+onClose = OnClose
+
+useOnClose :: Self -> message -> IO Self
+useOnClose self = combo_box_on_close self <=< newStablePtr
+
+useOnInput :: Self -> OnInput message -> IO Self
+useOnInput self callback = do
+  onInputPtr <- makeCallback $ wrapOnInput callback
+  combo_box_on_input self onInputPtr
 
 onOptionHovered :: OnOptionHovered option message -> Attribute option message
-onOptionHovered callback = AddOnHover callback
+onOptionHovered = AddOnHover
 
-useOnHover :: Read option => OnOptionHovered option message -> AttributeFn
-useOnHover callback selfPtr = do
+useOnHover :: Read option => Self -> OnOptionHovered option message -> IO Self
+useOnHover self callback = do
   onHoverPtr <- makeOnHoverCallback $ wrapOnHover callback
-  combo_box_on_option_hovered selfPtr onHoverPtr
+  combo_box_on_option_hovered self onHoverPtr
 
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } selfPtr = do
-  combo_box_padding selfPtr (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+usePadding :: Self -> Padding -> IO Self
+usePadding self Padding { .. } =
+  combo_box_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
-useWidth :: Length -> AttributeFn
-useWidth len selfPtr = do
-  let nativeLen = lengthToNative len
-  combo_box_width selfPtr nativeLen
+useSize :: Self -> Float -> IO Self
+useSize self = combo_box_size self . CFloat
 
-newComboBoxState :: Show option => [option] -> IO (State)
+useWidth :: Self -> Length -> IO Self
+useWidth self = combo_box_width self . lengthToNative
+
+newComboBoxState :: Show option => [option] -> IO State
 newComboBoxState options = do
   strings <- packOptions options []
   let len = fromIntegral $ length strings

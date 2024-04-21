@@ -1,6 +1,7 @@
 use std::ffi::{c_char, c_float};
 
 use combo_box::State;
+use iced::widget::text::LineHeight;
 use iced::widget::{combo_box, ComboBox};
 use iced::{Length, Padding};
 
@@ -10,6 +11,7 @@ type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;
 
 type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnInputFFI = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
 type OnOptionHoveredFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
@@ -44,10 +46,27 @@ extern "C" fn combo_box_new(
 }
 
 #[no_mangle]
+extern "C" fn combo_box_line_height(
+    self_ptr: SelfPtr,
+    line_height_ptr: *mut LineHeight,
+) -> SelfPtr {
+    let combo_box = unsafe { Box::from_raw(self_ptr) };
+    let line_height = unsafe { *Box::from_raw(line_height_ptr) };
+    Box::into_raw(Box::new(combo_box.line_height(line_height)))
+}
+
+#[no_mangle]
 extern "C" fn combo_box_on_close(self_ptr: SelfPtr, message_ptr: *const u8) -> SelfPtr {
     let combo_box = unsafe { Box::from_raw(self_ptr) };
     let message = IcedMessage::ptr(message_ptr);
     Box::into_raw(Box::new(combo_box.on_close(message)))
+}
+
+#[no_mangle]
+extern "C" fn combo_box_on_input(self_ptr: SelfPtr, on_input_ffi: OnInputFFI) -> SelfPtr {
+    let combo_box = unsafe { *Box::from_raw(self_ptr) };
+    let on_input = super::wrap_callback_with_string(on_input_ffi);
+    Box::into_raw(Box::new(combo_box.on_input(on_input)))
 }
 
 #[no_mangle]
@@ -76,6 +95,12 @@ extern "C" fn combo_box_padding(
         left,
     };
     Box::into_raw(Box::new(combo_box.padding(padding)))
+}
+
+#[no_mangle]
+extern "C" fn combo_box_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
+    let combo_box = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(combo_box.size(size)))
 }
 
 #[no_mangle]

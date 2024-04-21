@@ -1,4 +1,10 @@
-module Iced.Attribute.LengthFFI where
+module Iced.Attribute.LengthFFI (
+  LengthPtr,
+  lengthToNative,
+  -- reexports
+  module Iced.Attribute.Length,
+  --
+) where
 
 import Foreign
 import Foreign.C.Types

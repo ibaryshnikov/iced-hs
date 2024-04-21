@@ -19,7 +19,7 @@ data NativeText
 type SelfPtr = Ptr NativeText
 type AttributeFn = SelfPtr -> IO SelfPtr
 
-data Attribute = Width Length | Height Length | Size Float
+data Attribute = Size Float | Width Length | Height Length
 
 foreign import ccall safe "text_new"
   text_new :: CString -> IO (SelfPtr)

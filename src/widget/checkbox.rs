@@ -1,8 +1,9 @@
-use std::ffi::{c_char, c_uchar, c_uint};
+use std::ffi::{c_char, c_float, c_uchar, c_uint};
 
 use checkbox::Icon;
 use iced::widget::{checkbox, text, Checkbox};
-use iced::{theme, Font};
+use iced::{theme, Font, Length};
+use text::{LineHeight, Shaping};
 
 use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
 
@@ -33,10 +34,45 @@ extern "C" fn checkbox_icon(self_ptr: SelfPtr, icon_ptr: IconPtr) -> SelfPtr {
 }
 
 #[no_mangle]
+extern "C" fn checkbox_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(checkbox.size(size)))
+}
+
+#[no_mangle]
+extern "C" fn checkbox_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(checkbox.spacing(pixels)))
+}
+
+#[no_mangle]
+extern "C" fn checkbox_text_line_height(
+    self_ptr: SelfPtr,
+    line_height_ptr: *mut LineHeight,
+) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let line_height = unsafe { *Box::from_raw(line_height_ptr) };
+    Box::into_raw(Box::new(checkbox.text_line_height(line_height)))
+}
+
+#[no_mangle]
+extern "C" fn checkbox_text_size(self_ptr: SelfPtr, text_size: c_float) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(checkbox.text_size(text_size)))
+}
+
+#[no_mangle]
 extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     let style = unsafe { *Box::from_raw(style_ptr) };
     Box::into_raw(Box::new(checkbox.style(style)))
+}
+
+#[no_mangle]
+extern "C" fn checkbox_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let width = unsafe { *Box::from_raw(width) };
+    Box::into_raw(Box::new(checkbox.width(width)))
 }
 
 #[no_mangle]
@@ -72,8 +108,8 @@ extern "C" fn checkbox_icon_new(code_point_raw: c_uint) -> IconPtr {
         font: Font::with_name("icons"),
         code_point,
         size: None,
-        line_height: text::LineHeight::Relative(1.0),
-        shaping: text::Shaping::Basic,
+        line_height: LineHeight::Relative(1.0),
+        shaping: Shaping::Basic,
     };
     Box::into_raw(Box::new(icon))
 }

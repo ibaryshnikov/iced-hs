@@ -21,10 +21,15 @@ data Language
 data Model = Model {
   languages :: ComboBoxState,
   selected :: Maybe Language,
+  input :: String,
   text :: String
 }
 
-data Message = Selected Language | OptionHovered Language | Closed
+data Message
+  = Selected Language
+  | Input String
+  | OptionHovered Language
+  | Closed
 
 update :: Model -> Message -> Model
 update model message = case message of
@@ -32,6 +37,7 @@ update model message = case message of
     selected = Just language,
     text = hello language
   }
+  Input value -> model { input = value }
   OptionHovered language -> model { text = hello language }
   Closed -> model { text = string } where
     string = case model.selected of
@@ -42,13 +48,18 @@ view :: Model -> Element
 view model =
   container [width Fill, height Fill, centerX, centerY] $
   column [width Fill, alignItems Center, spacing 10] [
+    text [] $ "Input value: " ++ model.input,
     text [] model.text,
     text [] "What is your language?",
     widget,
     spaceHeight (Fixed 150)
   ] where
-    widget = comboBox [width (Fixed 250), onOptionHovered OptionHovered, onClose Closed]
-      model.languages "Type a language..." model.selected Selected
+    widget = comboBox [
+        width (Fixed 250),
+        onInput Input,
+        onOptionHovered OptionHovered,
+        onClose Closed
+      ] model.languages "Type a language..." model.selected Selected
 
 hello :: Language -> String
 hello language = case language of
@@ -67,6 +78,6 @@ options = [Danish, English, French, German, Italian, Portuguese, Spanish, Other]
 main :: IO ()
 main = do
   state <- newComboBoxState options
-  let model = Model { languages = state, selected = Nothing, text = "" }
+  let model = Model { languages = state, selected = Nothing, input = "", text = "" }
   Iced.run [] "ComboBox" model update view
   freeComboBoxState state

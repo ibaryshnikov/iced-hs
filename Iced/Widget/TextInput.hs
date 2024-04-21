@@ -8,6 +8,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.OnInput
 import Iced.Attribute.Padding
 import Iced.Element
 
@@ -68,6 +69,9 @@ instance UseAttribute SelfPtr (Attribute message) where
       AddOnSubmit message -> useOnSubmit message selfPtr
       AddPadding value -> usePadding value selfPtr
 
+instance UseOnInput (OnInput message) (Attribute message) where
+  onInput = AddOnInput
+
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v
 
@@ -76,9 +80,6 @@ instance PaddingToAttribute (Attribute message) where
 
 textInput :: [Attribute message] -> String -> String -> Element
 textInput attributes placeholder value = pack TextInput { .. }
-
-onInput :: OnInput message -> Attribute message
-onInput callback = AddOnInput callback
 
 useOnInput :: OnInput message -> AttributeFn
 useOnInput callback selfPtr = do
