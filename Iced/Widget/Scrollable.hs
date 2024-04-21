@@ -28,7 +28,7 @@ foreign import ccall safe "scrollable_height"
   scrollable_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "scrollable_into_element"
-  scrollable_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Scrollable = Scrollable { attributes :: [Attribute], content :: Element }
 
@@ -36,8 +36,7 @@ instance IntoNative Scrollable where
   toNative details = do
     contentPtr <- elementToNative details.content
     self <- scrollable_new contentPtr
-    updatedSelf <- applyAttributes self details.attributes
-    scrollable_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

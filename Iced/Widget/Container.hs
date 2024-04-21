@@ -42,7 +42,7 @@ foreign import ccall safe "container_height"
   container_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "container_into_element"
-  container_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Container = Container { attributes :: [Attribute], content :: Element }
 
@@ -50,8 +50,7 @@ instance IntoNative Container where
   toNative details = do
     contentPtr <- elementToNative details.content
     self <- container_new contentPtr
-    updatedSelf <- applyAttributes self details.attributes
-    container_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

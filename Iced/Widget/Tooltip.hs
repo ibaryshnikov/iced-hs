@@ -47,7 +47,7 @@ foreign import ccall safe "tooltip_style"
   tooltip_style :: Self -> StylePtr -> IO Self
 
 foreign import ccall safe "tooltip_into_element"
-  tooltip_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Tooltip = Tooltip {
   attributes :: [Attribute],
@@ -70,8 +70,7 @@ instance IntoNative Tooltip where
     tooltipPtr <- elementToNative details.tooltipElement
     let position = positionToNative details.position
     self <- tooltip_new contentPtr tooltipPtr (CUChar position)
-    updatedSelf <- applyAttributes self details.attributes
-    tooltip_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

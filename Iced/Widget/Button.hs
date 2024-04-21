@@ -36,7 +36,7 @@ foreign import ccall safe "button_height"
   button_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "button_into_element"
-  button_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Button message = Button {
   attributes :: [Attribute message],
@@ -47,8 +47,7 @@ instance IntoNative (Button message) where
   toNative details = do
     labelPtr <- newCString details.label
     self <- button_new labelPtr
-    updatedSelf <- applyAttributes self details.attributes
-    button_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self (Attribute message) where
   useAttribute self attribute = do

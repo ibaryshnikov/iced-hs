@@ -53,7 +53,7 @@ foreign import ccall safe "vertical_slider_height"
   vertical_slider_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "vertical_slider_into_element"
-  vertical_slider_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 
 type NativeOnChange message = CInt -> IO (StablePtr message)
@@ -81,8 +81,7 @@ instance IntoNative (VerticalSlider message) where
     let value = fromIntegral details.value
     onChangePtr <- makeCallback $ wrapOnChange details.onChange
     self <- vertical_slider_new rangeFrom rangeTo value onChangePtr
-    updatedSelf <- applyAttributes self details.attributes
-    vertical_slider_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self (Attribute message) where
   useAttribute self attribute = do

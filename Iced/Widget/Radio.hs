@@ -28,7 +28,7 @@ foreign import ccall safe "radio_width"
   radio_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "radio_into_element"
-  radio_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnClick message = CUInt -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -69,8 +69,7 @@ instance Enum option => IntoNative (Radio option message) where
     let selected = fromIntegral $ selectedToInt details.selected
     onSelectPtr <- makeCallback $ wrapOnClick details.onClick
     self <- radio_new labelPtr value selected onSelectPtr
-    updatedSelf <- applyAttributes self details.attributes
-    radio_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

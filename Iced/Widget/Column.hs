@@ -57,7 +57,7 @@ foreign import ccall safe "column_height"
   column_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "column_into_element"
-  column_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Column = Column { attributes :: [Attribute], children :: [Element] }
 
@@ -68,8 +68,7 @@ instance IntoNative Column where
     elementsPtr <- newArray elements
     self <- column_with_children len elementsPtr
     free elementsPtr
-    updatedSelf <- applyAttributes self details.attributes
-    column_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

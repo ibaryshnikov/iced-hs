@@ -38,15 +38,14 @@ foreign import ccall safe "vertical_space_new"
   vertical_space_new :: IO Self
 
 foreign import ccall safe "space_into_element"
-  space_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Space = Space Length Length | Width Length | Height Length | Horizontal | Vertical
 
 instance IntoNative Space where
   toNative details = do
-    self <- makeSpace details
     -- currently no attributes for Space
-    space_into_element self
+    makeSpace details >>= into_element
 
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of

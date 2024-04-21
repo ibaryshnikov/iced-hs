@@ -69,7 +69,7 @@ foreign import ccall safe "text_editor_height"
   text_editor_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "text_editor_into_element"
-  text_editor_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnAction message = Action -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -89,8 +89,7 @@ data TextEditor message = TextEditor {
 instance IntoNative (TextEditor message) where
   toNative details = do
     self <- text_editor_new details.content
-    updatedSelf <- applyAttributes self details.attributes
-    text_editor_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self (Attribute message) where
   useAttribute self attribute = do

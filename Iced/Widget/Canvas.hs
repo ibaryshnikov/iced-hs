@@ -54,7 +54,7 @@ foreign import ccall safe "canvas_height"
   canvas_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "canvas_into_element"
-  canvas_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeDraw = FramePtr -> IO ()
 foreign import ccall "wrapper"
@@ -81,8 +81,7 @@ instance IntoNative Canvas where
     drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
     canvas_set_draw details.cache drawCallbackPtr
     self <- canvas_new details.cache
-    updatedSelf <- applyAttributes self details.attributes
-    canvas_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

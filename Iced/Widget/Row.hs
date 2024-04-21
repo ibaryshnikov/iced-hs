@@ -57,7 +57,7 @@ foreign import ccall safe "row_height"
   row_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "row_into_element"
-  row_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Row = Row { attributes :: [Attribute], children :: [Element] }
 
@@ -68,8 +68,7 @@ instance IntoNative Row where
     elementsPtr <- newArray elements
     self <- row_with_children len elementsPtr
     free elementsPtr
-    updatedSelf <- applyAttributes self details.attributes
-    row_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

@@ -34,7 +34,7 @@ foreign import ccall safe "text_height"
   text_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "text_into_element"
-  text_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 data Text = Text { attributes :: [Attribute], value :: String }
 
@@ -42,8 +42,7 @@ instance IntoNative Text where
   toNative details = do
     valuePtr <- newCString details.value
     self <- text_new valuePtr
-    updatedSelf <- applyAttributes self details.attributes
-    text_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

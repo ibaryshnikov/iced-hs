@@ -45,7 +45,7 @@ foreign import ccall safe "checkbox_style"
   checkbox_style :: Self -> StylePtr -> IO Self
 
 foreign import ccall safe "checkbox_into_element"
-  checkbox_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -86,8 +86,7 @@ instance IntoNative (Checkbox message) where
     let checked = fromBool details.value
     labelPtr <- newCString details.label
     self <- checkbox_new labelPtr checked
-    updatedSelf <- applyAttributes self details.attributes
-    checkbox_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self (Attribute message) where
   useAttribute self attribute = do

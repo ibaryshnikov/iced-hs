@@ -37,7 +37,7 @@ foreign import ccall safe "pick_list_width"
   pick_list_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "pick_list_into_element"
-  pick_list_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnSelect message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -77,8 +77,7 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
     self <- pick_list_new len stringsPtr selectedPtr onSelectPtr
     free stringsPtr -- Rust will free contents, but we still need to free the array itself
-    updatedSelf <- applyAttributes self details.attributes
-    pick_list_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do

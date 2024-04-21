@@ -35,7 +35,7 @@ foreign import ccall safe "text_input_padding"
   text_input_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 foreign import ccall safe "text_input_into_element"
-  text_input_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnInput message = CString -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -59,8 +59,7 @@ instance IntoNative (TextInput message) where
     placeholderPtr <- newCString details.placeholder
     valuePtr <- newCString details.value
     self <- text_input_new placeholderPtr valuePtr
-    updatedSelf <- applyAttributes self details.attributes
-    text_input_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self (Attribute message) where
   useAttribute self attribute = do

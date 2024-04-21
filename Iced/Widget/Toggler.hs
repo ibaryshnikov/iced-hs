@@ -36,7 +36,7 @@ foreign import ccall safe "toggler_width"
   toggler_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "toggler_into_element"
-  toggler_into_element :: Self -> IO ElementPtr
+  into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -61,8 +61,7 @@ instance IntoNative (Toggler message) where
     let isToggled = fromBool details.isToggled
     onTogglePtr <- makeCallback $ wrapOnToggle details.onToggle
     self <- toggler_new labelPtr isToggled onTogglePtr
-    updatedSelf <- applyAttributes self details.attributes
-    toggler_into_element updatedSelf
+    into_element =<< applyAttributes self details.attributes
 
 instance UseAttribute Self Attribute where
   useAttribute self attribute = do
