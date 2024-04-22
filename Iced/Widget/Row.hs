@@ -68,16 +68,16 @@ instance IntoNative Row where
     elementsPtr <- newArray elements
     self <- row_with_children len elementsPtr
     free elementsPtr
-    into_element =<< applyAttributes self details.attributes
+    into_element =<< applyAttributes details.attributes self
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Spacing value -> useSpacing value self
-      AddPadding value -> usePadding value self
-      AlignItems value -> useAlignItems value self
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      Spacing value -> useSpacing value
+      AddPadding value -> usePadding value
+      AlignItems value -> useAlignItems value
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UseAlignment Attribute where
   alignItems value = AlignItems value

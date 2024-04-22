@@ -56,17 +56,18 @@ data TextInput message = TextInput {
 
 instance IntoNative (TextInput message) where
   toNative details = do
-    placeholderPtr <- newCString details.placeholder
-    valuePtr <- newCString details.value
-    self <- text_input_new placeholderPtr valuePtr
-    into_element =<< applyAttributes self details.attributes
+    placeholder <- newCString details.placeholder
+    value <- newCString details.value
+    text_input_new placeholder value
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      AddOnInput callback -> useOnInput callback self
-      AddOnSubmit message -> useOnSubmit message self
-      AddPadding value -> usePadding value self
+      AddOnInput callback -> useOnInput callback
+      AddOnSubmit message -> useOnSubmit message
+      AddPadding value -> usePadding value
 
 instance UseOnInput (OnInput message) (Attribute message) where
   onInput = AddOnInput

@@ -57,18 +57,19 @@ data Toggler message = Toggler {
 
 instance IntoNative (Toggler message) where
   toNative details = do
-    labelPtr <- newCString details.label
+    label <- newCString details.label
     let isToggled = fromBool details.isToggled
-    onTogglePtr <- makeCallback $ wrapOnToggle details.onToggle
-    self <- toggler_new labelPtr isToggled onTogglePtr
-    into_element =<< applyAttributes self details.attributes
+    onToggle <- makeCallback $ wrapOnToggle details.onToggle
+    toggler_new label isToggled onToggle
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Size value -> useSize value self
-      Spacing value -> useSpacing value self
-      Width len -> useWidth len self
+      Size value -> useSize value
+      Spacing value -> useSpacing value
+      Width len -> useWidth len
 
 instance UseSize Attribute where
   size value = Size value

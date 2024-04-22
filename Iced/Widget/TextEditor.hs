@@ -88,15 +88,16 @@ data TextEditor message = TextEditor {
 
 instance IntoNative (TextEditor message) where
   toNative details = do
-    self <- text_editor_new details.content
-    into_element =<< applyAttributes self details.attributes
+    text_editor_new details.content
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      AddOnAction callback -> useOnAction callback self
-      AddPadding value -> usePadding value self
-      Height len -> useHeight len self
+      AddOnAction callback -> useOnAction callback
+      AddPadding value -> usePadding value
+      Height len -> useHeight len
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v

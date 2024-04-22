@@ -64,17 +64,18 @@ selectedToInt Nothing = 0
 
 instance Enum option => IntoNative (Radio option message) where
   toNative details = do
-    labelPtr <- newCString details.label
+    label <- newCString details.label
     let value = fromIntegral $ optionToInt details.value
     let selected = fromIntegral $ selectedToInt details.selected
-    onSelectPtr <- makeCallback $ wrapOnClick details.onClick
-    self <- radio_new labelPtr value selected onSelectPtr
-    into_element =<< applyAttributes self details.attributes
+    onSelect <- makeCallback $ wrapOnClick details.onClick
+    radio_new label value selected onSelect
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Width len -> useWidth len self
+      Width len -> useWidth len
 
 instance UseWidth Length Attribute where
   width len = Width len

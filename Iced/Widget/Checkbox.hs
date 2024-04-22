@@ -84,17 +84,18 @@ data Checkbox message = Checkbox {
 instance IntoNative (Checkbox message) where
   toNative details = do
     let checked = fromBool details.value
-    labelPtr <- newCString details.label
-    self <- checkbox_new labelPtr checked
-    into_element =<< applyAttributes self details.attributes
+    label <- newCString details.label
+    checkbox_new label checked
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      AddOnToggle callback -> useOnToggle callback self
-      AddIcon codePoint -> useIcon codePoint self
-      AddStyle value -> useStyle value self
-      None -> return self
+      AddOnToggle callback -> useOnToggle callback
+      AddIcon codePoint -> useIcon codePoint
+      AddStyle value -> useStyle value
+      None -> pure
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
 checkbox attributes label value = pack Checkbox { .. }

@@ -80,14 +80,15 @@ instance IntoNative Canvas where
   toNative details = do
     drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
     canvas_set_draw details.cache drawCallbackPtr
-    self <- canvas_new details.cache
-    into_element =<< applyAttributes self details.attributes
+    canvas_new details.cache
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UseWidth Length Attribute where
   width len = Width len

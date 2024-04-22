@@ -45,17 +45,18 @@ data Button message = Button {
 
 instance IntoNative (Button message) where
   toNative details = do
-    labelPtr <- newCString details.label
-    self <- button_new labelPtr
-    into_element =<< applyAttributes self details.attributes
+    label <- newCString details.label
+    button_new label
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      OnPress message -> useOnPress message self
-      AddPadding value -> usePadding value self
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      OnPress message -> useOnPress message
+      AddPadding value -> usePadding value
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v

@@ -75,19 +75,20 @@ instance IntoNative (Slider message) where
     let rangeFrom = fromIntegral details.rangeFrom
     let rangeTo = fromIntegral details.rangeTo
     let value = fromIntegral details.value
-    onChangePtr <- makeCallback $ wrapOnChange details.onChange
-    self <- slider_new rangeFrom rangeTo value onChangePtr
-    into_element =<< applyAttributes self details.attributes
+    onChange <- makeCallback $ wrapOnChange details.onChange
+    slider_new rangeFrom rangeTo value onChange
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      AddDefault value -> useDefault value self
-      OnRelease message -> useOnRelease message self
-      AddStep value -> useStep value self
-      AddShiftStep value -> useShiftStep value self
-      Width len -> useWidth len self
-      Height value -> useHeight value self
+      AddDefault value -> useDefault value
+      OnRelease message -> useOnRelease message
+      AddStep value -> useStep value
+      AddShiftStep value -> useShiftStep value
+      Width len -> useWidth len
+      Height value -> useHeight value
 
 instance SliderCommon (Attribute message) where
   addDefault value = AddDefault value

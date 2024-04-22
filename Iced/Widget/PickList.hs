@@ -77,14 +77,13 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
     self <- pick_list_new len stringsPtr selectedPtr onSelectPtr
     free stringsPtr -- Rust will free contents, but we still need to free the array itself
-    into_element =<< applyAttributes self details.attributes
+    into_element =<< applyAttributes details.attributes self
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
-    case attribute of
-      AddPadding value -> usePadding value self
-      Placeholder value -> usePlaceholder value self
-      Width len -> useWidth len self
+  useAttribute attribute = case attribute of
+    AddPadding value -> usePadding value
+    Placeholder value -> usePlaceholder value
+    Width len -> useWidth len
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v

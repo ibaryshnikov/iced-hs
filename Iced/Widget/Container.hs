@@ -48,18 +48,19 @@ data Container = Container { attributes :: [Attribute], content :: Element }
 
 instance IntoNative Container where
   toNative details = do
-    contentPtr <- elementToNative details.content
-    self <- container_new contentPtr
-    into_element =<< applyAttributes self details.attributes
+    content <- elementToNative details.content
+    container_new content
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      AddPadding value -> usePadding value self
-      CenterX -> useCenterX self
-      CenterY -> useCenterY self
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      AddPadding value -> usePadding value
+      CenterX -> useCenterX
+      CenterY -> useCenterY
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v

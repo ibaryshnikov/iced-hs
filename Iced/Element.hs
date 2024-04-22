@@ -12,6 +12,7 @@ module Iced.Element (
   ElementPtr,
 ) where
 
+import Control.Monad
 import Foreign
 
 data NativeElement
@@ -27,20 +28,19 @@ data Element
 pack :: IntoNative widget => widget -> Element
 pack = MakeElement
 
-elementToNative :: Element -> IO (ElementPtr)
+elementToNative :: Element -> IO ElementPtr
 elementToNative (MakeElement a) = toNative a
 
-buildElements :: [Element] -> [ElementPtr] -> IO ([ElementPtr])
+buildElements :: [Element] -> [ElementPtr] -> IO [ElementPtr]
 buildElements [] elements = pure elements
 buildElements (first:remaining) elements = do
   native <- elementToNative first
   buildElements remaining (elements ++ [native])
 
 class UseAttribute widget attribute where
-  useAttribute :: widget -> attribute -> IO (widget)
+  useAttribute :: attribute -> widget -> IO widget
 
-applyAttributes :: UseAttribute widget attribute => widget -> [attribute] -> IO (widget)
-applyAttributes widgetPtr [] = pure widgetPtr
-applyAttributes widgetPtr (attribute:remaining) = do
-  updatedWidget <- useAttribute widgetPtr attribute
-  applyAttributes updatedWidget remaining
+applyAttributes :: UseAttribute widget attribute => [attribute] -> widget -> IO widget
+applyAttributes [] = pure
+applyAttributes (attribute:remaining) =
+  applyAttributes remaining <=< useAttribute attribute

@@ -66,18 +66,19 @@ positionToNative position = case position of
 
 instance IntoNative Tooltip where
   toNative details = do
-    contentPtr <- elementToNative details.content
-    tooltipPtr <- elementToNative details.tooltipElement
+    content <- elementToNative details.content
+    tooltip <- elementToNative details.tooltipElement
     let position = positionToNative details.position
-    self <- tooltip_new contentPtr tooltipPtr (CUChar position)
-    into_element =<< applyAttributes self details.attributes
+    tooltip_new content tooltip (CUChar position)
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Gap value -> useGap value self
-      AddPadding value -> usePadding value self
-      SnapWithViewport snap -> useSnapWithViewport snap self
+      Gap value -> useGap value
+      AddPadding value -> usePadding value
+      SnapWithViewport snap -> useSnapWithViewport snap
 
 instance UsePadding Attribute where
   padding value = AddPadding value

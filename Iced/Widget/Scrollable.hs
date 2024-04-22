@@ -34,15 +34,16 @@ data Scrollable = Scrollable { attributes :: [Attribute], content :: Element }
 
 instance IntoNative Scrollable where
   toNative details = do
-    contentPtr <- elementToNative details.content
-    self <- scrollable_new contentPtr
-    into_element =<< applyAttributes self details.attributes
+    content <- elementToNative details.content
+    scrollable_new content
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UseWidth Length Attribute where
   width len = Width len

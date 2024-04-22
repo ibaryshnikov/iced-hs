@@ -40,16 +40,17 @@ data Text = Text { attributes :: [Attribute], value :: String }
 
 instance IntoNative Text where
   toNative details = do
-    valuePtr <- newCString details.value
-    self <- text_new valuePtr
-    into_element =<< applyAttributes self details.attributes
+    value <- newCString details.value
+    text_new value
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute self attribute = do
+  useAttribute attribute = do
     case attribute of
-      Size value -> useSize value self
-      Width len -> useWidth len self
-      Height len -> useHeight len self
+      Size value -> useSize value
+      Width len -> useWidth len
+      Height len -> useHeight len
 
 instance UseSize Attribute where
   size value = Size value

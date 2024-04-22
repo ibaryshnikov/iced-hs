@@ -123,11 +123,12 @@ instance (Show option, Read option) => IntoNative (ComboBox option message) wher
     placeholder <- newCString details.placeholder
     selected <- newCString $ selectedToString details.selected
     onSelect <- makeOnSelectCallback $ wrapOnSelect details.onSelect
-    self <- combo_box_new details.state placeholder selected onSelect
-    into_element =<< applyAttributes self details.attributes
+    combo_box_new details.state placeholder selected onSelect
+      >>= applyAttributes details.attributes
+      >>= into_element
 
 instance Read option => UseAttribute Self (Attribute option message) where
-  useAttribute self attribute = do
+  useAttribute attribute self = do
     case attribute of
       AddLineHeight value -> useLineHeight self value
       AddOnInput callback -> useOnInput self callback
