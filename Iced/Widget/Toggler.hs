@@ -43,8 +43,7 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnToggle message -> IO (FunPtr (NativeOnToggle message))
 
 wrapOnToggle :: OnToggle message -> NativeOnToggle message
-wrapOnToggle callback c_bool = do
-  newStablePtr $ callback $ toBool c_bool
+wrapOnToggle callback = newStablePtr . callback . toBool
 
 type OnToggle message = Bool -> message
 
@@ -65,33 +64,28 @@ instance IntoNative (Toggler message) where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Size value -> useSize value
-      Spacing value -> useSpacing value
-      Width len -> useWidth len
+  useAttribute attribute = case attribute of
+    Size value -> useSize value
+    Spacing value -> useSpacing value
+    Width len -> useWidth len
 
 instance UseSize Attribute where
-  size value = Size value
+  size = Size
 
 instance UseSpacing Attribute where
-  spacing value = Spacing value
+  spacing = Spacing
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element
 toggler attributes label isToggled onToggle = pack Toggler { .. }
 
 useSize :: Float -> AttributeFn
-useSize value self = do
-  toggler_size self (CFloat value)
+useSize value self = toggler_size self (CFloat value)
 
 useSpacing :: Float -> AttributeFn
-useSpacing value self = do
-  toggler_spacing self (CFloat value)
+useSpacing value self = toggler_spacing self (CFloat value)
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  toggler_width self nativeLen
+useWidth len self = toggler_width self $ lengthToNative len

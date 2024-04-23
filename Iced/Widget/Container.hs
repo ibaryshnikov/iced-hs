@@ -54,25 +54,24 @@ instance IntoNative Container where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      AddPadding value -> usePadding value
-      CenterX -> useCenterX
-      CenterY -> useCenterY
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    AddPadding value -> usePadding value
+    CenterX -> useCenterX
+    CenterY -> useCenterY
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute Attribute where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 container :: [Attribute] -> Element -> Element
 container attributes content = pack Container { .. }
@@ -90,15 +89,11 @@ useCenterY :: AttributeFn
 useCenterY = container_center_y
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   container_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  container_width self nativeLen
+useWidth len self = container_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  container_height self nativeLen
+useHeight len self = container_height self $ lengthToNative len

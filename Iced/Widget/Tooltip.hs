@@ -9,7 +9,6 @@ module Iced.Widget.Tooltip (
   Position(..),
 ) where
 
-import Data.Word
 import Foreign
 import Foreign.C.Types
 
@@ -56,8 +55,9 @@ data Tooltip = Tooltip {
   position :: Position
 }
 
-positionToNative :: Position -> Word8
-positionToNative position = case position of
+positionToNative :: Position -> CUChar
+positionToNative position = CUChar $
+  case position of
     FollowCursor -> 1
     Top -> 2
     Bottom -> 3
@@ -67,39 +67,36 @@ positionToNative position = case position of
 instance IntoNative Tooltip where
   toNative details = do
     content <- elementToNative details.content
-    tooltip <- elementToNative details.tooltipElement
+    tooltipElement <- elementToNative details.tooltipElement
     let position = positionToNative details.position
-    tooltip_new content tooltip (CUChar position)
+    tooltip_new content tooltipElement position
       >>= applyAttributes details.attributes
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Gap value -> useGap value
-      AddPadding value -> usePadding value
-      SnapWithViewport snap -> useSnapWithViewport snap
+  useAttribute attribute = case attribute of
+    Gap value -> useGap value
+    AddPadding value -> usePadding value
+    SnapWithViewport snap -> useSnapWithViewport snap
 
 instance UsePadding Attribute where
-  padding value = AddPadding value
+  padding = AddPadding
 
 tooltip :: [Attribute] -> Element -> Element -> Position -> Element
 tooltip attributes content tooltipElement position = pack Tooltip { .. }
 
 gap :: Float -> Attribute
-gap value = Gap value
+gap = Gap
 
 useGap :: Float -> AttributeFn
-useGap value self = do
-  tooltip_gap self (CFloat value)
+useGap value self = tooltip_gap self (CFloat value)
 
 usePadding :: Float -> AttributeFn
-usePadding value self = do
-  tooltip_padding self (CFloat value)
+usePadding value self = tooltip_padding self (CFloat value)
 
 snapWithViewport :: Bool -> Attribute
-snapWithViewport snap = SnapWithViewport snap
+snapWithViewport = SnapWithViewport
 
 useSnapWithViewport :: Bool -> AttributeFn
-useSnapWithViewport snap self = do
+useSnapWithViewport snap self =
   tooltip_snap_within_viewport self (fromBool snap)

@@ -68,57 +68,50 @@ instance IntoNative Row where
     elementsPtr <- newArray elements
     self <- row_with_children len elementsPtr
     free elementsPtr
-    into_element =<< applyAttributes details.attributes self
+    applyAttributes details.attributes self
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Spacing value -> useSpacing value
-      AddPadding value -> usePadding value
-      AlignItems value -> useAlignItems value
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    Spacing value -> useSpacing value
+    AddPadding value -> usePadding value
+    AlignItems value -> useAlignItems value
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UseAlignment Attribute where
-  alignItems value = AlignItems value
+  alignItems = AlignItems
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute Attribute where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseSpacing Attribute where
-  spacing value = Spacing value
+  spacing = Spacing
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 row :: [Attribute] -> [Element] -> Element
 row attributes children = pack Row { .. }
 
 useAlignItems :: Alignment -> AttributeFn
-useAlignItems value self = do
-  let nativeAlignment = alignmentToNative value
-  row_align_items self nativeAlignment
+useAlignItems value self = row_align_items self $ alignmentToNative value
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   row_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useSpacing :: Float -> AttributeFn
-useSpacing value self = do
-  row_spacing self (CFloat value)
+useSpacing value self = row_spacing self (CFloat value)
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  row_width self nativeLen
+useWidth len self = row_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  row_height self nativeLen
+useHeight len self = row_height self $ lengthToNative len

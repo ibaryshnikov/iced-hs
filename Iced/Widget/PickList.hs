@@ -7,6 +7,7 @@ module Iced.Widget.PickList (
   placeholder,
 ) where
 
+import Control.Monad
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
@@ -44,9 +45,7 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnSelect message -> IO (FunPtr (NativeOnSelect message))
 
 wrapOnSelect :: Read option => OnSelect option message -> NativeOnSelect message
-wrapOnSelect callback c_string = do
-  string <- peekCString c_string
-  newStablePtr $ callback $ read string
+wrapOnSelect callback = newStablePtr . callback . read <=< peekCString
 
 type OnSelect option message = option -> message
 
@@ -77,7 +76,8 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
     self <- pick_list_new len stringsPtr selectedPtr onSelectPtr
     free stringsPtr -- Rust will free contents, but we still need to free the array itself
-    into_element =<< applyAttributes details.attributes self
+    applyAttributes details.attributes self
+      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
@@ -89,10 +89,10 @@ instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute Attribute where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 pickList :: (Show option, Read option) => [Attribute]
                                        -> [option]
@@ -102,18 +102,16 @@ pickList :: (Show option, Read option) => [Attribute]
 pickList attributes options selected onSelect = pack PickList { .. }
 
 placeholder :: String -> Attribute
-placeholder value = Placeholder value
+placeholder = Placeholder
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   pick_list_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 usePlaceholder :: String -> AttributeFn
-usePlaceholder value self = do
-  placeholderPtr <- newCString value
-  pick_list_placeholder self placeholderPtr
+usePlaceholder value self =
+  newCString value
+    >>= pick_list_placeholder self
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  pick_list_width self nativeLen
+useWidth len self = pick_list_width self $ lengthToNative len

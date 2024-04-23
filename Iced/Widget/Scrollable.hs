@@ -40,26 +40,21 @@ instance IntoNative Scrollable where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 scrollable :: [Attribute] -> Element -> Element
 scrollable attributes content = pack Scrollable { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  scrollable_width self nativeLen
+useWidth len self = scrollable_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  scrollable_height self nativeLen
+useHeight len self = scrollable_height self $ lengthToNative len

@@ -48,7 +48,7 @@ data Shaping = Basic | Advanced
 
 frameFill :: FramePtr -> [Shape] -> Color -> IO ()
 frameFill framePtr shapes color = do
-  pathPtr <- newPath shapes
-  stylePtr <- canvasStyleSolid color
-  fillPtr <- newCanvasFill stylePtr NonZero
-  canvas_frame_fill framePtr pathPtr fillPtr
+  path <- newPath shapes
+  style <- canvasStyleSolid color
+  fill <- newCanvasFill style NonZero
+  canvas_frame_fill framePtr path fill

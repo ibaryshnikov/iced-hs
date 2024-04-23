@@ -46,34 +46,28 @@ instance IntoNative Text where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Size value -> useSize value
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    Size value -> useSize value
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UseSize Attribute where
-  size value = Size value
+  size = Size
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 text :: [Attribute] -> String -> Element
 text attributes value = pack Text { .. }
 
 useSize :: Float -> AttributeFn
-useSize value self = do
-  text_size self (CFloat value)
+useSize value self = text_size self (CFloat value)
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  text_width self nativeLen
+useWidth len self = text_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  text_height self nativeLen
+useHeight len self = text_height self $ lengthToNative len

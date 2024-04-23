@@ -68,57 +68,50 @@ instance IntoNative Column where
     elementsPtr <- newArray elements
     self <- column_with_children len elementsPtr
     free elementsPtr
-    into_element =<< applyAttributes details.attributes self
+    applyAttributes details.attributes self
+      >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Spacing value -> useSpacing value
-      AddPadding value -> usePadding value
-      AlignItems value -> useAlignItems value
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    Spacing value -> useSpacing value
+    AddPadding value -> usePadding value
+    AlignItems value -> useAlignItems value
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UseAlignment Attribute where
-  alignItems value = AlignItems value
+  alignItems = AlignItems
 
 instance UseSpacing Attribute where
-  spacing value = Spacing value
+  spacing = Spacing
 
 instance UsePadding Attribute where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute Attribute where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. }
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   column_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useSpacing :: Float -> AttributeFn
-useSpacing value self = do
-  column_spacing self (CFloat value)
+useSpacing value self = column_spacing self (CFloat value)
 
 useAlignItems :: Alignment -> AttributeFn
-useAlignItems value self = do
-  let nativeAlignment = alignmentToNative value
-  column_align_items self nativeAlignment
+useAlignItems value self = column_align_items self $ alignmentToNative value
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  column_width self nativeLen
+useWidth len self = column_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  column_height self nativeLen
+useHeight len self = column_height self $ lengthToNative len

@@ -90,27 +90,26 @@ instance IntoNative (Checkbox message) where
       >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute attribute = do
-    case attribute of
-      AddOnToggle callback -> useOnToggle callback
-      AddIcon codePoint -> useIcon codePoint
-      AddStyle value -> useStyle value
-      None -> pure
+  useAttribute attribute = case attribute of
+    AddOnToggle callback -> useOnToggle callback
+    AddIcon codePoint -> useIcon codePoint
+    AddStyle value -> useStyle value
+    None -> do pure
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
 checkbox attributes label value = pack Checkbox { .. }
 
 onToggle :: OnToggle message -> Attribute message
-onToggle callback = AddOnToggle callback
+onToggle = AddOnToggle
 
 onToggleIf :: Bool -> OnToggle message -> Attribute message
 onToggleIf True callback = onToggle callback
 onToggleIf False _ = None
 
 useOnToggle :: OnToggle message -> AttributeFn
-useOnToggle callback self = do
-  onTogglePtr <- makeCallback $ wrapOnToggle callback
-  checkbox_on_toggle self onTogglePtr
+useOnToggle callback self =
+  makeCallback (wrapOnToggle callback)
+    >>= checkbox_on_toggle self
 
 styleToNative :: Style -> StylePtr
 styleToNative value = case value of
@@ -120,17 +119,15 @@ styleToNative value = case value of
   Danger -> checkbox_danger
 
 icon :: Word32 -> Attribute message
-icon codePoint = AddIcon codePoint
+icon = AddIcon
 
 useIcon :: Word32 -> AttributeFn
-useIcon codePoint self = do
+useIcon codePoint self =
   let iconPtr = checkbox_icon_new (CUInt codePoint)
-  checkbox_icon self iconPtr
+  in checkbox_icon self iconPtr
 
 style :: Style -> Attribute message
-style value = AddStyle value
+style = AddStyle
 
 useStyle :: Style -> AttributeFn
-useStyle value self = do
-  let stylePtr = styleToNative value
-  checkbox_style self stylePtr
+useStyle value self = checkbox_style self $ styleToNative value

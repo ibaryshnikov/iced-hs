@@ -21,7 +21,7 @@ foreign import ccall "wrapper"
 type NativeView = CFloat -> CFloat -> IO ElementPtr
 
 wrapView :: View -> NativeView
-wrapView view (CFloat width) (CFloat height) = do
+wrapView view (CFloat width) (CFloat height) =
   elementToNative $ view Size { .. }
 
 type View = Size -> Element
@@ -29,9 +29,9 @@ type View = Size -> Element
 data Responsive = Responsive { view :: View }
 
 instance IntoNative Responsive where
-  toNative details = do
-    viewPtr <- makeCallback $ wrapView details.view
-    responsive_new viewPtr
+  toNative details =
+    makeCallback (wrapView details.view)
+      >>= responsive_new
 
 responsive :: View -> Element
 responsive view = pack Responsive { .. }

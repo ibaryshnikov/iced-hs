@@ -45,7 +45,8 @@ data Space = Space Length Length | Width Length | Height Length | Horizontal | V
 instance IntoNative Space where
   toNative details = do
     -- currently no attributes for Space
-    makeSpace details >>= into_element
+    makeSpace details
+      >>= into_element
 
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of

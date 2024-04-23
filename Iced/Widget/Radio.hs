@@ -35,9 +35,8 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnClick message -> IO (FunPtr (NativeOnClick message))
 
 wrapOnClick :: Enum option => OnClick option message -> NativeOnClick message
-wrapOnClick callback input = do
-  let option = optionFromInt $ fromIntegral input
-  newStablePtr $ callback option
+wrapOnClick callback =
+  newStablePtr . callback . optionFromInt . fromIntegral
 
 type OnClick option message = option -> message
 
@@ -73,19 +72,20 @@ instance Enum option => IntoNative (Radio option message) where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
+  useAttribute attribute = case attribute of
       Width len -> useWidth len
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 radio :: Enum option
       => [Attribute]
-      -> String -> option -> Maybe option -> OnClick option message -> Element
+      -> String
+      -> option
+      -> Maybe option
+      -> OnClick option message
+      -> Element
 radio attributes label value selected onClick = pack Radio { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  radio_width self nativeLen
+useWidth len self = radio_width self $ lengthToNative len

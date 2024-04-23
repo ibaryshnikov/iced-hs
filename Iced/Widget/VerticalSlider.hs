@@ -55,14 +55,12 @@ foreign import ccall safe "vertical_slider_height"
 foreign import ccall safe "vertical_slider_into_element"
   into_element :: Self -> IO ElementPtr
 
-
 type NativeOnChange message = CInt -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeCallback :: NativeOnChange message -> IO (FunPtr (NativeOnChange message))
 
 wrapOnChange :: OnChange message -> NativeOnChange message
-wrapOnChange callback c_int = do
-  newStablePtr $ callback $ fromIntegral c_int
+wrapOnChange callback = newStablePtr . callback . fromIntegral
 
 type OnChange message = Int -> message
 
@@ -85,28 +83,27 @@ instance IntoNative (VerticalSlider message) where
       >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute attribute = do
-    case attribute of
-      AddDefault value -> useDefault value
-      OnRelease message -> useOnRelease message
-      AddStep value -> useStep value
-      AddShiftStep value -> useShiftStep value
-      Width len -> useWidth len
-      Height value -> useHeight value
+  useAttribute attribute = case attribute of
+    AddDefault value -> useDefault value
+    OnRelease message -> useOnRelease message
+    AddStep value -> useStep value
+    AddShiftStep value -> useShiftStep value
+    Width len -> useWidth len
+    Height value -> useHeight value
 
 instance SliderCommon (Attribute message) where
-  addDefault value = AddDefault value
-  step value = AddStep value
-  shiftStep value = AddShiftStep value
+  addDefault = AddDefault
+  step = AddStep
+  shiftStep = AddShiftStep
 
 instance SliderCommonOnRelease message (Attribute message) where
-  onRelease message = OnRelease message
+  onRelease = OnRelease
 
 instance UseWidth Float (Attribute message) where
-  width value = Width value
+  width = Width
 
 instance UseHeight Length (Attribute message) where
-  height len = Height len
+  height = Height
 
 verticalSlider :: [Attribute message]
                -> Int
@@ -122,9 +119,9 @@ useDefault value self =
   vertical_slider_default self $ fromIntegral value
 
 useOnRelease :: message -> AttributeFn
-useOnRelease message self = do
-  messagePtr <- newStablePtr message
-  vertical_slider_on_release self messagePtr
+useOnRelease message self =
+  newStablePtr message
+    >>= vertical_slider_on_release self
 
 useStep :: Int -> AttributeFn
 useStep value self =
@@ -135,10 +132,7 @@ useShiftStep value self =
   vertical_slider_shift_step self $ fromIntegral value
 
 useWidth :: Float -> AttributeFn
-useWidth value self = do
-  vertical_slider_width self (CFloat value)
+useWidth value self = vertical_slider_width self (CFloat value)
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  vertical_slider_height self nativeLen
+useHeight len self = vertical_slider_height self $ lengthToNative len

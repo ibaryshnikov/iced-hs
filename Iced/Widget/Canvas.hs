@@ -85,29 +85,24 @@ instance IntoNative Canvas where
       >>= into_element
 
 instance UseAttribute Self Attribute where
-  useAttribute attribute = do
-    case attribute of
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UseWidth Length Attribute where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length Attribute where
-  height len = Height len
+  height = Height
 
 canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element
 canvas attributes actions cache = pack Canvas { .. }
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  canvas_width self nativeLen
+useWidth len self = canvas_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  canvas_height self nativeLen
+useHeight len self = canvas_height self $ lengthToNative len
 
 newCanvasState :: IO (CanvasStatePtr)
 newCanvasState = canvas_state_new

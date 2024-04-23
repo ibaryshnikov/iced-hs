@@ -15,6 +15,7 @@ module Iced.Widget.TextEditor (
 -- required to be able to run IO in update function
 -- gonna be removed after the addition of Command api
 import System.IO.Unsafe -- hopefully temporally
+import Control.Monad
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
@@ -53,7 +54,7 @@ foreign import ccall safe "text_editor_content_perform"
 applyAction :: Content -> Action -> Content
 applyAction content action = unsafePerformIO $ do -- todo: make it a Command
   text_editor_content_perform content action
-  return content
+  pure content
 
 foreign import ccall safe "text_editor_new"
   text_editor_new :: Content -> IO Self
@@ -76,8 +77,7 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnAction message -> IO (FunPtr (NativeOnAction message))
 
 wrapOnAction :: OnAction message -> NativeOnAction message
-wrapOnAction callback action = do
-  newStablePtr $ callback action
+wrapOnAction callback = newStablePtr . callback
 
 type OnAction message = Action -> message
 
@@ -93,45 +93,40 @@ instance IntoNative (TextEditor message) where
       >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute attribute = do
-    case attribute of
-      AddOnAction callback -> useOnAction callback
-      AddPadding value -> usePadding value
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    AddOnAction callback -> useOnAction callback
+    AddPadding value -> usePadding value
+    Height len -> useHeight len
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute (Attribute message) where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseHeight Length (Attribute message) where
-  height len = Height len
+  height = Height
 
 textEditor :: [Attribute message] -> Content -> Element
 textEditor attributes content = pack TextEditor { .. }
 
 onAction :: OnAction message -> Attribute message
-onAction callback = AddOnAction callback
+onAction = AddOnAction
 
 useOnAction :: OnAction message -> AttributeFn
-useOnAction callback self = do
-  onActionPtr <- makeCallback $ wrapOnAction callback
-  text_editor_on_action self onActionPtr
+useOnAction callback self =
+  makeCallback (wrapOnAction callback)
+    >>= text_editor_on_action self
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   text_editor_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  text_editor_height self nativeLen
+useHeight len self = text_editor_height self $ lengthToNative len
 
 newContent :: Content
 newContent = text_editor_content_new
 
 contentWithText :: String -> IO (Content)
-contentWithText value = do
-  stringPtr <- newCString value
-  text_editor_content_with_text stringPtr
+contentWithText = text_editor_content_with_text <=< newCString

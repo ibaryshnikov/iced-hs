@@ -1,5 +1,6 @@
 module Iced.Widget.Canvas.Path (newPath, PathPtr) where
 
+import Control.Monad
 import Foreign
 
 import Iced.Widget.Canvas.PathBuilder
@@ -16,7 +17,7 @@ foreign import ccall "wrapper"
   makeCallback :: NativePathCallback -> IO (FunPtr (NativePathCallback))
 
 shapesToPath :: [Shape] -> PathBuilderPtr -> IO ()
-shapesToPath [] _builder = return ()
+shapesToPath [] _builder = pure ()
 shapesToPath (shape:remaining) builder = do
   addToPath shape builder
   shapesToPath remaining builder
@@ -25,6 +26,4 @@ pathCallback :: [Shape] -> NativePathCallback
 pathCallback shapes = shapesToPath shapes
 
 newPath :: [Shape] -> IO (PathPtr)
-newPath shapes = do
-  callbackPtr <- makeCallback $ pathCallback shapes
-  path_new callbackPtr
+newPath = path_new <=< makeCallback . pathCallback

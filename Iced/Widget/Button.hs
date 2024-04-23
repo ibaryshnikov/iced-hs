@@ -51,46 +51,41 @@ instance IntoNative (Button message) where
       >>= into_element
 
 instance UseAttribute Self (Attribute message) where
-  useAttribute attribute = do
-    case attribute of
-      OnPress message -> useOnPress message
-      AddPadding value -> usePadding value
-      Width len -> useWidth len
-      Height len -> useHeight len
+  useAttribute attribute = case attribute of
+    OnPress message -> useOnPress message
+    AddPadding value -> usePadding value
+    Width len -> useWidth len
+    Height len -> useHeight len
 
 instance UsePadding (Attribute message) where
   padding v = AddPadding $ Padding v v v v
 
 instance PaddingToAttribute (Attribute message) where
-  paddingToAttribute value = AddPadding value
+  paddingToAttribute = AddPadding
 
 instance UseWidth Length (Attribute message) where
-  width len = Width len
+  width = Width
 
 instance UseHeight Length (Attribute message) where
-  height len = Height len
+  height = Height
 
 button :: [Attribute message] -> String -> Element
 button attributes label = pack Button { .. }
 
 onPress :: message -> Attribute message
-onPress message = OnPress message
+onPress = OnPress
 
 useOnPress :: message -> AttributeFn
-useOnPress message self = do
-  messagePtr <- newStablePtr message
-  button_on_press self messagePtr
+useOnPress message self =
+  newStablePtr message
+    >>= button_on_press self
 
 usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self = do
+usePadding Padding { .. } self =
   button_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 useWidth :: Length -> AttributeFn
-useWidth len self = do
-  let nativeLen = lengthToNative len
-  button_width self nativeLen
+useWidth len self = button_width self $ lengthToNative len
 
 useHeight :: Length -> AttributeFn
-useHeight len self = do
-  let nativeLen = lengthToNative len
-  button_height self nativeLen
+useHeight len self = button_height self $ lengthToNative len
