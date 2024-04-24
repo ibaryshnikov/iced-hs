@@ -78,7 +78,7 @@ is currently small, but growing over time.
    - [ ] keyedColumn
    - [ ] mouseArea
    - [ ] paneGrid
-   - [ ] progressBar
+   - [x] progressBar
    - [x] pickList
    - [ ] qrCode
    - [x] radio
@@ -116,7 +116,7 @@ is currently small, but growing over time.
    - [x] implement two signatures for `update` function:
      - `Model -> Message -> Model`
      - `Model -> Message -> (Model, Command Message)`
-   - [x] `Command.Perform`   for Rust `Future`
+   - [x] `Command.Perform` for Rust `Future`
    - [x] `Command.PerformIO` for Haskell `IO`
    - [ ] other commands
  - [ ] Add all attributes from iced for each widget

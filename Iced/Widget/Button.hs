@@ -2,7 +2,11 @@
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Widget.Button (button, onPress) where
+module Iced.Widget.Button (
+  button,
+  onPress,
+  onPressIf,
+) where
 
 import Foreign
 import Foreign.C.String
@@ -17,7 +21,12 @@ data NativeButton
 type Self = Ptr NativeButton
 type AttributeFn = Self -> IO Self
 
-data Attribute message = AddPadding Padding | OnPress message | Width Length | Height Length
+data Attribute message
+  = AddPadding Padding
+  | OnPress message
+  | Width Length
+  | Height Length
+  | None
 
 foreign import ccall safe "button_new"
   button_new :: CString -> IO Self
@@ -56,6 +65,7 @@ instance UseAttribute Self (Attribute message) where
     AddPadding value -> usePadding value
     Width  len -> useFn button_width  len
     Height len -> useFn button_height len
+    None -> pure
 
 instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding
@@ -71,6 +81,10 @@ button attributes label = pack Button { .. } attributes
 
 onPress :: message -> Attribute message
 onPress = OnPress
+
+onPressIf :: Bool -> message -> Attribute message
+onPressIf True message = onPress message
+onPressIf False _ = None
 
 useOnPress :: message -> AttributeFn
 useOnPress message self =
