@@ -13,7 +13,7 @@ module Iced.Widget.Canvas (
 import Foreign
 import System.IO.Unsafe -- to run clearCache without IO
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Element
 import Iced.Widget.Canvas.Frame
@@ -25,7 +25,6 @@ type CanvasStatePtr = Ptr NativeCanvasState
 type CanvasState = CanvasStatePtr; -- to export
 data NativeCanvas
 type Self = Ptr NativeCanvas
-type AttributeFn = Self -> IO Self
 
 data Attribute = Width Length | Height Length
 
@@ -61,7 +60,6 @@ foreign import ccall "wrapper"
   makeDrawCallback :: NativeDraw -> IO (FunPtr (NativeDraw))
 
 data Canvas = Canvas {
-  attributes :: [Attribute],
   actions :: [FrameAction],
   cache :: CanvasStatePtr
 }
@@ -76,18 +74,19 @@ drawActions (action:remaining) framePtr = do
 drawCallback :: [FrameAction] -> NativeDraw
 drawCallback actions framePtr = drawActions actions framePtr
 
-instance IntoNative Canvas where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Canvas Self where
   toNative details = do
     drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
     canvas_set_draw details.cache drawCallbackPtr
     canvas_new details.cache
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width len -> useWidth len
-    Height len -> useHeight len
+    Width  len -> useFn canvas_width  len
+    Height len -> useFn canvas_height len
 
 instance UseWidth Length Attribute where
   width = Width
@@ -96,13 +95,7 @@ instance UseHeight Length Attribute where
   height = Height
 
 canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element
-canvas attributes actions cache = pack Canvas { .. }
-
-useWidth :: Length -> AttributeFn
-useWidth len self = canvas_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = canvas_height self $ lengthToNative len
+canvas attributes actions cache = pack Canvas { .. } attributes
 
 newCanvasState :: IO (CanvasStatePtr)
 newCanvasState = canvas_state_new

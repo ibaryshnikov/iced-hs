@@ -10,7 +10,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
@@ -18,7 +18,6 @@ import Iced.Element
 
 data NativeToggler
 type Self = Ptr NativeToggler
-type AttributeFn = Self -> IO Self
 
 data Attribute = Size Float | Spacing Float | Width Length
 
@@ -48,26 +47,26 @@ wrapOnToggle callback = newStablePtr . callback . toBool
 type OnToggle message = Bool -> message
 
 data Toggler message = Toggler {
-  attributes :: [Attribute],
   label :: String,
   isToggled :: Bool,
   onToggle :: OnToggle message
 }
 
-instance IntoNative (Toggler message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative (Toggler message) Self where
   toNative details = do
     label <- newCString details.label
     let isToggled = fromBool details.isToggled
     onToggle <- makeCallback $ wrapOnToggle details.onToggle
     toggler_new label isToggled onToggle
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Size value -> useSize value
-    Spacing value -> useSpacing value
-    Width len -> useWidth len
+    Size value -> useFn toggler_size value
+    Spacing value -> useFn toggler_spacing value
+    Width len -> useFn toggler_width len
 
 instance UseSize Attribute where
   size = Size
@@ -79,13 +78,4 @@ instance UseWidth Length Attribute where
   width = Width
 
 toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element
-toggler attributes label isToggled onToggle = pack Toggler { .. }
-
-useSize :: Float -> AttributeFn
-useSize value self = toggler_size self (CFloat value)
-
-useSpacing :: Float -> AttributeFn
-useSpacing value self = toggler_spacing self (CFloat value)
-
-useWidth :: Length -> AttributeFn
-useWidth len self = toggler_width self $ lengthToNative len
+toggler attributes label isToggled onToggle = pack Toggler { .. } attributes

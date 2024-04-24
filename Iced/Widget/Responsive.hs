@@ -28,10 +28,10 @@ type View = Size -> Element
 
 data Responsive = Responsive { view :: View }
 
-instance IntoNative Responsive where
+instance IntoNative Responsive ElementPtr where
   toNative details =
     makeCallback (wrapView details.view)
       >>= responsive_new
 
 responsive :: View -> Element
-responsive view = pack Responsive { .. }
+responsive view = packSimple Responsive { .. }

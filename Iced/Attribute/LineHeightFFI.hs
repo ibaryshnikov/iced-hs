@@ -1,6 +1,5 @@
 module Iced.Attribute.LineHeightFFI (
   LineHeightPtr,
-  lineHeightToNative,
   -- reexports
   module Iced.Attribute.LineHeight,
   --
@@ -9,6 +8,7 @@ module Iced.Attribute.LineHeightFFI (
 import Foreign
 import Foreign.C.Types
 
+import Iced.Attribute.Internal
 import Iced.Attribute.LineHeight
 
 data NativeLineHeight
@@ -20,6 +20,6 @@ foreign import ccall safe "line_height_relative"
 foreign import ccall safe "line_height_absolute"
   line_height_absolute :: CFloat -> LineHeightPtr
 
-lineHeightToNative :: LineHeight -> LineHeightPtr
-lineHeightToNative (Relative value) = line_height_relative (CFloat value)
-lineHeightToNative (Absolute value) = line_height_absolute (CFloat value)
+instance ValueToNative LineHeight LineHeightPtr where
+  valueToNative (Relative value) = line_height_relative (CFloat value)
+  valueToNative (Absolute value) = line_height_absolute (CFloat value)

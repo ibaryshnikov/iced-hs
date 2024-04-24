@@ -9,7 +9,7 @@ module Iced.Widget.VerticalSlider (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.SliderCommon
 import Iced.Element
@@ -65,31 +65,31 @@ wrapOnChange callback = newStablePtr . callback . fromIntegral
 type OnChange message = Int -> message
 
 data VerticalSlider message = VerticalSlider {
-  attributes :: [Attribute message],
   rangeFrom :: Int,
   rangeTo :: Int,
   value :: Int,
   onChange :: OnChange message
 }
 
-instance IntoNative (VerticalSlider message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative (VerticalSlider message) Self where
   toNative details = do
     let rangeFrom = fromIntegral details.rangeFrom
     let rangeTo = fromIntegral details.rangeTo
     let value = fromIntegral details.value
     onChange <- makeCallback $ wrapOnChange details.onChange
     vertical_slider_new rangeFrom rangeTo value onChange
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
-    AddDefault value -> useDefault value
+    AddDefault value -> useFn vertical_slider_default value
     OnRelease message -> useOnRelease message
-    AddStep value -> useStep value
-    AddShiftStep value -> useShiftStep value
-    Width len -> useWidth len
-    Height value -> useHeight value
+    AddStep value -> useFn vertical_slider_step value
+    AddShiftStep value -> useFn vertical_slider_shift_step value
+    Width  len -> useFn vertical_slider_width  len
+    Height len -> useFn vertical_slider_height len
 
 instance SliderCommon (Attribute message) where
   addDefault = AddDefault
@@ -112,27 +112,9 @@ verticalSlider :: [Attribute message]
                -> OnChange message
                -> Element
 verticalSlider attributes rangeFrom rangeTo value onChange =
-  pack VerticalSlider { .. }
-
-useDefault :: Int -> AttributeFn
-useDefault value self =
-  vertical_slider_default self $ fromIntegral value
+  pack VerticalSlider { .. } attributes
 
 useOnRelease :: message -> AttributeFn
 useOnRelease message self =
   newStablePtr message
     >>= vertical_slider_on_release self
-
-useStep :: Int -> AttributeFn
-useStep value self =
-  vertical_slider_step self $ fromIntegral value
-
-useShiftStep :: Int -> AttributeFn
-useShiftStep value self =
-  vertical_slider_shift_step self $ fromIntegral value
-
-useWidth :: Float -> AttributeFn
-useWidth value self = vertical_slider_width self (CFloat value)
-
-useHeight :: Length -> AttributeFn
-useHeight len self = vertical_slider_height self $ lengthToNative len

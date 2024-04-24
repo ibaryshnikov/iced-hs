@@ -47,19 +47,19 @@ wrapOnInput callback = newStablePtr . callback <=< peekCString
 
 type OnInput message = String -> message
 
-data TextInput message = TextInput {
-  attributes :: [Attribute message],
+data TextInput = TextInput {
   placeholder :: String,
   value :: String
 }
 
-instance IntoNative (TextInput message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative TextInput Self where
   toNative details = do
     placeholder <- newCString details.placeholder
     value <- newCString details.value
     text_input_new placeholder value
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
@@ -70,14 +70,11 @@ instance UseAttribute Self (Attribute message) where
 instance UseOnInput (OnInput message) (Attribute message) where
   onInput = AddOnInput
 
-instance UsePadding (Attribute message) where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute (Attribute message) where
-  paddingToAttribute value = AddPadding value
+instance PaddingToAttribute Padding (Attribute message) where
+  paddingToAttribute = AddPadding
 
 textInput :: [Attribute message] -> String -> String -> Element
-textInput attributes placeholder value = pack TextInput { .. }
+textInput attributes placeholder value = pack TextInput { .. } attributes
 
 useOnInput :: OnInput message -> AttributeFn
 useOnInput callback self =

@@ -75,19 +75,19 @@ type OnToggle message = Bool -> message
 
 data Style = Primary | Secondary | Success | Danger
 
-data Checkbox message = Checkbox {
-  attributes :: [Attribute message],
+data Checkbox = Checkbox {
   label :: String,
   value :: Bool
 }
 
-instance IntoNative (Checkbox message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Checkbox Self where
   toNative details = do
     let checked = fromBool details.value
     label <- newCString details.label
     checkbox_new label checked
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
@@ -97,7 +97,7 @@ instance UseAttribute Self (Attribute message) where
     None -> do pure
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
-checkbox attributes label value = pack Checkbox { .. }
+checkbox attributes label value = pack Checkbox { .. } attributes
 
 onToggle :: OnToggle message -> Attribute message
 onToggle = AddOnToggle

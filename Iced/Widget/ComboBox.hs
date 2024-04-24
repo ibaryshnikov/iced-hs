@@ -16,6 +16,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.OnInput
@@ -102,7 +103,6 @@ type OnOptionHovered option message = option -> message
 
 data ComboBox option message where
   ComboBox :: (Show option, Read option) => {
-    attributes :: [Attribute option message],
     state :: State,
     placeholder :: String,
     selected :: Maybe option,
@@ -119,24 +119,25 @@ selectedToString :: Show option => Maybe option -> String
 selectedToString (Just option) = show option
 selectedToString Nothing = "" -- treat empty string as None in Rust
 
-instance (Show option, Read option) => IntoNative (ComboBox option message) where
+instance Builder Self where
+  build = into_element
+
+instance (Show option, Read option) => IntoNative (ComboBox option message) Self where
   toNative details = do
     placeholder <- newCString details.placeholder
     selected <- newCString $ selectedToString details.selected
     onSelect <- makeOnSelectCallback $ wrapOnSelect details.onSelect
     combo_box_new details.state placeholder selected onSelect
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance Read option => UseAttribute Self (Attribute option message) where
   useAttribute attribute = case attribute of
-    AddLineHeight value -> useLineHeight value
+    AddLineHeight value -> useFn combo_box_line_height value
     AddOnInput callback -> useOnInput callback
     AddOnHover callback -> useOnHover callback
     AddPadding value -> usePadding value
     OnClose message -> useOnClose message
-    Size value -> useSize value
-    Width value -> useWidth value
+    Size value -> useFn combo_box_size value
+    Width value -> useFn combo_box_width value
 
 instance UseLineHeight (Attribute option message) where
   lineHeight = AddLineHeight
@@ -144,10 +145,7 @@ instance UseLineHeight (Attribute option message) where
 instance UseOnInput (OnInput message) (Attribute option message) where
   onInput = AddOnInput
 
-instance UsePadding (Attribute option message) where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute (Attribute option message) where
+instance PaddingToAttribute Padding (Attribute option message) where
   paddingToAttribute = AddPadding
 
 instance UseSize (Attribute option message) where
@@ -156,16 +154,14 @@ instance UseSize (Attribute option message) where
 instance UseWidth Length (Attribute option message) where
   width = Width
 
-comboBox :: (Show option, Read option) => [Attribute option message]
-                                       -> State
-                                       -> String
-                                       -> Maybe option
-                                       -> OnSelect option message
-                                       -> Element
-comboBox attributes state placeholder selected onSelect = pack ComboBox { .. }
-
-useLineHeight :: LineHeight -> AttributeFn
-useLineHeight value self = combo_box_line_height self $ lineHeightToNative value
+comboBox :: (Show option, Read option)
+         => [Attribute option message]
+         -> State
+         -> String
+         -> Maybe option
+         -> OnSelect option message
+         -> Element
+comboBox attributes state placeholder selected onSelect = pack ComboBox { .. } attributes
 
 onClose :: message -> Attribute option message
 onClose = OnClose
@@ -191,12 +187,6 @@ useOnHover callback self =
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   combo_box_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useSize :: Float -> AttributeFn
-useSize value self = combo_box_size self $ CFloat value
-
-useWidth :: Length -> AttributeFn
-useWidth len self = combo_box_width self $ lengthToNative len
 
 newComboBoxState :: Show option => [option] -> IO State
 newComboBoxState options = do

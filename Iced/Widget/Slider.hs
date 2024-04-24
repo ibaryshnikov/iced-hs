@@ -9,7 +9,7 @@ module Iced.Widget.Slider (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.SliderCommon
 import Iced.Element
@@ -61,31 +61,31 @@ wrapOnChange callback = newStablePtr . callback . fromIntegral
 type OnChange message = Int -> message
 
 data Slider message = Slider {
-  attributes :: [Attribute message],
   rangeFrom :: Int,
   rangeTo :: Int,
   value :: Int,
   onChange :: OnChange message
 }
 
-instance IntoNative (Slider message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative (Slider message) Self where
   toNative details = do
     let rangeFrom = fromIntegral details.rangeFrom
     let rangeTo = fromIntegral details.rangeTo
     let value = fromIntegral details.value
     onChange <- makeCallback $ wrapOnChange details.onChange
     slider_new rangeFrom rangeTo value onChange
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
-    AddDefault value -> useDefault value
+    AddDefault value -> useFn slider_default value
     OnRelease message -> useOnRelease message
-    AddStep value -> useStep value
-    AddShiftStep value -> useShiftStep value
-    Width len -> useWidth len
-    Height value -> useHeight value
+    AddStep value -> useFn slider_step value
+    AddShiftStep value -> useFn slider_shift_step value
+    Width  len -> useFn slider_width  len
+    Height len -> useFn slider_height len
 
 instance SliderCommon (Attribute message) where
   addDefault = AddDefault
@@ -102,24 +102,9 @@ instance UseHeight Float (Attribute message) where
   height = Height
 
 slider :: [Attribute message] -> Int -> Int -> Int -> OnChange message -> Element
-slider attributes rangeFrom rangeTo value onChange = pack Slider { .. }
-
-useDefault :: Int -> AttributeFn
-useDefault value self = slider_default self $ fromIntegral value
+slider attributes rangeFrom rangeTo value onChange = pack Slider { .. } attributes
 
 useOnRelease :: message -> AttributeFn
 useOnRelease message self =
   newStablePtr message
     >>= slider_on_release self
-
-useStep :: Int -> AttributeFn
-useStep value self = slider_step self $ fromIntegral value
-
-useShiftStep :: Int -> AttributeFn
-useShiftStep value self = slider_shift_step self $ fromIntegral value
-
-useWidth :: Length -> AttributeFn
-useWidth len self = slider_width self $ lengthToNative len
-
-useHeight :: Float -> AttributeFn
-useHeight value self = slider_height self (CFloat value)

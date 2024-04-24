@@ -8,13 +8,12 @@ module Iced.Widget.Scrollable (
 
 import Foreign
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Element
 
 data NativeScrollable
 type Self = Ptr NativeScrollable
-type AttributeFn = Self -> IO Self
 
 data Attribute = Width Length | Height Length
 
@@ -30,19 +29,20 @@ foreign import ccall safe "scrollable_height"
 foreign import ccall safe "scrollable_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Scrollable = Scrollable { attributes :: [Attribute], content :: Element }
+data Scrollable = Scrollable { content :: Element }
 
-instance IntoNative Scrollable where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Scrollable Self where
   toNative details = do
     content <- elementToNative details.content
     scrollable_new content
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width len -> useWidth len
-    Height len -> useHeight len
+    Width  len -> useFn scrollable_width  len
+    Height len -> useFn scrollable_height len
 
 instance UseWidth Length Attribute where
   width = Width
@@ -51,10 +51,4 @@ instance UseHeight Length Attribute where
   height = Height
 
 scrollable :: [Attribute] -> Element -> Element
-scrollable attributes content = pack Scrollable { .. }
-
-useWidth :: Length -> AttributeFn
-useWidth len self = scrollable_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = scrollable_height self $ lengthToNative len
+scrollable attributes content = pack Scrollable { .. } attributes

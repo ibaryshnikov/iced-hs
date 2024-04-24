@@ -12,8 +12,9 @@ module Iced.Widget.Tooltip (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Element
+import Iced.Attribute.Internal
 import Iced.Attribute.Padding
+import Iced.Element
 
 data NativeTooltip
 type Self = Ptr NativeTooltip
@@ -49,7 +50,6 @@ foreign import ccall safe "tooltip_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Tooltip = Tooltip {
-  attributes :: [Attribute],
   content :: Element,
   tooltipElement :: Element,
   position :: Position
@@ -64,35 +64,33 @@ positionToNative position = CUChar $
     LeftSide -> 4 -- to avoid overlap with Either
     RightSide -> 5 --
 
-instance IntoNative Tooltip where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Tooltip Self where
   toNative details = do
     content <- elementToNative details.content
     tooltipElement <- elementToNative details.tooltipElement
     let position = positionToNative details.position
     tooltip_new content tooltipElement position
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Gap value -> useGap value
-    AddPadding value -> usePadding value
+    AddPadding value -> useFn tooltip_padding value
     SnapWithViewport snap -> useSnapWithViewport snap
 
 instance UsePadding Attribute where
   padding = AddPadding
 
 tooltip :: [Attribute] -> Element -> Element -> Position -> Element
-tooltip attributes content tooltipElement position = pack Tooltip { .. }
+tooltip attributes content tooltipElement position = pack Tooltip { .. } attributes
 
 gap :: Float -> Attribute
 gap = Gap
 
 useGap :: Float -> AttributeFn
 useGap value self = tooltip_gap self (CFloat value)
-
-usePadding :: Float -> AttributeFn
-usePadding value self = tooltip_padding self (CFloat value)
 
 snapWithViewport :: Bool -> Attribute
 snapWithViewport = SnapWithViewport

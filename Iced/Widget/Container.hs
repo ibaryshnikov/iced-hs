@@ -11,7 +11,7 @@ module Iced.Widget.Container (
 import Foreign
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Element
@@ -44,27 +44,25 @@ foreign import ccall safe "container_height"
 foreign import ccall safe "container_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Container = Container { attributes :: [Attribute], content :: Element }
+data Container = Container { content :: Element }
 
-instance IntoNative Container where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Container Self where
   toNative details = do
     content <- elementToNative details.content
     container_new content
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     AddPadding value -> usePadding value
-    CenterX -> useCenterX
-    CenterY -> useCenterY
-    Width len -> useWidth len
-    Height len -> useHeight len
+    CenterX -> container_center_x
+    CenterY -> container_center_y
+    Width  len -> useFn container_width  len
+    Height len -> useFn container_height len
 
-instance UsePadding Attribute where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute Attribute where
+instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
@@ -74,26 +72,14 @@ instance UseHeight Length Attribute where
   height = Height
 
 container :: [Attribute] -> Element -> Element
-container attributes content = pack Container { .. }
+container attributes content = pack Container { .. } attributes
 
 centerX :: Attribute
 centerX = CenterX
 
-useCenterX :: AttributeFn
-useCenterX = container_center_x
-
 centerY :: Attribute
 centerY = CenterY
-
-useCenterY :: AttributeFn
-useCenterY = container_center_y
 
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   container_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useWidth :: Length -> AttributeFn
-useWidth len self = container_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = container_height self $ lengthToNative len

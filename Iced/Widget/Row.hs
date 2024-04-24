@@ -11,7 +11,7 @@ import Foreign.C.Types
 
 import Iced.Attribute.Alignment
 import Iced.Attribute.AlignmentFFI
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Spacing
 import Iced.Attribute.Padding
@@ -59,33 +59,32 @@ foreign import ccall safe "row_height"
 foreign import ccall safe "row_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Row = Row { attributes :: [Attribute], children :: [Element] }
+data Row = Row { children :: [Element] }
 
-instance IntoNative Row where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Row Self where
   toNative details = do
     elements <- buildElements details.children []
     let len = fromIntegral $ length elements
     elementsPtr <- newArray elements
     self <- row_with_children len elementsPtr
     free elementsPtr
-    applyAttributes details.attributes self
-      >>= into_element
+    pure self
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Spacing value -> useSpacing value
+    Spacing value -> useFn row_spacing value
     AddPadding value -> usePadding value
-    AlignItems value -> useAlignItems value
-    Width len -> useWidth len
-    Height len -> useHeight len
+    AlignItems value -> useFn row_align_items value
+    Width  len -> useFn row_width  len
+    Height len -> useFn row_height len
 
 instance UseAlignment Attribute where
   alignItems = AlignItems
 
-instance UsePadding Attribute where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute Attribute where
+instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding
 
 instance UseSpacing Attribute where
@@ -98,20 +97,8 @@ instance UseHeight Length Attribute where
   height = Height
 
 row :: [Attribute] -> [Element] -> Element
-row attributes children = pack Row { .. }
-
-useAlignItems :: Alignment -> AttributeFn
-useAlignItems value self = row_align_items self $ alignmentToNative value
+row attributes children = pack Row { .. } attributes
 
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   row_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useSpacing :: Float -> AttributeFn
-useSpacing value self = row_spacing self (CFloat value)
-
-useWidth :: Length -> AttributeFn
-useWidth len self = row_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = row_height self $ lengthToNative len

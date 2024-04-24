@@ -3,6 +3,6 @@ module Iced (
   module Iced.Element,
 ) where
 
-import Iced.Application
-import Iced.Element
+import Iced.Application (run, addFont)
+import Iced.Element (Element)
 import Iced.Internal()

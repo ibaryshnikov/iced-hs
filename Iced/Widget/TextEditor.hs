@@ -20,7 +20,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Element
@@ -82,33 +82,30 @@ wrapOnAction callback = newStablePtr . callback
 type OnAction message = Action -> message
 
 data TextEditor message = TextEditor {
-  attributes :: [Attribute message],
   content :: Content
 }
 
-instance IntoNative (TextEditor message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative (TextEditor message) Self where
   toNative details = do
     text_editor_new details.content
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnAction callback -> useOnAction callback
     AddPadding value -> usePadding value
-    Height len -> useHeight len
+    Height len -> useFn text_editor_height len
 
-instance UsePadding (Attribute message) where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute (Attribute message) where
+instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding
 
 instance UseHeight Length (Attribute message) where
   height = Height
 
 textEditor :: [Attribute message] -> Content -> Element
-textEditor attributes content = pack TextEditor { .. }
+textEditor attributes content = pack TextEditor { .. } attributes
 
 onAction :: OnAction message -> Attribute message
 onAction = AddOnAction
@@ -121,9 +118,6 @@ useOnAction callback self =
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   text_editor_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useHeight :: Length -> AttributeFn
-useHeight len self = text_editor_height self $ lengthToNative len
 
 newContent :: Content
 newContent = text_editor_content_new

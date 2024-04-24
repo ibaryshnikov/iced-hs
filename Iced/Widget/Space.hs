@@ -12,7 +12,7 @@ module Iced.Widget.Space (
 
 import Foreign
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Element
 
@@ -42,7 +42,7 @@ foreign import ccall safe "space_into_element"
 
 data Space = Space Length Length | Width Length | Height Length | Horizontal | Vertical
 
-instance IntoNative Space where
+instance IntoNative Space ElementPtr where
   toNative details = do
     -- currently no attributes for Space
     makeSpace details
@@ -51,10 +51,10 @@ instance IntoNative Space where
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of
   Space w h -> space_new widthPtr heightPtr where
-    widthPtr = lengthToNative w
-    heightPtr = lengthToNative h
-  Width value -> space_with_width $ lengthToNative value
-  Height value -> space_with_height $ lengthToNative value
+    widthPtr  = valueToNative w
+    heightPtr = valueToNative h
+  Width  value -> space_with_width  $ valueToNative value
+  Height value -> space_with_height $ valueToNative value
   Horizontal -> horizontal_space_new
   Vertical -> vertical_space_new
 
@@ -73,16 +73,16 @@ makeSpace kind = case kind of
 --  intoLength a = a
 
 space :: Length -> Length -> Element
-space w h = pack $ Space w h
+space w h = packSimple $ Space w h
 
 spaceWidth :: Length -> Element
-spaceWidth value = pack $ Width value
+spaceWidth value = packSimple $ Width value
 
 spaceHeight :: Length -> Element
-spaceHeight value = pack $ Height value
+spaceHeight value = packSimple $ Height value
 
 horizontalSpace :: Element
-horizontalSpace = pack Horizontal
+horizontalSpace = packSimple Horizontal
 
 verticalSpace :: Element
-verticalSpace = pack Vertical
+verticalSpace = packSimple Vertical

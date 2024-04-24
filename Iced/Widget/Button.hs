@@ -8,7 +8,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Element
@@ -38,29 +38,26 @@ foreign import ccall safe "button_height"
 foreign import ccall safe "button_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Button message = Button {
-  attributes :: [Attribute message],
+data Button = Button {
   label :: String
 }
 
-instance IntoNative (Button message) where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Button Self where
   toNative details = do
     label <- newCString details.label
     button_new label
-      >>= applyAttributes details.attributes
-      >>= into_element
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     OnPress message -> useOnPress message
     AddPadding value -> usePadding value
-    Width len -> useWidth len
-    Height len -> useHeight len
+    Width  len -> useFn button_width  len
+    Height len -> useFn button_height len
 
-instance UsePadding (Attribute message) where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute (Attribute message) where
+instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding
 
 instance UseWidth Length (Attribute message) where
@@ -70,7 +67,7 @@ instance UseHeight Length (Attribute message) where
   height = Height
 
 button :: [Attribute message] -> String -> Element
-button attributes label = pack Button { .. }
+button attributes label = pack Button { .. } attributes
 
 onPress :: message -> Attribute message
 onPress = OnPress
@@ -83,9 +80,3 @@ useOnPress message self =
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   button_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useWidth :: Length -> AttributeFn
-useWidth len self = button_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = button_height self $ lengthToNative len

@@ -1,6 +1,5 @@
 module Iced.Attribute.LengthFFI (
   LengthPtr,
-  lengthToNative,
   -- reexports
   module Iced.Attribute.Length,
   --
@@ -9,6 +8,7 @@ module Iced.Attribute.LengthFFI (
 import Foreign
 import Foreign.C.Types
 
+import Iced.Attribute.Internal
 import Iced.Attribute.Length
 
 data NativeLength
@@ -26,9 +26,9 @@ foreign import ccall safe "length_shrink"
 foreign import ccall safe "length_fixed"
   length_fixed :: CFloat -> LengthPtr
 
-lengthToNative :: Length -> LengthPtr
-lengthToNative len = case len of
-  Fill -> length_fill
-  FillPortion value -> length_fill_portion (CUShort value)
-  Shrink -> length_shrink
-  Fixed value -> length_fixed (CFloat value)
+instance ValueToNative Length LengthPtr where
+  valueToNative len = case len of
+    Fill -> length_fill
+    FillPortion value -> length_fill_portion (CUShort value)
+    Shrink -> length_shrink
+    Fixed value -> length_fixed (CFloat value)

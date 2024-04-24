@@ -12,7 +12,7 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Element
@@ -51,7 +51,6 @@ type OnSelect option message = option -> message
 
 data PickList option message where
   PickList :: (Show option, Read option) => {
-    attributes :: [Attribute],
     options :: [option],
     selected :: Maybe option,
     onSelect :: OnSelect option message
@@ -67,7 +66,10 @@ selectedToString :: Show option => Maybe option -> String
 selectedToString (Just option) = show option
 selectedToString Nothing = "" -- treat empty string as None in Rust
 
-instance (Show option, Read option) => IntoNative (PickList option message) where
+instance Builder Self where
+  build = into_element
+
+instance (Show option, Read option) => IntoNative (PickList option message) Self where
   toNative details = do
     strings <- packOptions details.options []
     let len = fromIntegral $ length strings
@@ -76,19 +78,15 @@ instance (Show option, Read option) => IntoNative (PickList option message) wher
     onSelectPtr <- makeCallback $ wrapOnSelect details.onSelect
     self <- pick_list_new len stringsPtr selectedPtr onSelectPtr
     free stringsPtr -- Rust will free contents, but we still need to free the array itself
-    applyAttributes details.attributes self
-      >>= into_element
+    pure self
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     AddPadding value -> usePadding value
     Placeholder value -> usePlaceholder value
-    Width len -> useWidth len
+    Width len -> useFn pick_list_width len
 
-instance UsePadding Attribute where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute Attribute where
+instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
@@ -99,7 +97,7 @@ pickList :: (Show option, Read option) => [Attribute]
                                        -> Maybe option
                                        -> OnSelect option message
                                        -> Element
-pickList attributes options selected onSelect = pack PickList { .. }
+pickList attributes options selected onSelect = pack PickList { .. } attributes
 
 placeholder :: String -> Attribute
 placeholder = Placeholder
@@ -112,6 +110,3 @@ usePlaceholder :: String -> AttributeFn
 usePlaceholder value self =
   newCString value
     >>= pick_list_placeholder self
-
-useWidth :: Length -> AttributeFn
-useWidth len self = pick_list_width self $ lengthToNative len

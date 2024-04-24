@@ -10,14 +10,19 @@ data Padding = Padding {
   left :: Float
 }
 
+class PaddingToAttribute padding attribute where
+  paddingToAttribute :: padding -> attribute
+
 class UsePadding a where
   padding :: Float -> a
 
-class PaddingToAttribute attribute where
-  paddingToAttribute :: Padding -> attribute
+instance PaddingToAttribute Padding attribute => UsePadding attribute where
+  padding v = paddingToAttribute $ Padding v v v v
 
-class PaddingToAttribute attribute => UsePadding2 attribute where
+class UsePadding2 attribute where
   padding2 :: Float -> Float -> attribute
+
+instance PaddingToAttribute Padding attribute => UsePadding2 attribute where
   padding2 a b = paddingToAttribute Padding {
     top = a,
     right = b,
@@ -25,10 +30,8 @@ class PaddingToAttribute attribute => UsePadding2 attribute where
     left = b
   }
 
-instance PaddingToAttribute attribute => UsePadding2 attribute
-
-class PaddingToAttribute attribute => UsePadding4 attribute where
+class UsePadding4 attribute where
   padding4 :: Float -> Float -> Float -> Float -> attribute
-  padding4 top right bottom left = paddingToAttribute Padding { .. }
 
-instance PaddingToAttribute attribute => UsePadding4 attribute
+instance PaddingToAttribute Padding attribute => UsePadding4 attribute where
+  padding4 top right bottom left = paddingToAttribute Padding { .. }

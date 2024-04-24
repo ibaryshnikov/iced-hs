@@ -11,7 +11,7 @@ import Foreign.C.Types
 
 import Iced.Attribute.Alignment
 import Iced.Attribute.AlignmentFFI
-import Iced.Attribute.Length
+import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Attribute.Spacing
@@ -59,25 +59,27 @@ foreign import ccall safe "column_height"
 foreign import ccall safe "column_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Column = Column { attributes :: [Attribute], children :: [Element] }
+data Column = Column { children :: [Element] }
 
-instance IntoNative Column where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Column Self where
   toNative details = do
     elements <- buildElements details.children []
     let len = fromIntegral $ length elements
     elementsPtr <- newArray elements
     self <- column_with_children len elementsPtr
     free elementsPtr
-    applyAttributes details.attributes self
-      >>= into_element
+    pure self
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Spacing value -> useSpacing value
+    Spacing value -> useFn column_spacing value
     AddPadding value -> usePadding value
-    AlignItems value -> useAlignItems value
-    Width len -> useWidth len
-    Height len -> useHeight len
+    AlignItems value -> useFn column_align_items value
+    Width  len -> useFn column_width  len
+    Height len -> useFn column_height len
 
 instance UseAlignment Attribute where
   alignItems = AlignItems
@@ -85,10 +87,7 @@ instance UseAlignment Attribute where
 instance UseSpacing Attribute where
   spacing = Spacing
 
-instance UsePadding Attribute where
-  padding v = AddPadding $ Padding v v v v
-
-instance PaddingToAttribute Attribute where
+instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding
 
 instance UseWidth Length Attribute where
@@ -98,20 +97,8 @@ instance UseHeight Length Attribute where
   height = Height
 
 column :: [Attribute] -> [Element] -> Element
-column attributes children = pack Column { .. }
+column attributes children = pack Column { .. } attributes
 
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   column_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-useSpacing :: Float -> AttributeFn
-useSpacing value self = column_spacing self (CFloat value)
-
-useAlignItems :: Alignment -> AttributeFn
-useAlignItems value self = column_align_items self $ alignmentToNative value
-
-useWidth :: Length -> AttributeFn
-useWidth len self = column_width self $ lengthToNative len
-
-useHeight :: Length -> AttributeFn
-useHeight len self = column_height self $ lengthToNative len
