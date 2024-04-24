@@ -2,6 +2,7 @@ module Iced.Widget.Canvas.Frame where
 
 import Foreign.C.Types
 
+import Iced.Attribute.Text
 import Iced.Color
 import Iced.Widget.Canvas.Fill
 import Iced.Widget.Canvas.FramePtr
@@ -43,8 +44,6 @@ data LineHeight  = Relative Float | Absolute Float
 
 data Horizontal = Left | HCenter | Right
 data Vertical = Top | VCenter | Bottom
-
-data Shaping = Basic | Advanced
 
 frameFill :: FramePtr -> [Shape] -> Color -> IO ()
 frameFill framePtr shapes color = do

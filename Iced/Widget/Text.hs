@@ -48,7 +48,7 @@ instance IntoNative Text Self where
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Size value -> useFn text_size value
-    Width len  -> useFn text_width  len
+    Width  len -> useFn text_width  len
     Height len -> useFn text_height len
 
 instance UseSize Attribute where

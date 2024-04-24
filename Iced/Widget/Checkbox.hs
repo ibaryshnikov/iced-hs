@@ -8,6 +8,9 @@ module Iced.Widget.Checkbox (
   onToggleIf,
   icon,
   style,
+  textLineHeight,
+  textShaping,
+  textSize,
   Style(..),
 ) where
 
@@ -15,6 +18,12 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Internal
+import Iced.Attribute.LengthFFI
+import Iced.Attribute.LineHeightFFI
+import Iced.Attribute.Size
+import Iced.Attribute.Spacing
+import Iced.Attribute.TextFFI
 import Iced.Element
 
 data NativeCheckbox
@@ -26,9 +35,15 @@ data NativeIcon
 type IconPtr = Ptr NativeIcon
 
 data Attribute message
-  = AddOnToggle (OnToggle message)
+  = Icon Word32
+  | AddOnToggle (OnToggle message)
+  | Size Float
+  | Spacing Float
   | AddStyle Style
-  | AddIcon Word32
+  | TextLineHeight LineHeight
+  | TextShaping Shaping
+  | TextSize Float
+  | Width Length
   | None
 
 -- label is_checked
@@ -41,8 +56,26 @@ foreign import ccall safe "checkbox_icon"
 foreign import ccall safe "checkbox_on_toggle"
   checkbox_on_toggle :: Self -> FunPtr (NativeOnToggle a) -> IO Self
 
+foreign import ccall safe "checkbox_size"
+  checkbox_size :: Self -> CFloat -> IO Self
+
+foreign import ccall safe "checkbox_spacing"
+  checkbox_spacing :: Self -> CFloat -> IO Self
+
 foreign import ccall safe "checkbox_style"
   checkbox_style :: Self -> StylePtr -> IO Self
+
+foreign import ccall safe "checkbox_text_line_height"
+  checkbox_text_line_height :: Self -> LineHeightPtr -> IO Self
+
+foreign import ccall safe "checkbox_text_shaping"
+  checkbox_text_shaping :: Self -> CUChar -> IO Self
+
+foreign import ccall safe "checkbox_text_size"
+  checkbox_text_size :: Self -> CFloat -> IO Self
+
+foreign import ccall safe "checkbox_width"
+  checkbox_width :: Self -> LengthPtr -> IO Self
 
 foreign import ccall safe "checkbox_into_element"
   into_element :: Self -> IO ElementPtr
@@ -91,10 +124,25 @@ instance IntoNative Checkbox Self where
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
+    Icon codePoint -> useIcon codePoint
     AddOnToggle callback -> useOnToggle callback
-    AddIcon codePoint -> useIcon codePoint
+    Size value -> useFn checkbox_size value
+    Spacing value -> useFn checkbox_spacing value
     AddStyle value -> useStyle value
-    None -> do pure
+    TextLineHeight value -> useFn checkbox_text_line_height value
+    TextShaping    value -> useFn checkbox_text_shaping     value
+    TextSize       value -> useFn checkbox_text_size        value
+    Width len -> useFn checkbox_width len
+    None -> pure
+
+instance UseSize (Attribute message) where
+  size = Size
+
+instance UseSpacing (Attribute message) where
+  spacing = Spacing
+
+instance UseWidth Length (Attribute message) where
+  width = Width
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
 checkbox attributes label value = pack Checkbox { .. } attributes
@@ -119,7 +167,7 @@ styleToNative value = case value of
   Danger -> checkbox_danger
 
 icon :: Word32 -> Attribute message
-icon = AddIcon
+icon = Icon
 
 useIcon :: Word32 -> AttributeFn
 useIcon codePoint self =
@@ -131,3 +179,12 @@ style = AddStyle
 
 useStyle :: Style -> AttributeFn
 useStyle value self = checkbox_style self $ styleToNative value
+
+textLineHeight :: LineHeight -> Attribute message
+textLineHeight = TextLineHeight
+
+textShaping :: Shaping -> Attribute message
+textShaping = TextShaping
+
+textSize :: Float -> Attribute message
+textSize = TextSize

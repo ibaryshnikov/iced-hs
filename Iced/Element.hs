@@ -13,7 +13,6 @@ module Iced.Element (
   packSimple,
   elementToNative,
   buildElements,
-  applyAttributes,
   ElementPtr,
 ) where
 

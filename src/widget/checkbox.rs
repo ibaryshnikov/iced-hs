@@ -46,6 +46,13 @@ extern "C" fn checkbox_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
 }
 
 #[no_mangle]
+extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
+    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let style = unsafe { *Box::from_raw(style_ptr) };
+    Box::into_raw(Box::new(checkbox.style(style)))
+}
+
+#[no_mangle]
 extern "C" fn checkbox_text_line_height(
     self_ptr: SelfPtr,
     line_height_ptr: *mut LineHeight,
@@ -56,16 +63,20 @@ extern "C" fn checkbox_text_line_height(
 }
 
 #[no_mangle]
-extern "C" fn checkbox_text_size(self_ptr: SelfPtr, text_size: c_float) -> SelfPtr {
+extern "C" fn checkbox_text_shaping(self_ptr: SelfPtr, shaping_raw: c_uchar) -> SelfPtr {
+    let shaping = match shaping_raw {
+        0 => Shaping::Basic,
+        1 => Shaping::Advanced,
+        other => panic!("Unexpected Shaping value: {other}"),
+    };
     let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.text_size(text_size)))
+    Box::into_raw(Box::new(checkbox.text_shaping(shaping)))
 }
 
 #[no_mangle]
-extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
+extern "C" fn checkbox_text_size(self_ptr: SelfPtr, text_size: c_float) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
-    let style = unsafe { *Box::from_raw(style_ptr) };
-    Box::into_raw(Box::new(checkbox.style(style)))
+    Box::into_raw(Box::new(checkbox.text_size(text_size)))
 }
 
 #[no_mangle]
