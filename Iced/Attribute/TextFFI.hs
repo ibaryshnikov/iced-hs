@@ -4,7 +4,6 @@ module Iced.Attribute.TextFFI (
   --
 ) where
 
-import Foreign
 import Foreign.C.Types
 
 import Iced.Attribute.Internal

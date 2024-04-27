@@ -11,8 +11,8 @@ import Foreign.C.String
 
 import Iced.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
+import Iced.Future.Internal
 import Iced.Settings
-import Iced.Time
 
 data Attribute = Font [Word8]
 
@@ -64,9 +64,8 @@ packCommand resultPtr (PerformIO callback) = do
   callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
   update_result_add_command_io resultPtr callbackPtr
   return resultPtr
-packCommand resultPtr (Perform packedFuture) = do
-  future <- intoFuture packedFuture
-  update_result_add_command_future resultPtr future
+packCommand resultPtr (Perform (Future ma)) = do
+  update_result_add_command_future resultPtr =<< ma
   return resultPtr
 
 data NativeUpdateResult
@@ -77,7 +76,7 @@ foreign import ccall safe "update_result_new"
 
 -- update_result future
 foreign import ccall safe "update_result_add_command_future"
-  update_result_add_command_future :: UpdateResultPtr -> Future -> IO ()
+  update_result_add_command_future :: UpdateResultPtr -> FuturePtr message -> IO ()
 
 -- update_result callback
 foreign import ccall safe "update_result_add_command_io"

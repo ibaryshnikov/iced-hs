@@ -13,4 +13,4 @@ features = ["advanced", "canvas", "lazy", "tokio"]
 
 [dependencies.tokio]
 version = "1.37"
-features = ["sync", "time"]
+features = ["macros", "rt-multi-thread", "sync", "time"]

@@ -3,11 +3,10 @@
 
 module Main where
 
-import Data.Word
-
 import Iced
 import Iced.Attribute
 import Iced.Command
+import Iced.Future
 import Iced.Time
 import Iced.Widget
 
@@ -18,19 +17,19 @@ data Model = Model {
 
 data Message = StartTimer | Tick
 
-tick :: Word64 -> Command Message
-tick n = Perform future
-  where
-    duration = durationFromMillis n
-    future = sleep duration Tick
+tick :: Command Message
+tick = Perform $ do
+  duration <- liftIO $ durationFromMillis 15
+  sleep duration
+  pure Tick
 
 update :: Model -> Message -> (Model, Command Message)
 update model StartTimer = if model.running
   then (model, None)
-  else (model { running = True, value = 0 }, tick 15)
+  else (model { running = True, value = 0 }, tick)
 update model Tick = if model.value > 100
   then (model { running = False }, None)
-  else (model { value = model.value + 0.5 }, tick 15)
+  else (model { value = model.value + 0.5 }, tick)
 
 view :: Model -> Element
 view model =

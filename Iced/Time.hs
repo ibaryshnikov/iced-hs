@@ -1,52 +1,41 @@
 module Iced.Time (
   Duration,
-  Future,
   durationFromSecs,
   durationFromMillis,
+  delay,
   sleep,
-  Sleep(..),
-  IntoFuture,
-  intoFuture,
 ) where
 
-import Data.Word
+import Control.Monad
 import Foreign
 import Foreign.C.Types
 
+import Iced.Future
+import Iced.Future.Internal
+
 data NativeDuration
-type DurationPtr = Ptr NativeDuration
-type Duration = DurationPtr -- for export
-
-data NativeFuture
-type FuturePtr = Ptr NativeFuture
-type Future = FuturePtr -- for export
-
--- currently the only Future here, but
--- will be a packed type later
-data Sleep message = Sleep Duration message
-
-class IntoFuture a where
-  intoFuture :: a -> IO (Future)
-
-instance IntoFuture (Sleep message) where
-  intoFuture (Sleep duration message) = do
-    messagePtr <- newStablePtr message
-    tokio_time_sleep duration messagePtr
+type Duration = Ptr NativeDuration
 
 foreign import ccall safe "duration_from_secs"
-  duration_from_secs :: CULong -> DurationPtr
+  duration_from_secs :: CULong -> IO (Duration)
 
-durationFromSecs :: Word64 -> DurationPtr
-durationFromSecs value = duration_from_secs (CULong value)
+durationFromSecs :: Int -> IO (Duration)
+durationFromSecs = duration_from_secs . fromIntegral
 
 foreign import ccall safe "duration_from_millis"
-  duration_from_millis :: CULong -> DurationPtr
+  duration_from_millis :: CULong -> IO (Duration)
 
-durationFromMillis :: Word64 -> DurationPtr
-durationFromMillis value = duration_from_millis (CULong value)
+durationFromMillis :: Int -> IO (Duration)
+durationFromMillis = duration_from_millis . fromIntegral
 
 foreign import ccall safe "tokio_time_sleep"
-  tokio_time_sleep :: DurationPtr -> StablePtr a -> IO (FuturePtr)
+  tokio_time_sleep :: Duration -> IO (FuturePtr ())
 
-sleep :: DurationPtr -> message -> Sleep message
-sleep duration message = Sleep duration message
+makeDelay :: Int -> IO (FuturePtr ())
+makeDelay = tokio_time_sleep <=< duration_from_secs . fromIntegral
+
+delay :: Int -> Future ()
+delay n = Future (makeDelay n)
+
+sleep :: Duration -> Future ()
+sleep = Future . tokio_time_sleep

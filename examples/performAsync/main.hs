@@ -8,10 +8,13 @@ import Iced.Widget
 
 data Message = StartTimer | Tick
 
+tick :: Command Message
+tick = Perform $ do
+  delay 2
+  pure Tick
+
 update :: Int -> Message -> (Int, Command Message)
-update value StartTimer = (value, Perform future)
-  where duration = durationFromSecs 2
-        future = sleep duration Tick
+update value StartTimer = (value, tick)
 update value Tick = (value + 1, None)
 
 view :: Int -> Element

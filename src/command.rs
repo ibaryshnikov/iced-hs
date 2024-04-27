@@ -1,6 +1,6 @@
 use iced::Command;
 
-use crate::future::PinnedFuture;
+use crate::future::{PinnedFuture, RawFuture, StablePtr};
 use crate::{IcedMessage, Message, Model};
 
 pub type CommandCallback = unsafe extern "C" fn() -> Message;
@@ -12,7 +12,7 @@ pub struct UpdateResult {
 
 pub enum CommandKind {
     IO(CommandCallback),
-    Future(PinnedFuture),
+    Future(PinnedFuture<StablePtr>),
     None,
 }
 
@@ -20,7 +20,9 @@ impl CommandKind {
     pub fn perform(self) -> Command<IcedMessage> {
         match self {
             CommandKind::IO(callback) => perform_io(callback),
-            CommandKind::Future(future) => Command::perform(future, |message| message),
+            CommandKind::Future(future) => {
+                Command::perform(future, |message| IcedMessage::ptr(message.ptr))
+            }
             CommandKind::None => Command::none(),
         }
     }
@@ -66,7 +68,7 @@ extern "C" fn update_result_add_command_io(
 #[no_mangle]
 extern "C" fn update_result_add_command_future(
     result: &mut UpdateResult,
-    future_ptr: *mut PinnedFuture,
+    future_ptr: RawFuture<StablePtr>,
 ) {
     let future = unsafe { *Box::from_raw(future_ptr) };
     result.command = CommandKind::Future(future);

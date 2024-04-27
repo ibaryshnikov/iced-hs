@@ -4,10 +4,10 @@ module Iced.Command (
   Command(..),
 ) where
 
-import Iced.Time
+import Iced.Future
 
 data Command message
-  = Perform (Sleep message) -- the type will change
+  = Perform (Future message)
   | PerformIO (IO message)
   | None
 
