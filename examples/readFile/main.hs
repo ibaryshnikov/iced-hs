@@ -18,11 +18,17 @@ commandFn = do
   content <- contentWithText string
   return $ FileContents content
 
-update :: Model -> Message -> (Model, Command Message)
+update :: Model -> Message -> IO (Model, Command Message)
 update model message = case message of
-  EditorAction action -> (model { content = applyAction model.content action }, None)
-  FileContents content -> (model { content = content }, None)
-  ReadFile -> (model, PerformIO commandFn)
+  EditorAction action -> do
+    applyAction model.content action
+    pure (model, None)
+  FileContents content -> do
+    let newModel = model { content = content }
+    -- add finalizer maybe?
+    freeContent model.content;
+    pure (newModel, None)
+  ReadFile -> pure (model, PerformIO commandFn)
 
 view :: Model -> Element
 view model = column [] [
@@ -31,5 +37,8 @@ view model = column [] [
   ]
 
 main :: IO ()
-main = Iced.run [] "ReadFile" model update view
-  where model = Model { content = newContent }
+main = do
+  content <- newContent
+  let model = Model { content = content }
+  Iced.run [] "ReadFile" model update view
+  freeContent content

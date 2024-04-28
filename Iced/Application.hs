@@ -1,5 +1,3 @@
-{-# LANGUAGE FunctionalDependencies #-}
-
 module Iced.Application (
   run,
   addFont,
@@ -28,7 +26,7 @@ type NativeTitle model = StablePtr model -> IO (CString)
 foreign import ccall "wrapper"
   makeTitleCallback :: NativeTitle model -> IO (FunPtr (NativeTitle model))
 
-wrapTitle :: IntoTitle title model String
+wrapTitle :: IntoTitle title model
           => Title title
           -> NativeTitle model
 wrapTitle title modelPtr = do
@@ -39,7 +37,7 @@ type NativeUpdate model message = StablePtr model -> StablePtr message -> IO (Up
 foreign import ccall "wrapper"
   makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-wrapUpdate :: IntoCommand model message result (model, Command message)
+wrapUpdate :: IntoCommand model message result
            => Update model message result
            -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
@@ -49,7 +47,7 @@ wrapUpdate update modelPtr messagePtr = do
   -- the message is no longer in use.
   -- still need to take care of closures like Input String
   message <- deRefStablePtr messagePtr
-  let (newModel, command) = intoCommand update model message
+  (newModel, command) <- intoCommand update model message
   packResult newModel command
 
 packResult :: model -> Command message -> IO (UpdateResultPtr)
@@ -116,18 +114,26 @@ type Update model message result = model -> message -> result
 type View model = model -> Element
 
 --
--- key class to support two signatures
--- of update function, namely:
--- update :: Model -> Message -> Model
--- update :: Model -> Message -> (Model, Command)
+-- Provides the following signatures of update function:
 --
-class IntoCommand model message result tuple | model message result -> tuple where
-  intoCommand :: (model -> message -> result) -> model -> message -> tuple
+-- update :: Model -> Message -> Model
+-- update :: Model -> Message -> IO Model
+-- update :: Model -> Message -> (Model, Command)
+-- update :: Model -> Message -> IO (Model, Command)
+--
+class IntoCommand model message result where
+  intoCommand :: (model -> message -> result) -> model -> message -> IO (model, Command message)
 
-instance IntoCommand model message model (model, Command message) where
-  intoCommand update model message = (update model message, None)
+instance IntoCommand model message model where
+  intoCommand update model message = pure (update model message, None)
 
-instance IntoCommand model message (model, Command message) (model, Command message) where
+instance IntoCommand model message (IO model) where
+  intoCommand update = (fmap (, None) .) . update
+
+instance IntoCommand model message (model, Command message) where
+  intoCommand update = (pure .) . update
+
+instance IntoCommand model message (IO (model, Command message)) where
   intoCommand update = update
 
 --
@@ -136,19 +142,16 @@ instance IntoCommand model message (model, Command message) (model, Command mess
 -- title :: String
 -- title :: Model -> String
 --
-class IntoTitle title model result | title model -> result where
-  intoTitle :: title -> model -> result
+class IntoTitle title model where
+  intoTitle :: title -> model -> String
 
-instance IntoTitle String model String where
+instance IntoTitle String model where
   intoTitle title _model = title
 
-instance IntoTitle (model -> String) model String where
+instance IntoTitle (model -> String) model where
   intoTitle title = title
 
-run :: (
-       IntoCommand model message result (model, Command message),
-       IntoTitle title model String
-       )
+run :: (IntoCommand model message result, IntoTitle title model)
     => [Attribute]
     -> Title title
     -> model

@@ -7,14 +7,12 @@ module Iced.Widget.TextEditor (
   newContent,
   contentWithText,
   applyAction,
+  freeContent,
   Action,
   Content,
   onAction,
 ) where
 
--- required to be able to run IO in update function
--- gonna be removed after the addition of Command api
-import System.IO.Unsafe -- hopefully temporally
 import Control.Monad
 import Foreign
 import Foreign.C.String
@@ -39,22 +37,28 @@ data Attribute message
   | Height Length
 
 foreign import ccall safe "text_editor_content_new"
-  text_editor_content_new :: Content
+  text_editor_content_new :: IO Content
+
+newContent :: IO Content
+newContent = text_editor_content_new
 
 foreign import ccall safe "text_editor_content_with_text"
-  text_editor_content_with_text :: CString -> IO (Content)
+  text_editor_content_with_text :: CString -> IO Content
+
+contentWithText :: String -> IO Content
+contentWithText = text_editor_content_with_text <=< newCString
 
 foreign import ccall safe "text_editor_content_perform"
   text_editor_content_perform :: Content -> Action -> IO ()
 
--- this function is for future use, commented to hide warnings
---foreign import ccall safe "text_editor_content_free"
---  text_editor_content_free :: Content -> ()
+applyAction :: Content -> Action -> IO ()
+applyAction = text_editor_content_perform
 
-applyAction :: Content -> Action -> Content
-applyAction content action = unsafePerformIO $ do -- todo: make it a Command
-  text_editor_content_perform content action
-  pure content
+foreign import ccall safe "text_editor_content_free"
+  text_editor_content_free :: Content -> IO ()
+
+freeContent :: Content -> IO ()
+freeContent = text_editor_content_free
 
 foreign import ccall safe "text_editor_new"
   text_editor_new :: Content -> IO Self
@@ -118,9 +122,3 @@ useOnAction callback self =
 usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   text_editor_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
-
-newContent :: Content
-newContent = text_editor_content_new
-
-contentWithText :: String -> IO (Content)
-contentWithText = text_editor_content_with_text <=< newCString

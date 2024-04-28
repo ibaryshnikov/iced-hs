@@ -11,13 +11,18 @@ data Model = Model { content :: Content }
 
 data Message = EditorAction Action
 
-update :: Model -> Message -> Model
+update :: Model -> Message -> IO Model
 update model message = case message of
-  EditorAction action -> model { content = applyAction model.content action }
+  EditorAction action -> do
+    applyAction model.content action
+    pure model
 
 view :: Model -> Element
 view model = textEditor [height (Fixed 500), onAction EditorAction] model.content
 
 main :: IO ()
-main = Iced.run [] "TextEditor" model update view
-  where model = Model { content = newContent }
+main = do
+  content <- newContent
+  let model = Model { content = content }
+  Iced.run [] "TextEditor" model update view
+  freeContent content
