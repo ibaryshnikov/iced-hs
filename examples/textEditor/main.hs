@@ -14,7 +14,7 @@ data Message = EditorAction Action
 update :: Model -> Message -> IO Model
 update model message = case message of
   EditorAction action -> do
-    applyAction model.content action
+    contentPerform model.content action
     pure model
 
 view :: Model -> Element
@@ -25,4 +25,3 @@ main = do
   content <- newContent
   let model = Model { content = content }
   Iced.run [] "TextEditor" model update view
-  freeContent content

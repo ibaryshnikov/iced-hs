@@ -6,8 +6,7 @@ module Iced.Widget.TextEditor (
   textEditor,
   newContent,
   contentWithText,
-  applyAction,
-  freeContent,
+  contentPerform,
   Action,
   Content,
   onAction,
@@ -27,7 +26,7 @@ data NativeTextEditor
 type Self = Ptr NativeTextEditor
 type AttributeFn = Self -> IO Self
 data NativeContent
-type Content = Ptr NativeContent
+type Content = ForeignPtr NativeContent
 data NativeAction
 type Action = Ptr NativeAction
 
@@ -37,31 +36,32 @@ data Attribute message
   | Height Length
 
 foreign import ccall safe "text_editor_content_new"
-  text_editor_content_new :: IO Content
+  content_new :: IO (Ptr NativeContent)
+
+makeContent :: Ptr NativeContent -> IO Content
+makeContent = newForeignPtr content_free
 
 newContent :: IO Content
-newContent = text_editor_content_new
+newContent = makeContent =<< content_new
 
 foreign import ccall safe "text_editor_content_with_text"
-  text_editor_content_with_text :: CString -> IO Content
+  content_with_text :: CString -> IO (Ptr NativeContent)
 
 contentWithText :: String -> IO Content
-contentWithText = text_editor_content_with_text <=< newCString
+contentWithText = makeContent <=< content_with_text <=< newCString
 
 foreign import ccall safe "text_editor_content_perform"
-  text_editor_content_perform :: Content -> Action -> IO ()
+  content_perform :: Ptr NativeContent -> Action -> IO ()
 
-applyAction :: Content -> Action -> IO ()
-applyAction = text_editor_content_perform
+contentPerform :: Content -> Action -> IO ()
+contentPerform content action = withForeignPtr content $ \self ->
+  content_perform self action
 
-foreign import ccall safe "text_editor_content_free"
-  text_editor_content_free :: Content -> IO ()
-
-freeContent :: Content -> IO ()
-freeContent = text_editor_content_free
+foreign import ccall safe "&text_editor_content_free"
+  content_free :: FinalizerPtr NativeContent
 
 foreign import ccall safe "text_editor_new"
-  text_editor_new :: Content -> IO Self
+  text_editor_new :: Ptr NativeContent -> IO Self
 
 foreign import ccall safe "text_editor_on_action"
   text_editor_on_action :: Self -> FunPtr (NativeOnAction message) -> IO Self
@@ -94,7 +94,7 @@ instance Builder Self where
 
 instance IntoNative (TextEditor message) Self where
   toNative details = do
-    text_editor_new details.content
+    withForeignPtr details.content text_editor_new
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of

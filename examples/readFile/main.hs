@@ -21,13 +21,9 @@ commandFn = do
 update :: Model -> Message -> IO (Model, Command Message)
 update model message = case message of
   EditorAction action -> do
-    applyAction model.content action
+    contentPerform model.content action
     pure (model, None)
-  FileContents content -> do
-    let newModel = model { content = content }
-    -- add finalizer maybe?
-    freeContent model.content;
-    pure (newModel, None)
+  FileContents content -> pure (model { content = content }, None)
   ReadFile -> pure (model, PerformIO commandFn)
 
 view :: Model -> Element
@@ -41,4 +37,3 @@ main = do
   content <- newContent
   let model = Model { content = content }
   Iced.run [] "ReadFile" model update view
-  freeContent content
