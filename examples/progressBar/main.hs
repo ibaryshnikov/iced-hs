@@ -6,7 +6,6 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Command
-import Iced.Future
 import Iced.Time
 import Iced.Widget
 
@@ -19,8 +18,7 @@ data Message = StartTimer | Tick
 
 tick :: Command Message
 tick = Perform $ do
-  duration <- liftIO $ durationFromMillis 15
-  sleep duration
+  sleep $ durationFromMillis 15
   pure Tick
 
 update :: Model -> Message -> (Model, Command Message)

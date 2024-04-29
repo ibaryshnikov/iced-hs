@@ -7,6 +7,7 @@ module Iced.Time (
 ) where
 
 import Control.Monad
+import Data.Word
 import Foreign
 import Foreign.C.Types
 
@@ -17,25 +18,25 @@ data NativeDuration
 type Duration = Ptr NativeDuration
 
 foreign import ccall "duration_from_secs"
-  duration_from_secs :: CULong -> IO (Duration)
+  duration_from_secs :: CULong -> IO Duration
 
-durationFromSecs :: Int -> IO (Duration)
-durationFromSecs = duration_from_secs . fromIntegral
+durationFromSecs :: Word64 -> IO Duration
+durationFromSecs = duration_from_secs . CULong
 
 foreign import ccall "duration_from_millis"
-  duration_from_millis :: CULong -> IO (Duration)
+  duration_from_millis :: CULong -> IO Duration
 
-durationFromMillis :: Int -> IO (Duration)
-durationFromMillis = duration_from_millis . fromIntegral
+durationFromMillis :: Word64 -> IO Duration
+durationFromMillis = duration_from_millis . CULong
 
 foreign import ccall "tokio_time_sleep"
   tokio_time_sleep :: Duration -> IO (FuturePtr ())
 
-makeDelay :: Int -> IO (FuturePtr ())
-makeDelay = tokio_time_sleep <=< duration_from_secs . fromIntegral
+makeDelay :: Word64 -> IO (FuturePtr ())
+makeDelay = tokio_time_sleep <=< duration_from_secs . CULong
 
-delay :: Int -> Future ()
+delay :: Word64 -> Future ()
 delay n = Future (makeDelay n)
 
-sleep :: Duration -> Future ()
-sleep = Future . tokio_time_sleep
+sleep :: IO Duration -> Future ()
+sleep duration = Future $ tokio_time_sleep =<< duration
