@@ -20,19 +20,19 @@ type Self = Ptr NativeText
 
 data Attribute = Size Float | Width Length | Height Length
 
-foreign import ccall safe "text_new"
+foreign import ccall "text_new"
   text_new :: CString -> IO Self
 
-foreign import ccall safe "text_size"
+foreign import ccall "text_size"
   text_size :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "text_width"
+foreign import ccall "text_width"
   text_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "text_height"
+foreign import ccall "text_height"
   text_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "text_into_element"
+foreign import ccall "text_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Text = Text { value :: String }

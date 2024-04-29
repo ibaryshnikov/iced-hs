@@ -14,7 +14,7 @@ import Iced.Settings
 
 data Attribute = Font [Word8]
 
-foreign import ccall safe "run_app"
+foreign import ccall "run_app"
   run_app :: SettingsPtr
           -> FunPtr (NativeTitle model)
           -> StablePtr model
@@ -69,15 +69,15 @@ packCommand resultPtr (Perform (Future ma)) = do
 data NativeUpdateResult
 type UpdateResultPtr = Ptr NativeUpdateResult
 
-foreign import ccall safe "update_result_new"
+foreign import ccall "update_result_new"
   update_result_new :: StablePtr model -> IO (UpdateResultPtr)
 
 -- update_result future
-foreign import ccall safe "update_result_add_command_future"
+foreign import ccall "update_result_add_command_future"
   update_result_add_command_future :: UpdateResultPtr -> FuturePtr message -> IO ()
 
 -- update_result callback
-foreign import ccall safe "update_result_add_command_io"
+foreign import ccall "update_result_add_command_io"
   update_result_add_command_io :: UpdateResultPtr-> FunPtr (NativeCommandPerform message) -> IO ()
 
 type NativeCommandPerform message = IO (StablePtr message)

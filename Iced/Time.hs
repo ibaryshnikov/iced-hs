@@ -16,19 +16,19 @@ import Iced.Future.Internal
 data NativeDuration
 type Duration = Ptr NativeDuration
 
-foreign import ccall safe "duration_from_secs"
+foreign import ccall "duration_from_secs"
   duration_from_secs :: CULong -> IO (Duration)
 
 durationFromSecs :: Int -> IO (Duration)
 durationFromSecs = duration_from_secs . fromIntegral
 
-foreign import ccall safe "duration_from_millis"
+foreign import ccall "duration_from_millis"
   duration_from_millis :: CULong -> IO (Duration)
 
 durationFromMillis :: Int -> IO (Duration)
 durationFromMillis = duration_from_millis . fromIntegral
 
-foreign import ccall safe "tokio_time_sleep"
+foreign import ccall "tokio_time_sleep"
   tokio_time_sleep :: Duration -> IO (FuturePtr ())
 
 makeDelay :: Int -> IO (FuturePtr ())

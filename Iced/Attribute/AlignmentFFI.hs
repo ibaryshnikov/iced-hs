@@ -8,13 +8,13 @@ import Iced.Attribute.Internal
 data NativeAlignment
 type AlignmentPtr = Ptr NativeAlignment
 
-foreign import ccall safe "alignment_start"
+foreign import ccall "alignment_start"
   alignment_start :: AlignmentPtr
 
-foreign import ccall safe "alignment_center"
+foreign import ccall "alignment_center"
   alignment_center :: AlignmentPtr
 
-foreign import ccall safe "alignment_end"
+foreign import ccall "alignment_end"
   alignment_end :: AlignmentPtr
 
 instance ValueToNative Alignment AlignmentPtr where

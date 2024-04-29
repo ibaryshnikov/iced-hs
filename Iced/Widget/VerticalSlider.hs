@@ -27,32 +27,32 @@ data Attribute message
   | Height Length
 
 -- range_from range_to value on_change
-foreign import ccall safe "vertical_slider_new"
+foreign import ccall "vertical_slider_new"
   vertical_slider_new :: CInt
                       -> CInt
                       -> CInt
                       -> FunPtr (NativeOnChange a)
                       -> IO Self
 
-foreign import ccall safe "vertical_slider_default"
+foreign import ccall "vertical_slider_default"
   vertical_slider_default :: Self -> CInt -> IO Self
 
-foreign import ccall safe "vertical_slider_on_release"
+foreign import ccall "vertical_slider_on_release"
   vertical_slider_on_release :: Self -> StablePtr a -> IO Self
 
-foreign import ccall safe "vertical_slider_step"
+foreign import ccall "vertical_slider_step"
   vertical_slider_step :: Self -> CInt -> IO Self
 
-foreign import ccall safe "vertical_slider_shift_step"
+foreign import ccall "vertical_slider_shift_step"
   vertical_slider_shift_step :: Self -> CInt -> IO Self
 
-foreign import ccall safe "vertical_slider_width"
+foreign import ccall "vertical_slider_width"
   vertical_slider_width :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "vertical_slider_height"
+foreign import ccall "vertical_slider_height"
   vertical_slider_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "vertical_slider_into_element"
+foreign import ccall "vertical_slider_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnChange message = CInt -> IO (StablePtr message)

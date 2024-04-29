@@ -17,16 +17,16 @@ type Self = Ptr NativeProgressBar
 data Attribute = Width Length | Height Length
 
 -- range_from range_to value
-foreign import ccall safe "progress_bar_new"
+foreign import ccall "progress_bar_new"
   progress_bar_new :: CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "progress_bar_width"
+foreign import ccall "progress_bar_width"
   progress_bar_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "progress_bar_height"
+foreign import ccall "progress_bar_height"
   progress_bar_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "progress_bar_into_element"
+foreign import ccall "progress_bar_into_element"
   into_element :: Self -> IO ElementPtr
 
 data ProgressBar = ProgressBar {

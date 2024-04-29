@@ -9,7 +9,7 @@ import Iced.Widget.Canvas.Shape
 data NativePath
 type PathPtr = Ptr NativePath
 
-foreign import ccall safe "path_new"
+foreign import ccall "path_new"
   path_new :: FunPtr (NativePathCallback) -> IO (PathPtr)
 
 type NativePathCallback = PathBuilderPtr -> IO ()

@@ -27,28 +27,28 @@ data Attribute message
   | Height Float
 
 -- range_from range_to value on_change
-foreign import ccall safe "slider_new"
+foreign import ccall "slider_new"
   slider_new :: CInt -> CInt -> CInt -> FunPtr (NativeOnChange a) -> IO Self
 
-foreign import ccall safe "slider_default"
+foreign import ccall "slider_default"
   slider_default :: Self -> CInt -> IO Self
 
-foreign import ccall safe "slider_on_release"
+foreign import ccall "slider_on_release"
   slider_on_release :: Self -> StablePtr a -> IO Self
 
-foreign import ccall safe "slider_step"
+foreign import ccall "slider_step"
   slider_step :: Self -> CInt -> IO Self
 
-foreign import ccall safe "slider_shift_step"
+foreign import ccall "slider_shift_step"
   slider_shift_step :: Self -> CInt -> IO Self
 
-foreign import ccall safe "slider_width"
+foreign import ccall "slider_width"
   slider_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "slider_height"
+foreign import ccall "slider_height"
   slider_height :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "slider_into_element"
+foreign import ccall "slider_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnChange message = CInt -> IO (StablePtr message)

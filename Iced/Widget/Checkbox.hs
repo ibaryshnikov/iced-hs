@@ -47,57 +47,57 @@ data Attribute message
   | None
 
 -- label is_checked
-foreign import ccall safe "checkbox_new"
+foreign import ccall "checkbox_new"
   checkbox_new :: CString -> CBool -> IO Self
 
-foreign import ccall safe "checkbox_icon"
+foreign import ccall "checkbox_icon"
   checkbox_icon :: Self -> IconPtr -> IO Self
 
-foreign import ccall safe "checkbox_on_toggle"
+foreign import ccall "checkbox_on_toggle"
   checkbox_on_toggle :: Self -> FunPtr (NativeOnToggle a) -> IO Self
 
-foreign import ccall safe "checkbox_size"
+foreign import ccall "checkbox_size"
   checkbox_size :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "checkbox_spacing"
+foreign import ccall "checkbox_spacing"
   checkbox_spacing :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "checkbox_style"
+foreign import ccall "checkbox_style"
   checkbox_style :: Self -> StylePtr -> IO Self
 
-foreign import ccall safe "checkbox_text_line_height"
+foreign import ccall "checkbox_text_line_height"
   checkbox_text_line_height :: Self -> LineHeightPtr -> IO Self
 
-foreign import ccall safe "checkbox_text_shaping"
+foreign import ccall "checkbox_text_shaping"
   checkbox_text_shaping :: Self -> CUChar -> IO Self
 
-foreign import ccall safe "checkbox_text_size"
+foreign import ccall "checkbox_text_size"
   checkbox_text_size :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "checkbox_width"
+foreign import ccall "checkbox_width"
   checkbox_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "checkbox_into_element"
+foreign import ccall "checkbox_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeCallback :: NativeOnToggle message -> IO (FunPtr (NativeOnToggle message))
 
-foreign import ccall safe "checkbox_primary"
+foreign import ccall "checkbox_primary"
   checkbox_primary :: StylePtr
 
-foreign import ccall safe "checkbox_secondary"
+foreign import ccall "checkbox_secondary"
   checkbox_secondary :: StylePtr
 
-foreign import ccall safe "checkbox_success"
+foreign import ccall "checkbox_success"
   checkbox_success :: StylePtr
 
-foreign import ccall safe "checkbox_danger"
+foreign import ccall "checkbox_danger"
   checkbox_danger :: StylePtr
 
 -- use decimal code points
-foreign import ccall safe "checkbox_icon_new"
+foreign import ccall "checkbox_icon_new"
   checkbox_icon_new :: CUInt -> IconPtr
 
 wrapOnToggle :: OnToggle message -> NativeOnToggle message

@@ -24,20 +24,20 @@ type AttributeFn = Self -> IO Self
 data Attribute = AddPadding Padding | Placeholder String | Width Length
 
 -- len options selected on_select
-foreign import ccall safe "pick_list_new"
+foreign import ccall "pick_list_new"
   pick_list_new :: CUInt -> Ptr CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
 
 -- pick_list top right bottom left
-foreign import ccall safe "pick_list_padding"
+foreign import ccall "pick_list_padding"
   pick_list_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "pick_list_placeholder"
+foreign import ccall "pick_list_placeholder"
   pick_list_placeholder :: Self -> CString -> IO Self
 
-foreign import ccall safe "pick_list_width"
+foreign import ccall "pick_list_width"
   pick_list_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "pick_list_into_element"
+foreign import ccall "pick_list_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnSelect message = CString -> IO (StablePtr message)

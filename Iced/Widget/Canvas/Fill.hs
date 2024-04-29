@@ -23,12 +23,12 @@ data Rule
   = NonZero -- 0
   | EvenOdd -- 1
 
-foreign import ccall safe "canvas_fill_new"
+foreign import ccall "canvas_fill_new"
   canvas_fill_new :: StylePtr -> CUChar -> IO (FillPtr)
 
 -- color values are in range 0.0 - 1.0
 -- r g b a
-foreign import ccall safe "canvas_style_solid"
+foreign import ccall "canvas_style_solid"
   canvas_style_solid :: CFloat -> CFloat -> CFloat -> CFloat -> IO (StylePtr)
 
 ruleToNative :: Rule -> Word8

@@ -29,34 +29,34 @@ data Attribute
   | Height Length
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall safe "new_row"
+--foreign import ccall "new_row"
 --  new_row :: IO Self
 
-foreign import ccall safe "row_align_items"
+foreign import ccall "row_align_items"
   row_align_items :: Self -> AlignmentPtr -> IO Self
 
 -- row top right bottom left
-foreign import ccall safe "row_padding"
+foreign import ccall "row_padding"
   row_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 -- row value
-foreign import ccall safe "row_spacing"
+foreign import ccall "row_spacing"
   row_spacing :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "row_with_children"
+foreign import ccall "row_with_children"
   row_with_children :: CUInt -> Ptr ElementPtr -> IO Self
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall safe "row_extend"
+--foreign import ccall "row_extend"
 --  row_extend :: Self -> CUInt -> Ptr ElementPtr -> IO Self
 
-foreign import ccall safe "row_width"
+foreign import ccall "row_width"
   row_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "row_height"
+foreign import ccall "row_height"
   row_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "row_into_element"
+foreign import ccall "row_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Row = Row { children :: [Element] }

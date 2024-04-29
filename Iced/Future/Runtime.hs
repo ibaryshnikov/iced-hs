@@ -2,7 +2,7 @@ module Iced.Future.Runtime (run) where
 
 import Iced.Future.Internal
 
-foreign import ccall safe "future_run"
+foreign import ccall "future_run"
   future_run :: FuturePtr a -> IO ()
 
 type MainCallback = IO (FuturePtr ())

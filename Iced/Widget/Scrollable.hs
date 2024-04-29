@@ -17,16 +17,16 @@ type Self = Ptr NativeScrollable
 
 data Attribute = Width Length | Height Length
 
-foreign import ccall safe "scrollable_new"
+foreign import ccall "scrollable_new"
   scrollable_new :: ElementPtr -> IO Self
 
-foreign import ccall safe "scrollable_width"
+foreign import ccall "scrollable_width"
   scrollable_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "scrollable_height"
+foreign import ccall "scrollable_height"
   scrollable_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "scrollable_into_element"
+foreign import ccall "scrollable_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Scrollable = Scrollable { content :: Element }

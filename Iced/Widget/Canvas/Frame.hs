@@ -9,10 +9,10 @@ import Iced.Widget.Canvas.FramePtr
 import Iced.Widget.Canvas.Shape
 import Iced.Widget.Canvas.Path
 
-foreign import ccall safe "canvas_frame_fill"
+foreign import ccall "canvas_frame_fill"
   canvas_frame_fill :: FramePtr -> PathPtr -> FillPtr -> IO ()
 
-foreign import ccall safe "canvas_frame_fill_rectangle"
+foreign import ccall "canvas_frame_fill_rectangle"
   canvas_frame_fill_rectangle
     :: FramePtr
     -> CFloat -- top_left x

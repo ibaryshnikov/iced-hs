@@ -22,19 +22,19 @@ type Self = Ptr NativeToggler
 data Attribute = Size Float | Spacing Float | Width Length
 
 -- label is_toggled on_toggle
-foreign import ccall safe "toggler_new"
+foreign import ccall "toggler_new"
   toggler_new :: CString -> CBool -> FunPtr (NativeOnToggle a) -> IO Self
 
-foreign import ccall safe "toggler_size"
+foreign import ccall "toggler_size"
   toggler_size :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "toggler_spacing"
+foreign import ccall "toggler_spacing"
   toggler_spacing :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "toggler_width"
+foreign import ccall "toggler_width"
   toggler_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "toggler_into_element"
+foreign import ccall "toggler_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnToggle message = CBool -> IO (StablePtr message)

@@ -7,10 +7,10 @@ import Foreign.C.Types
 data NativeSettings
 type SettingsPtr = Ptr NativeSettings
 
-foreign import ccall safe "settings_new"
+foreign import ccall "settings_new"
   settings_new :: IO (SettingsPtr)
 
-foreign import ccall safe "settings_add_font"
+foreign import ccall "settings_add_font"
   settings_add_font :: SettingsPtr -> Ptr Word8 -> CUInt -> IO ()
 
 newSettings :: IO (SettingsPtr)

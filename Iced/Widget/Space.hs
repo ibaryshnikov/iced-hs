@@ -20,24 +20,24 @@ data NativeSpace
 type Self = Ptr NativeSpace
 
 -- width height
-foreign import ccall safe "space_new"
+foreign import ccall "space_new"
   space_new :: LengthPtr -> LengthPtr -> IO Self
 
 -- width
-foreign import ccall safe "space_with_width"
+foreign import ccall "space_with_width"
   space_with_width :: LengthPtr -> IO Self
 
 -- height
-foreign import ccall safe "space_with_height"
+foreign import ccall "space_with_height"
   space_with_height :: LengthPtr -> IO Self
 
-foreign import ccall safe "horizontal_space_new"
+foreign import ccall "horizontal_space_new"
   horizontal_space_new :: IO Self
 
-foreign import ccall safe "vertical_space_new"
+foreign import ccall "vertical_space_new"
   vertical_space_new :: IO Self
 
-foreign import ccall safe "space_into_element"
+foreign import ccall "space_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Space = Space Length Length | Width Length | Height Length | Horizontal | Vertical

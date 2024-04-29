@@ -12,7 +12,7 @@ import Foreign.C.Types
 import Iced.Element
 import Iced.Size
 
-foreign import ccall safe "responsive_new"
+foreign import ccall "responsive_new"
   responsive_new :: FunPtr (NativeView) -> IO ElementPtr
 
 foreign import ccall "wrapper"

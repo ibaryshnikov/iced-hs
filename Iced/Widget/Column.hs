@@ -29,34 +29,34 @@ data Attribute
   | Height Length
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall safe "new_column"
+--foreign import ccall "new_column"
 --  new_column :: IO Self
 
-foreign import ccall safe "column_align_items"
+foreign import ccall "column_align_items"
   column_align_items :: Self -> AlignmentPtr -> IO Self
 
 -- column top right bottom left
-foreign import ccall safe "column_padding"
+foreign import ccall "column_padding"
   column_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
 -- column value
-foreign import ccall safe "column_spacing"
+foreign import ccall "column_spacing"
   column_spacing :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "column_with_children"
+foreign import ccall "column_with_children"
   column_with_children :: CUInt -> Ptr ElementPtr -> IO Self
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall safe "column_extend"
+--foreign import ccall "column_extend"
 --  column_extend :: Self -> CUInt -> Ptr ElementPtr -> IO Self
 
-foreign import ccall safe "column_width"
+foreign import ccall "column_width"
   column_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "column_height"
+foreign import ccall "column_height"
   column_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "column_into_element"
+foreign import ccall "column_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Column = Column { children :: [Element] }

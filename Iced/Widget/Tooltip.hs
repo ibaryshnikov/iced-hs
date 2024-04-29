@@ -26,27 +26,27 @@ data Position = FollowCursor | Top | Bottom | LeftSide | RightSide
 data Attribute = Gap Float | AddPadding Float | SnapWithViewport Bool -- | Style Style
 
 -- content tooltip position
-foreign import ccall safe "tooltip_new"
+foreign import ccall "tooltip_new"
   tooltip_new :: ElementPtr -> ElementPtr -> CUChar -> IO Self
 
 -- tooltip gap
-foreign import ccall safe "tooltip_gap"
+foreign import ccall "tooltip_gap"
   tooltip_gap :: Self -> CFloat -> IO Self
 
 -- tooltip padding
-foreign import ccall safe "tooltip_padding"
+foreign import ccall "tooltip_padding"
   tooltip_padding :: Self -> CFloat -> IO Self
 
 -- tooltip snap
-foreign import ccall safe "tooltip_snap_within_viewport"
+foreign import ccall "tooltip_snap_within_viewport"
   tooltip_snap_within_viewport :: Self -> CBool -> IO Self
 
 -- skip for now
 -- tooltip style
-foreign import ccall safe "tooltip_style"
+foreign import ccall "tooltip_style"
   tooltip_style :: Self -> StylePtr -> IO Self
 
-foreign import ccall safe "tooltip_into_element"
+foreign import ccall "tooltip_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Tooltip = Tooltip {

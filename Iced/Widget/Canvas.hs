@@ -28,31 +28,31 @@ type Self = Ptr NativeCanvas
 
 data Attribute = Width Length | Height Length
 
-foreign import ccall safe "canvas_state_new"
+foreign import ccall "canvas_state_new"
   canvas_state_new :: IO (CanvasStatePtr)
 
-foreign import ccall safe "canvas_set_draw"
+foreign import ccall "canvas_set_draw"
   canvas_set_draw :: CanvasStatePtr -> FunPtr (NativeDraw) -> IO ()
 
-foreign import ccall safe "canvas_remove_draw"
+foreign import ccall "canvas_remove_draw"
   canvas_remove_draw :: CanvasStatePtr -> IO ()
 
-foreign import ccall safe "canvas_clear_cache"
+foreign import ccall "canvas_clear_cache"
   canvas_clear_cache :: CanvasStatePtr -> IO ()
 
-foreign import ccall safe "canvas_state_free"
+foreign import ccall "canvas_state_free"
   canvas_state_free :: CanvasStatePtr -> IO ()
 
-foreign import ccall safe "canvas_new"
+foreign import ccall "canvas_new"
   canvas_new :: CanvasStatePtr -> IO Self
 
-foreign import ccall safe "canvas_width"
+foreign import ccall "canvas_width"
   canvas_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "canvas_height"
+foreign import ccall "canvas_height"
   canvas_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "canvas_into_element"
+foreign import ccall "canvas_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeDraw = FramePtr -> IO ()

@@ -20,13 +20,13 @@ type Self = Ptr NativeRadio
 data Attribute = Width Length
 
 -- label value selected on_select
-foreign import ccall safe "radio_new"
+foreign import ccall "radio_new"
   radio_new :: CString -> CUInt -> CUInt -> FunPtr (NativeOnClick a) -> IO Self
 
-foreign import ccall safe "radio_width"
+foreign import ccall "radio_width"
   radio_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "radio_into_element"
+foreign import ccall "radio_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnClick message = CUInt -> IO (StablePtr message)

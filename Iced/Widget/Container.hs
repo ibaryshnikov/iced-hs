@@ -22,26 +22,26 @@ type AttributeFn = Self -> IO Self
 
 data Attribute = AddPadding Padding | CenterX | CenterY | Width Length | Height Length
 
-foreign import ccall safe "container_new"
+foreign import ccall "container_new"
   container_new :: ElementPtr -> IO Self
 
-foreign import ccall safe "container_center_x"
+foreign import ccall "container_center_x"
   container_center_x :: Self -> IO Self
 
-foreign import ccall safe "container_center_y"
+foreign import ccall "container_center_y"
   container_center_y :: Self -> IO Self
 
 -- container top right bottom left
-foreign import ccall safe "container_padding"
+foreign import ccall "container_padding"
   container_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "container_width"
+foreign import ccall "container_width"
   container_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "container_height"
+foreign import ccall "container_height"
   container_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "container_into_element"
+foreign import ccall "container_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Container = Container { content :: Element }

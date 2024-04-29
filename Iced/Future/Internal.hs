@@ -27,7 +27,7 @@ foreign export ccall "free_haskell_fun_ptr"
 
 -- wrap STARTS
 
-foreign import ccall safe "future_wrap_value"
+foreign import ccall "future_wrap_value"
   wrap_value :: StablePtr a -> IO (FuturePtr a)
 
 wrap :: a -> Future a
@@ -38,7 +38,7 @@ wrap a = Future $ do
 
 -- compose STARTS
 
-foreign import ccall safe "future_compose"
+foreign import ccall "future_compose"
   future_compose :: FuturePtr a -> FunPtr (NativeFAB a b) -> IO (FuturePtr b)
 
 type NativeFAB a b = StablePtr a -> IO (FuturePtr b)
@@ -74,7 +74,7 @@ fromPtr ptr = do
 
 -- wrapIO STARTS
 
-foreign import ccall safe "future_wrap_io"
+foreign import ccall "future_wrap_io"
   future_wrap_io :: FunPtr (IO (StablePtr a)) -> IO (FuturePtr a)
 
 foreign import ccall "wrapper"
@@ -88,7 +88,7 @@ wrapIO io = Future $ do
 
 -- concurrent STARTS
 
-foreign import ccall safe "future_concurrent"
+foreign import ccall "future_concurrent"
   future_concurrent :: FuturePtr a -> FuturePtr b -> IO (FuturePtr (a, b))
 
 type NativePair a b = StablePtr a -> StablePtr b -> IO (StablePtr (a, b))
@@ -112,7 +112,7 @@ concurrent (Future ma) (Future mb) = Future $ do
 
 -- race STARTS
 
-foreign import ccall safe "future_race"
+foreign import ccall "future_race"
   future_race :: FuturePtr a -> FuturePtr b -> IO (FuturePtr (Either a b))
 
 type NativeEither a ma = StablePtr a -> IO (StablePtr ma)

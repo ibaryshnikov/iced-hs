@@ -22,20 +22,20 @@ data Attribute message
   | AddOnSubmit message
   | AddPadding Padding
 
-foreign import ccall safe "text_input_new"
+foreign import ccall "text_input_new"
   text_input_new :: CString -> CString -> IO Self
 
-foreign import ccall safe "text_input_on_input"
+foreign import ccall "text_input_on_input"
   text_input_on_input :: Self -> FunPtr (NativeOnInput a) -> IO Self
 
-foreign import ccall safe "text_input_on_submit"
+foreign import ccall "text_input_on_submit"
   text_input_on_submit :: Self -> StablePtr a -> IO Self
 
 -- text_input top right bottom left
-foreign import ccall safe "text_input_padding"
+foreign import ccall "text_input_padding"
   text_input_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "text_input_into_element"
+foreign import ccall "text_input_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnInput message = CString -> IO (StablePtr message)

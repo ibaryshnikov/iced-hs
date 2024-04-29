@@ -14,16 +14,16 @@ import Iced.Attribute.Length
 data NativeLength
 type LengthPtr = Ptr NativeLength
 
-foreign import ccall safe "length_fill"
+foreign import ccall "length_fill"
   length_fill :: LengthPtr
 
-foreign import ccall safe "length_fill_portion"
+foreign import ccall "length_fill_portion"
   length_fill_portion :: CUShort -> LengthPtr
 
-foreign import ccall safe "length_shrink"
+foreign import ccall "length_shrink"
   length_shrink :: LengthPtr
 
-foreign import ccall safe "length_fixed"
+foreign import ccall "length_fixed"
   length_fixed :: CFloat -> LengthPtr
 
 instance ValueToNative Length LengthPtr where

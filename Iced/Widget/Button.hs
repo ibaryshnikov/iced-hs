@@ -28,23 +28,23 @@ data Attribute message
   | Height Length
   | None
 
-foreign import ccall safe "button_new"
+foreign import ccall "button_new"
   button_new :: CString -> IO Self
 
-foreign import ccall safe "button_on_press"
+foreign import ccall "button_on_press"
   button_on_press :: Self -> StablePtr a -> IO Self
 
 -- button top right bottom left
-foreign import ccall safe "button_padding"
+foreign import ccall "button_padding"
   button_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "button_width"
+foreign import ccall "button_width"
   button_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "button_height"
+foreign import ccall "button_height"
   button_height :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "button_into_element"
+foreign import ccall "button_into_element"
   into_element :: Self -> IO ElementPtr
 
 data Button = Button {

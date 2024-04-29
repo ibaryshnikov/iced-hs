@@ -41,39 +41,39 @@ data Attribute option message
   | Width Length
 
 -- len options
-foreign import ccall safe "combo_box_state_new"
+foreign import ccall "combo_box_state_new"
   combo_box_state_new :: CUInt -> Ptr CString -> IO State
 
-foreign import ccall safe "combo_box_state_free"
+foreign import ccall "combo_box_state_free"
   combo_box_state_free :: State -> IO ()
 
 -- state placeholder selected on_select
-foreign import ccall safe "combo_box_new"
+foreign import ccall "combo_box_new"
   combo_box_new :: State -> CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
 
-foreign import ccall safe "combo_box_on_input"
+foreign import ccall "combo_box_on_input"
   combo_box_on_input :: Self -> FunPtr (NativeOnInput a) -> IO Self
 
-foreign import ccall safe "combo_box_on_option_hovered"
+foreign import ccall "combo_box_on_option_hovered"
   combo_box_on_option_hovered :: Self -> FunPtr (NativeOnHover a) -> IO Self
 
-foreign import ccall safe "combo_box_line_height"
+foreign import ccall "combo_box_line_height"
   combo_box_line_height :: Self -> LineHeightPtr -> IO Self
 
-foreign import ccall safe "combo_box_on_close"
+foreign import ccall "combo_box_on_close"
   combo_box_on_close :: Self -> StablePtr a -> IO Self
 
 -- combo_box top right bottom left
-foreign import ccall safe "combo_box_padding"
+foreign import ccall "combo_box_padding"
   combo_box_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall safe "combo_box_size"
+foreign import ccall "combo_box_size"
   combo_box_size :: Self -> CFloat -> IO Self
 
-foreign import ccall safe "combo_box_width"
+foreign import ccall "combo_box_width"
   combo_box_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall safe "combo_box_into_element"
+foreign import ccall "combo_box_into_element"
   into_element :: Self -> IO ElementPtr
 
 type NativeOnSelect message = CString -> IO (StablePtr message)

@@ -14,10 +14,10 @@ import Iced.Attribute.LineHeight
 data NativeLineHeight
 type LineHeightPtr = Ptr NativeLineHeight
 
-foreign import ccall safe "line_height_relative"
+foreign import ccall "line_height_relative"
   line_height_relative :: CFloat -> LineHeightPtr
 
-foreign import ccall safe "line_height_absolute"
+foreign import ccall "line_height_absolute"
   line_height_absolute :: CFloat -> LineHeightPtr
 
 instance ValueToNative LineHeight LineHeightPtr where
