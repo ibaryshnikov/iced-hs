@@ -29,17 +29,13 @@ impl CommandKind {
 }
 
 fn perform_io(callback: CommandCallback) -> Command<IcedMessage> {
-    let (sender, receiver) = tokio::sync::oneshot::channel();
-    let _handle = std::thread::spawn(move || {
-        let message_ptr = unsafe { callback() };
-        let message = IcedMessage::ptr(message_ptr);
-        if sender.send(message).is_err() {
-            println!("Error writing to channel in Command::perform");
-        }
+    let handle = tokio::task::spawn_blocking(move || {
+        let ptr = unsafe { callback() };
+        IcedMessage::ptr(ptr)
     });
     let future = async move {
-        receiver.await.unwrap_or_else(|e| {
-            println!("Error reading from channel in Command::perform: {}", e);
+        handle.await.unwrap_or_else(|e| {
+            println!("Error joining spawn_blocking handle in Command::perform: {e}");
             IcedMessage::None
         })
     };

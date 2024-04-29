@@ -81,8 +81,7 @@ foreign import ccall "wrapper"
   makeIOCallback :: IO (StablePtr a) -> IO (FunPtr (IO (StablePtr a)))
 
 wrapIO :: IO a -> Future a
-wrapIO io = Future $ do
-  future_wrap_io =<< makeIOCallback . newStablePtr =<< io
+wrapIO io = Future $ wrap_value =<< newStablePtr =<< io
 
 -- wrapIO ENDS
 
