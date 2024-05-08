@@ -80,4 +80,3 @@ main = do
   state <- newComboBoxState options
   let model = Model { languages = state, selected = Nothing, input = "", text = "" }
   Iced.run [] "ComboBox" model update view
-  freeComboBoxState state
