@@ -4,6 +4,7 @@ use std::sync::Arc;
 use iced::{Application, Command, Element, Settings, Theme};
 
 mod alignment;
+mod color;
 mod command;
 mod future;
 mod length;

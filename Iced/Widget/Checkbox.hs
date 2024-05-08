@@ -7,7 +7,6 @@ module Iced.Widget.Checkbox (
   onToggle,
   onToggleIf,
   icon,
-  style,
   textLineHeight,
   textShaping,
   textSize,
@@ -23,6 +22,7 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
+import Iced.Attribute.Style
 import Iced.Attribute.TextFFI
 import Iced.Element
 
@@ -141,6 +141,9 @@ instance UseSize (Attribute message) where
 instance UseSpacing (Attribute message) where
   spacing = Spacing
 
+instance UseStyle Style (Attribute message) where
+  style = AddStyle
+
 instance UseWidth Length (Attribute message) where
   width = Width
 
@@ -173,9 +176,6 @@ useIcon :: Word32 -> AttributeFn
 useIcon codePoint self =
   let iconPtr = checkbox_icon_new (CUInt codePoint)
   in checkbox_icon self iconPtr
-
-style :: Style -> Attribute message
-style = AddStyle
 
 useStyle :: Style -> AttributeFn
 useStyle value self = checkbox_style self $ styleToNative value

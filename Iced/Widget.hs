@@ -21,7 +21,7 @@ module Iced.Widget (
   module Iced.Widget.VerticalSlider,
 ) where
 
-import Iced.Widget.Button
+import Iced.Widget.Button hiding (AppearanceAttribute)
 import Iced.Widget.Canvas
 import Iced.Widget.Checkbox
 import Iced.Widget.Column
