@@ -85,8 +85,8 @@ instance IntoNative Canvas Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFn canvas_width  len
-    Height len -> useFn canvas_height len
+    Width  len -> useFnIO canvas_width  len
+    Height len -> useFnIO canvas_height len
 
 instance UseWidth Length Attribute where
   width = Width

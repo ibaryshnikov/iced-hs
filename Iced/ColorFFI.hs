@@ -17,5 +17,5 @@ type ColorPtr = Ptr NativeColor
 foreign import ccall "color_new"
   color_new :: CFloat -> CFloat -> CFloat -> CFloat -> IO ColorPtr
 
-instance ValueToNative Color (IO ColorPtr) where
-  valueToNative Color { .. } = color_new (CFloat r) (CFloat g) (CFloat b) (CFloat a)
+instance ValueToNativeIO Color ColorPtr where
+  valueToNativeIO Color { .. } = color_new (CFloat r) (CFloat g) (CFloat b) (CFloat a)

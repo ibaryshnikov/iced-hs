@@ -50,11 +50,12 @@ instance IntoNative Space ElementPtr where
 
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of
-  Space w h -> space_new widthPtr heightPtr where
-    widthPtr  = valueToNative w
-    heightPtr = valueToNative h
-  Width  value -> space_with_width  $ valueToNative value
-  Height value -> space_with_height $ valueToNative value
+  Space w h -> do
+    widthPtr  <- valueToNativeIO w
+    heightPtr <- valueToNativeIO h
+    space_new widthPtr heightPtr
+  Width  value -> space_with_width  =<< valueToNativeIO value
+  Height value -> space_with_height =<< valueToNativeIO value
   Horizontal -> horizontal_space_new
   Vertical -> vertical_space_new
 

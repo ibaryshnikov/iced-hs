@@ -59,8 +59,8 @@ instance UseAttribute Self Attribute where
     AddPadding value -> usePadding value
     CenterX -> container_center_x
     CenterY -> container_center_y
-    Width  len -> useFn container_width  len
-    Height len -> useFn container_height len
+    Width  len -> useFnIO container_width  len
+    Height len -> useFnIO container_height len
 
 instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding

@@ -47,8 +47,8 @@ instance IntoNative ProgressBar Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFn progress_bar_width  len
-    Height len -> useFn progress_bar_height len
+    Width  len -> useFnIO progress_bar_width  len
+    Height len -> useFnIO progress_bar_height len
 
 instance UseWidth Length Attribute where
   width = Width

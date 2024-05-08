@@ -15,11 +15,11 @@ data NativeLineHeight
 type LineHeightPtr = Ptr NativeLineHeight
 
 foreign import ccall "line_height_relative"
-  line_height_relative :: CFloat -> LineHeightPtr
+  line_height_relative :: CFloat -> IO LineHeightPtr
 
 foreign import ccall "line_height_absolute"
-  line_height_absolute :: CFloat -> LineHeightPtr
+  line_height_absolute :: CFloat -> IO LineHeightPtr
 
-instance ValueToNative LineHeight LineHeightPtr where
-  valueToNative (Relative value) = line_height_relative (CFloat value)
-  valueToNative (Absolute value) = line_height_absolute (CFloat value)
+instance ValueToNativeIO LineHeight LineHeightPtr where
+  valueToNativeIO (Relative value) = line_height_relative (CFloat value)
+  valueToNativeIO (Absolute value) = line_height_absolute (CFloat value)

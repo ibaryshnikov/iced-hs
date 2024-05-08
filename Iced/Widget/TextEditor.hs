@@ -100,7 +100,7 @@ instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnAction callback -> useOnAction callback
     AddPadding value -> usePadding value
-    Height len -> useFn text_editor_height len
+    Height len -> useFnIO text_editor_height len
 
 instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding

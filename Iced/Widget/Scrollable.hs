@@ -41,8 +41,8 @@ instance IntoNative Scrollable Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFn scrollable_width  len
-    Height len -> useFn scrollable_height len
+    Width  len -> useFnIO scrollable_width  len
+    Height len -> useFnIO scrollable_height len
 
 instance UseWidth Length Attribute where
   width = Width

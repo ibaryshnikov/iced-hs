@@ -89,7 +89,7 @@ instance UseAttribute Self (Attribute message) where
     AddStep value -> useFn vertical_slider_step value
     AddShiftStep value -> useFn vertical_slider_shift_step value
     Width  len -> useFn vertical_slider_width  len
-    Height len -> useFn vertical_slider_height len
+    Height len -> useFnIO vertical_slider_height len
 
 instance SliderCommon (Attribute message) where
   addDefault = AddDefault

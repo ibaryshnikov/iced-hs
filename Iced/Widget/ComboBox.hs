@@ -131,13 +131,13 @@ instance (Show option, Read option) => IntoNative (ComboBox option message) Self
 
 instance Read option => UseAttribute Self (Attribute option message) where
   useAttribute attribute = case attribute of
-    AddLineHeight value -> useFn combo_box_line_height value
+    AddLineHeight value -> useFnIO combo_box_line_height value
     AddOnInput callback -> useOnInput callback
     AddOnHover callback -> useOnHover callback
     AddPadding value -> usePadding value
     OnClose message -> useOnClose message
     Size  value -> useFn combo_box_size  value
-    Width value -> useFn combo_box_width value
+    Width value -> useFnIO combo_box_width value
 
 instance UseLineHeight (Attribute option message) where
   lineHeight = AddLineHeight

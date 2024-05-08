@@ -66,7 +66,7 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Size value -> useFn toggler_size value
     Spacing value -> useFn toggler_spacing value
-    Width len -> useFn toggler_width len
+    Width len -> useFnIO toggler_width len
 
 instance UseSize Attribute where
   size = Size

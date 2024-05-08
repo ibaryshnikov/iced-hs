@@ -77,9 +77,9 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Spacing value -> useFn column_spacing value
     AddPadding value -> usePadding value
-    AlignItems value -> useFn column_align_items value
-    Width  len -> useFn column_width  len
-    Height len -> useFn column_height len
+    AlignItems value -> useFnIO column_align_items value
+    Width  len -> useFnIO column_width  len
+    Height len -> useFnIO column_height len
 
 instance UseAlignment Attribute where
   alignItems = AlignItems

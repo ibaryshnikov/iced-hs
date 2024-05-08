@@ -145,8 +145,8 @@ instance UseAttribute Self (Attribute message) where
     OnPress message -> useOnPress message
     AddPadding value -> usePadding value
     Style value -> useStyle value
-    Width  len -> useFn button_width  len
-    Height len -> useFn button_height len
+    Width  len -> useFnIO button_width  len
+    Height len -> useFnIO button_height len
     None -> pure
 
 instance PaddingToAttribute Padding (Attribute message) where
@@ -186,13 +186,13 @@ applyStyles (first:remaining) appearance = do
   case first of
     ShadowOffset _x _y -> pure ()
     AddBackground (BgColor color) -> do
-      colorPtr <- valueToNative color
+      colorPtr <- valueToNativeIO color
       set_background appearance colorPtr
     TextColor color -> do
-      colorPtr <- valueToNative color
+      colorPtr <- valueToNativeIO color
       set_text_color appearance colorPtr
     AddBorder Border { color, width = w, radius } -> do
-      colorPtr <- valueToNative color
+      colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     -- AddShadow _shadow -> pure ()
     Hovered  _attrs -> pure ()

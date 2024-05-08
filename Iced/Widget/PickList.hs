@@ -84,7 +84,7 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     AddPadding value -> usePadding value
     Placeholder value -> usePlaceholder value
-    Width len -> useFn pick_list_width len
+    Width len -> useFnIO pick_list_width len
 
 instance PaddingToAttribute Padding Attribute where
   paddingToAttribute = AddPadding

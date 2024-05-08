@@ -15,19 +15,19 @@ data NativeLength
 type LengthPtr = Ptr NativeLength
 
 foreign import ccall "length_fill"
-  length_fill :: LengthPtr
+  length_fill :: IO LengthPtr
 
 foreign import ccall "length_fill_portion"
-  length_fill_portion :: CUShort -> LengthPtr
+  length_fill_portion :: CUShort -> IO LengthPtr
 
 foreign import ccall "length_shrink"
-  length_shrink :: LengthPtr
+  length_shrink :: IO LengthPtr
 
 foreign import ccall "length_fixed"
-  length_fixed :: CFloat -> LengthPtr
+  length_fixed :: CFloat -> IO LengthPtr
 
-instance ValueToNative Length LengthPtr where
-  valueToNative len = case len of
+instance ValueToNativeIO Length LengthPtr where
+  valueToNativeIO len = case len of
     Fill -> length_fill
     FillPortion value -> length_fill_portion (CUShort value)
     Shrink -> length_shrink

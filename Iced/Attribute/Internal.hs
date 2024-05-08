@@ -20,3 +20,13 @@ useFn :: ValueToNative value native
       -> self
       -> IO self
 useFn fn value self = fn self $ valueToNative value
+
+class ValueToNativeIO value native where
+  valueToNativeIO :: value -> IO native
+
+useFnIO :: ValueToNativeIO value native
+      => (self -> native -> IO self)
+      -> value
+      -> self
+      -> IO self
+useFnIO fn value self = fn self =<< valueToNativeIO value

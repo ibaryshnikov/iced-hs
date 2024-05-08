@@ -24,12 +24,12 @@ data Rule
   | EvenOdd -- 1
 
 foreign import ccall "canvas_fill_new"
-  canvas_fill_new :: StylePtr -> CUChar -> IO (FillPtr)
+  canvas_fill_new :: StylePtr -> CUChar -> IO FillPtr
 
 -- color values are in range 0.0 - 1.0
 -- r g b a
 foreign import ccall "canvas_style_solid"
-  canvas_style_solid :: CFloat -> CFloat -> CFloat -> CFloat -> IO (StylePtr)
+  canvas_style_solid :: CFloat -> CFloat -> CFloat -> CFloat -> IO StylePtr
 
 ruleToNative :: Rule -> Word8
 ruleToNative rule = case rule of

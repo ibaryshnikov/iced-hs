@@ -85,20 +85,20 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnToggle message -> IO (FunPtr (NativeOnToggle message))
 
 foreign import ccall "checkbox_primary"
-  checkbox_primary :: StylePtr
+  checkbox_primary :: IO StylePtr
 
 foreign import ccall "checkbox_secondary"
-  checkbox_secondary :: StylePtr
+  checkbox_secondary :: IO StylePtr
 
 foreign import ccall "checkbox_success"
-  checkbox_success :: StylePtr
+  checkbox_success :: IO StylePtr
 
 foreign import ccall "checkbox_danger"
-  checkbox_danger :: StylePtr
+  checkbox_danger :: IO StylePtr
 
 -- use decimal code points
 foreign import ccall "checkbox_icon_new"
-  checkbox_icon_new :: CUInt -> IconPtr
+  checkbox_icon_new :: CUInt -> IO IconPtr
 
 wrapOnToggle :: OnToggle message -> NativeOnToggle message
 wrapOnToggle callback c_bool = do
@@ -128,11 +128,11 @@ instance UseAttribute Self (Attribute message) where
     AddOnToggle callback -> useOnToggle callback
     Size value -> useFn checkbox_size value
     Spacing value -> useFn checkbox_spacing value
-    AddStyle value -> useStyle value
-    TextLineHeight value -> useFn checkbox_text_line_height value
+    AddStyle value -> useFnIO checkbox_style value
+    TextLineHeight value -> useFnIO checkbox_text_line_height value
     TextShaping    value -> useFn checkbox_text_shaping     value
     TextSize       value -> useFn checkbox_text_size        value
-    Width len -> useFn checkbox_width len
+    Width len -> useFnIO checkbox_width len
     None -> pure
 
 instance UseSize (Attribute message) where
@@ -162,23 +162,20 @@ useOnToggle callback self =
   makeCallback (wrapOnToggle callback)
     >>= checkbox_on_toggle self
 
-styleToNative :: Style -> StylePtr
-styleToNative value = case value of
-  Primary -> checkbox_primary
-  Secondary -> checkbox_secondary
-  Success -> checkbox_success
-  Danger -> checkbox_danger
+instance ValueToNativeIO Style StylePtr where
+  valueToNativeIO value = case value of
+    Primary -> checkbox_primary
+    Secondary -> checkbox_secondary
+    Success -> checkbox_success
+    Danger -> checkbox_danger
 
 icon :: Word32 -> Attribute message
 icon = Icon
 
 useIcon :: Word32 -> AttributeFn
-useIcon codePoint self =
-  let iconPtr = checkbox_icon_new (CUInt codePoint)
-  in checkbox_icon self iconPtr
-
-useStyle :: Style -> AttributeFn
-useStyle value self = checkbox_style self $ styleToNative value
+useIcon codePoint self = do
+  iconPtr <- checkbox_icon_new (CUInt codePoint)
+  checkbox_icon self iconPtr
 
 textLineHeight :: LineHeight -> Attribute message
 textLineHeight = TextLineHeight
