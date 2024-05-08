@@ -7,11 +7,9 @@ module Iced.Widget.Canvas (
   CanvasState,
   newCanvasState,
   clearCanvasCache,
-  freeCanvasState,
 ) where
 
 import Foreign
-import System.IO.Unsafe -- to run clearCache without IO
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
@@ -21,30 +19,39 @@ import Iced.Widget.Canvas.FrameAction
 import Iced.Widget.Canvas.FramePtr
 
 data NativeCanvasState
-type CanvasStatePtr = Ptr NativeCanvasState
-type CanvasState = CanvasStatePtr; -- to export
+type CanvasState = ForeignPtr NativeCanvasState
 data NativeCanvas
 type Self = Ptr NativeCanvas
 
 data Attribute = Width Length | Height Length
 
 foreign import ccall "canvas_state_new"
-  canvas_state_new :: IO (CanvasStatePtr)
+  canvas_state_new :: IO (Ptr NativeCanvasState)
+
+newCanvasState :: IO CanvasState
+newCanvasState = newForeignPtr canvas_state_free =<< canvas_state_new
 
 foreign import ccall "canvas_set_draw"
-  canvas_set_draw :: CanvasStatePtr -> FunPtr (NativeDraw) -> IO ()
+  canvas_set_draw :: Ptr NativeCanvasState -> FunPtr NativeDraw -> IO ()
+
+canvasSetDraw :: CanvasState -> FunPtr NativeDraw -> IO ()
+canvasSetDraw state callback = withForeignPtr state $ \self ->
+  canvas_set_draw self callback
 
 foreign import ccall "canvas_remove_draw"
-  canvas_remove_draw :: CanvasStatePtr -> IO ()
+  canvas_remove_draw :: Ptr NativeCanvasState -> IO ()
 
 foreign import ccall "canvas_clear_cache"
-  canvas_clear_cache :: CanvasStatePtr -> IO ()
+  canvas_clear_cache :: Ptr NativeCanvasState -> IO ()
 
-foreign import ccall "canvas_state_free"
-  canvas_state_free :: CanvasStatePtr -> IO ()
+clearCanvasCache :: CanvasState -> IO ()
+clearCanvasCache state = withForeignPtr state canvas_clear_cache
+
+foreign import ccall "&canvas_state_free"
+  canvas_state_free :: FinalizerPtr NativeCanvasState
 
 foreign import ccall "canvas_new"
-  canvas_new :: CanvasStatePtr -> IO Self
+  canvas_new :: Ptr NativeCanvasState -> IO Self
 
 foreign import ccall "canvas_width"
   canvas_width :: Self -> LengthPtr -> IO Self
@@ -61,7 +68,7 @@ foreign import ccall "wrapper"
 
 data Canvas = Canvas {
   actions :: [FrameAction],
-  cache :: CanvasStatePtr
+  cache :: CanvasState
 }
 
 drawActions :: [FrameAction] -> FramePtr -> IO ()
@@ -80,8 +87,8 @@ instance Builder Self where
 instance IntoNative Canvas Self where
   toNative details = do
     drawCallbackPtr <- makeDrawCallback $ drawCallback details.actions
-    canvas_set_draw details.cache drawCallbackPtr
-    canvas_new details.cache
+    canvasSetDraw details.cache drawCallbackPtr
+    withForeignPtr details.cache canvas_new
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
@@ -94,16 +101,5 @@ instance UseWidth Length Attribute where
 instance UseHeight Length Attribute where
   height = Height
 
-canvas :: [Attribute] -> [FrameAction] -> CanvasStatePtr -> Element
+canvas :: [Attribute] -> [FrameAction] -> CanvasState -> Element
 canvas attributes actions cache = pack Canvas { .. } attributes
-
-newCanvasState :: IO (CanvasStatePtr)
-newCanvasState = canvas_state_new
-
-clearCanvasCache :: CanvasStatePtr -> CanvasStatePtr
-clearCanvasCache state = unsafePerformIO $ do -- todo: make it a Command probably?
-  canvas_clear_cache state
-  return state
-
-freeCanvasState :: CanvasStatePtr -> IO ()
-freeCanvasState state = canvas_state_free state

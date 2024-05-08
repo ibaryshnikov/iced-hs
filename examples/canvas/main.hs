@@ -43,4 +43,3 @@ main = do
   state <- newCanvasState
   let model = Model { state = state }
   Iced.run [] "Canvas" model update view
-  freeCanvasState state
