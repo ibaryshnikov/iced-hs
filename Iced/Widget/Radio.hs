@@ -72,7 +72,7 @@ instance Enum option => IntoNative (Radio option message) Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-      Width len -> useFnIO radio_width len
+    Width len -> useFnIO radio_width len
 
 instance UseWidth Length Attribute where
   width = Width

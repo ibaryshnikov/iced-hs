@@ -5,4 +5,4 @@ module Iced (
 
 import Iced.Application (run, addFont)
 import Iced.Element (Element)
-import Iced.Internal()
+import Iced.Internal ()

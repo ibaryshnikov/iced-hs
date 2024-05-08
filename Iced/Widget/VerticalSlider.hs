@@ -88,7 +88,7 @@ instance UseAttribute Self (Attribute message) where
     OnRelease message -> useOnRelease message
     AddStep value -> useFn vertical_slider_step value
     AddShiftStep value -> useFn vertical_slider_shift_step value
-    Width  len -> useFn vertical_slider_width  len
+    Width  len -> useFn   vertical_slider_width  len
     Height len -> useFnIO vertical_slider_height len
 
 instance SliderCommon (Attribute message) where
