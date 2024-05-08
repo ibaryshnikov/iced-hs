@@ -7,10 +7,11 @@ import Iced
 import Iced.Attribute
 import Iced.Color
 import Iced.Widget
+import Iced.Widget.Canvas qualified as Canvas
 import Iced.Widget.Canvas.Shape
 import Iced.Widget.Canvas.FrameAction
 
-data Model = Model { state :: CanvasState }
+data Model = Model { state :: Canvas.State }
 
 data Message
 
@@ -40,6 +41,6 @@ shapes = [
 
 main :: IO ()
 main = do
-  state <- newCanvasState
+  state <- Canvas.newState
   let model = Model { state = state }
   Iced.run [] "Canvas" model update view

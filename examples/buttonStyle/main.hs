@@ -43,4 +43,4 @@ view value =
   ]
 
 main :: IO ()
-main = Iced.run [] "Counter" 0 update view
+main = Iced.run [] "Button style" 0 update view

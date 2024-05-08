@@ -22,10 +22,10 @@ module Iced.Widget (
 ) where
 
 import Iced.Widget.Button hiding (AppearanceAttribute)
-import Iced.Widget.Canvas
+import Iced.Widget.Canvas (canvas)
 import Iced.Widget.Checkbox
 import Iced.Widget.Column
-import Iced.Widget.ComboBox
+import Iced.Widget.ComboBox hiding (State, newState)
 import Iced.Widget.Container
 import Iced.Widget.PickList
 import Iced.Widget.ProgressBar
@@ -36,7 +36,7 @@ import Iced.Widget.Scrollable
 import Iced.Widget.Slider
 import Iced.Widget.Space
 import Iced.Widget.Text
-import Iced.Widget.TextEditor
+import Iced.Widget.TextEditor (textEditor, onAction)
 import Iced.Widget.TextInput
 import Iced.Widget.Toggler
 import Iced.Widget.Tooltip

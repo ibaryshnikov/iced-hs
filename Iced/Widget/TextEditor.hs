@@ -6,7 +6,7 @@ module Iced.Widget.TextEditor (
   textEditor,
   newContent,
   contentWithText,
-  contentPerform,
+  perform,
   Action,
   Content,
   onAction,
@@ -53,8 +53,8 @@ contentWithText = makeContent <=< content_with_text <=< newCString
 foreign import ccall "text_editor_content_perform"
   content_perform :: Ptr NativeContent -> Action -> IO ()
 
-contentPerform :: Content -> Action -> IO ()
-contentPerform content action = withForeignPtr content $ \self ->
+perform :: Content -> Action -> IO ()
+perform content action = withForeignPtr content $ \self ->
   content_perform self action
 
 foreign import ccall "&text_editor_content_free"

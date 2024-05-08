@@ -4,8 +4,8 @@
 
 module Iced.Widget.ComboBox (
   comboBox,
-  newComboBoxState,
-  ComboBoxState,
+  newState,
+  State,
   onOptionHovered,
   onClose,
 ) where
@@ -26,7 +26,7 @@ import Iced.Element
 data NativeComboBox
 type Self = Ptr NativeComboBox
 data NativeState
-type ComboBoxState = ForeignPtr NativeState
+type State = ForeignPtr NativeState
 type AttributeFn = Self -> IO Self
 
 data Attribute option message
@@ -40,19 +40,19 @@ data Attribute option message
 
 -- len options
 foreign import ccall "combo_box_state_new"
-  combo_box_state_new :: CUInt -> Ptr CString -> IO (Ptr NativeState)
+  state_new :: CUInt -> Ptr CString -> IO (Ptr NativeState)
 
-newComboBoxState :: Show option => [option] -> IO ComboBoxState
-newComboBoxState options = do
+newState :: Show option => [option] -> IO State
+newState options = do
   strings <- packOptions options []
   let len = fromIntegral $ length strings
   stringsPtr <- newArray strings
-  state <- newForeignPtr combo_box_state_free =<< combo_box_state_new len stringsPtr
+  state <- newForeignPtr state_free =<< state_new len stringsPtr
   free stringsPtr -- Rust will free contents, but we still need to free the array itself
   return state
 
 foreign import ccall "&combo_box_state_free"
-  combo_box_state_free :: FinalizerPtr NativeState
+  state_free :: FinalizerPtr NativeState
 
 -- state placeholder selected on_select
 foreign import ccall "combo_box_new"
@@ -110,7 +110,7 @@ type OnOptionHovered option message = option -> message
 
 data ComboBox option message where
   ComboBox :: (Show option, Read option) => {
-    state :: ComboBoxState,
+    state :: State,
     placeholder :: String,
     selected :: Maybe option,
     onSelect :: OnSelect option message
@@ -164,7 +164,7 @@ instance UseWidth Length (Attribute option message) where
 
 comboBox :: (Show option, Read option)
          => [Attribute option message]
-         -> ComboBoxState
+         -> State
          -> String
          -> Maybe option
          -> OnSelect option message

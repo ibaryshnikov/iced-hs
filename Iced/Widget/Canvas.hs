@@ -4,9 +4,9 @@
 
 module Iced.Widget.Canvas (
   canvas,
-  CanvasState,
-  newCanvasState,
-  clearCanvasCache,
+  State,
+  newState,
+  clearCache,
 ) where
 
 import Foreign
@@ -18,40 +18,40 @@ import Iced.Widget.Canvas.Frame
 import Iced.Widget.Canvas.FrameAction
 import Iced.Widget.Canvas.FramePtr
 
-data NativeCanvasState
-type CanvasState = ForeignPtr NativeCanvasState
+data NativeState
+type State = ForeignPtr NativeState
 data NativeCanvas
 type Self = Ptr NativeCanvas
 
 data Attribute = Width Length | Height Length
 
 foreign import ccall "canvas_state_new"
-  canvas_state_new :: IO (Ptr NativeCanvasState)
+  state_new :: IO (Ptr NativeState)
 
-newCanvasState :: IO CanvasState
-newCanvasState = newForeignPtr canvas_state_free =<< canvas_state_new
+newState :: IO State
+newState = newForeignPtr state_free =<< state_new
 
 foreign import ccall "canvas_set_draw"
-  canvas_set_draw :: Ptr NativeCanvasState -> FunPtr NativeDraw -> IO ()
+  canvas_set_draw :: Ptr NativeState -> FunPtr NativeDraw -> IO ()
 
-canvasSetDraw :: CanvasState -> FunPtr NativeDraw -> IO ()
+canvasSetDraw :: State -> FunPtr NativeDraw -> IO ()
 canvasSetDraw state callback = withForeignPtr state $ \self ->
   canvas_set_draw self callback
 
 foreign import ccall "canvas_remove_draw"
-  canvas_remove_draw :: Ptr NativeCanvasState -> IO ()
+  canvas_remove_draw :: Ptr NativeState -> IO ()
 
 foreign import ccall "canvas_clear_cache"
-  canvas_clear_cache :: Ptr NativeCanvasState -> IO ()
+  clear_cache :: Ptr NativeState -> IO ()
 
-clearCanvasCache :: CanvasState -> IO ()
-clearCanvasCache state = withForeignPtr state canvas_clear_cache
+clearCache :: State -> IO ()
+clearCache state = withForeignPtr state clear_cache
 
 foreign import ccall "&canvas_state_free"
-  canvas_state_free :: FinalizerPtr NativeCanvasState
+  state_free :: FinalizerPtr NativeState
 
 foreign import ccall "canvas_new"
-  canvas_new :: Ptr NativeCanvasState -> IO Self
+  canvas_new :: Ptr NativeState -> IO Self
 
 foreign import ccall "canvas_width"
   canvas_width :: Self -> LengthPtr -> IO Self
@@ -68,7 +68,7 @@ foreign import ccall "wrapper"
 
 data Canvas = Canvas {
   actions :: [FrameAction],
-  cache :: CanvasState
+  cache :: State
 }
 
 drawActions :: [FrameAction] -> FramePtr -> IO ()
@@ -101,5 +101,5 @@ instance UseWidth Length Attribute where
 instance UseHeight Length Attribute where
   height = Height
 
-canvas :: [Attribute] -> [FrameAction] -> CanvasState -> Element
+canvas :: [Attribute] -> [FrameAction] -> State -> Element
 canvas attributes actions cache = pack Canvas { .. } attributes

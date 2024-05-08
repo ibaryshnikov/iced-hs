@@ -7,6 +7,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Widget
+import Iced.Widget.ComboBox qualified as ComboBox
 
 data Language
   = Danish
@@ -19,7 +20,7 @@ data Language
   | Other deriving (Show, Read)
 
 data Model = Model {
-  languages :: ComboBoxState,
+  languages :: ComboBox.State,
   selected :: Maybe Language,
   input :: String,
   text :: String
@@ -77,6 +78,6 @@ options = [Danish, English, French, German, Italian, Portuguese, Spanish, Other]
 
 main :: IO ()
 main = do
-  state <- newComboBoxState options
+  state <- ComboBox.newState options
   let model = Model { languages = state, selected = Nothing, input = "", text = "" }
   Iced.run [] "ComboBox" model update view

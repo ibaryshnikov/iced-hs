@@ -6,15 +6,16 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Widget
+import Iced.Widget.TextEditor qualified as TextEditor
 
-data Model = Model { content :: Content }
+data Model = Model { content :: TextEditor.Content }
 
-data Message = EditorAction Action
+data Message = EditorAction TextEditor.Action
 
 update :: Model -> Message -> IO Model
 update model message = case message of
   EditorAction action -> do
-    contentPerform model.content action
+    TextEditor.perform model.content action
     pure model
 
 view :: Model -> Element
@@ -22,6 +23,6 @@ view model = textEditor [height (Fixed 500), onAction EditorAction] model.conten
 
 main :: IO ()
 main = do
-  content <- newContent
+  content <- TextEditor.newContent
   let model = Model { content = content }
   Iced.run [] "TextEditor" model update view
