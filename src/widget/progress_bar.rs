@@ -5,7 +5,7 @@ use iced::Length;
 
 use super::ElementPtr;
 
-type SelfPtr = *mut ProgressBar;
+type SelfPtr = *mut ProgressBar<'static>;
 
 #[no_mangle]
 pub extern "C" fn progress_bar_new(

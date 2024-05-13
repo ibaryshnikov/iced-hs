@@ -1,7 +1,8 @@
 use std::ffi::c_char;
 use std::sync::Arc;
 
-use iced::{Application, Command, Element, Settings, Theme};
+use iced::advanced::Application;
+use iced::{Command, Element, Renderer, Settings, Theme};
 
 mod alignment;
 mod color;
@@ -71,6 +72,7 @@ impl Application for App {
     type Executor = iced::executor::Default;
     type Message = IcedMessage;
     type Theme = Theme;
+    type Renderer = Renderer;
     type Flags = Flags;
 
     fn new(flags: Flags) -> (App, Command<IcedMessage>) {
@@ -118,7 +120,7 @@ fn make_settings(settings: Settings<()>, flags: Flags) -> Settings<Flags> {
         fonts: settings.fonts,
         default_font: settings.default_font,
         default_text_size: settings.default_text_size,
-        antialiasing: true,
+        antialiasing: settings.antialiasing,
     }
 }
 

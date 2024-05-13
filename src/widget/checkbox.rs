@@ -2,7 +2,7 @@ use std::ffi::{c_char, c_float, c_uchar, c_uint};
 
 use checkbox::Icon;
 use iced::widget::{checkbox, text, Checkbox};
-use iced::{theme, Font, Length};
+use iced::{Font, Length};
 use text::{LineHeight, Shaping};
 
 use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
@@ -11,6 +11,13 @@ type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
 
 type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+
+enum CheckboxStyle {
+    Primary,
+    Secondary,
+    Success,
+    Danger,
+}
 
 #[no_mangle]
 extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
@@ -46,10 +53,16 @@ extern "C" fn checkbox_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
 }
 
 #[no_mangle]
-extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut theme::Checkbox) -> SelfPtr {
+extern "C" fn checkbox_style(self_ptr: SelfPtr, style_ptr: *mut CheckboxStyle) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     let style = unsafe { *Box::from_raw(style_ptr) };
-    Box::into_raw(Box::new(checkbox.style(style)))
+    let style_fn = match style {
+        CheckboxStyle::Primary => checkbox::primary,
+        CheckboxStyle::Secondary => checkbox::secondary,
+        CheckboxStyle::Success => checkbox::success,
+        CheckboxStyle::Danger => checkbox::danger,
+    };
+    Box::into_raw(Box::new(checkbox.style(style_fn)))
 }
 
 #[no_mangle]
@@ -93,23 +106,23 @@ extern "C" fn checkbox_into_element(self_ptr: SelfPtr) -> ElementPtr {
 }
 
 #[no_mangle]
-extern "C" fn checkbox_primary() -> *mut theme::Checkbox {
-    Box::into_raw(Box::new(theme::Checkbox::Primary))
+extern "C" fn checkbox_primary() -> *mut CheckboxStyle {
+    Box::into_raw(Box::new(CheckboxStyle::Primary))
 }
 
 #[no_mangle]
-extern "C" fn checkbox_secondary() -> *mut theme::Checkbox {
-    Box::into_raw(Box::new(theme::Checkbox::Secondary))
+extern "C" fn checkbox_secondary() -> *mut CheckboxStyle {
+    Box::into_raw(Box::new(CheckboxStyle::Secondary))
 }
 
 #[no_mangle]
-extern "C" fn checkbox_success() -> *mut theme::Checkbox {
-    Box::into_raw(Box::new(theme::Checkbox::Success))
+extern "C" fn checkbox_success() -> *mut CheckboxStyle {
+    Box::into_raw(Box::new(CheckboxStyle::Success))
 }
 
 #[no_mangle]
-extern "C" fn checkbox_danger() -> *mut theme::Checkbox {
-    Box::into_raw(Box::new(theme::Checkbox::Danger))
+extern "C" fn checkbox_danger() -> *mut CheckboxStyle {
+    Box::into_raw(Box::new(CheckboxStyle::Danger))
 }
 
 #[no_mangle]

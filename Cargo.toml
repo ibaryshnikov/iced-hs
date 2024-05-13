@@ -8,7 +8,9 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies.iced]
-version = "0.12.1"
+# version = "0.12.1"
+git = "https://github.com/iced-rs/iced"
+rev = "b30d34f"
 features = ["advanced", "canvas", "lazy", "tokio"]
 
 [dependencies.tokio]

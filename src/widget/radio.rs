@@ -5,7 +5,7 @@ use iced::Length;
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
-type SelfPtr = *mut Radio<IcedMessage>;
+type SelfPtr = *mut Radio<'static, IcedMessage>;
 
 type OnSelectFFI = unsafe extern "C" fn(selected: c_uint) -> *const u8;
 
