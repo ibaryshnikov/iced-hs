@@ -110,14 +110,21 @@ is currently small, but growing over time.
  - [ ] Multi window
  - [ ] Custom widgets
  - [ ] Subscriptions
+   - [x] subscription attribute for Application
+   - [x] Time.every subscription
    - [ ] keyboard events
+   - [ ] custom subscriptions
    - [ ] other events
- - [ ] Command api
-   - [x] implement two signatures for `update` function:
+ - [x] Command api
+   - [x] multiple signatures for `update` function:
      - `Model -> Message -> Model`
+     - `Model -> Message -> IO Model`
      - `Model -> Message -> (Model, Command Message)`
+     - `Model -> Message -> IO (Model, Command Message)`
    - [x] `Command.Perform` for Rust `Future`
-   - [x] `Command.PerformIO` for Haskell `IO`
-   - [ ] other commands
+   - [x] `Command.PerformIO` for blocking tasks
  - [ ] Add all attributes from iced for each widget
- - [ ] Styles and themes
+ - [ ] theme attribute for Application
+ - [ ] Styles for widgets
+   - [x] button
+   - [ ] ...
