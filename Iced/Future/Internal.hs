@@ -22,17 +22,16 @@ instance Applicative Future where
 instance MonadIO Future where
   liftIO = wrapIO
 
-foreign export ccall "free_haskell_fun_ptr"
-  freeHaskellFunPtr :: FunPtr a -> IO ()
-
 -- wrap STARTS
 
 foreign import ccall "future_wrap_value"
   wrap_value :: StablePtr a -> IO (FuturePtr a)
 
 wrap :: a -> Future a
-wrap a = Future $ do
-  wrap_value =<< newStablePtr a
+wrap a = Future $ wrap_value =<< newStablePtr a
+
+wrapIO :: IO a -> Future a
+wrapIO io = Future $ wrap_value =<< newStablePtr =<< io
 
 -- wrap ENDS
 
@@ -71,19 +70,6 @@ fromPtr ptr = do
   pure value
 
 -- compose ENDS
-
--- wrapIO STARTS
-
-foreign import ccall "future_wrap_io"
-  future_wrap_io :: FunPtr (IO (StablePtr a)) -> IO (FuturePtr a)
-
-foreign import ccall "wrapper"
-  makeIOCallback :: IO (StablePtr a) -> IO (FunPtr (IO (StablePtr a)))
-
-wrapIO :: IO a -> Future a
-wrapIO io = Future $ wrap_value =<< newStablePtr =<< io
-
--- wrapIO ENDS
 
 -- concurrent STARTS
 

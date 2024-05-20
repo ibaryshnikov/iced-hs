@@ -3,6 +3,8 @@ use std::pin::Pin;
 
 use tokio::runtime::Runtime;
 
+use crate::free_haskell_fun_ptr;
+
 pub struct StablePtr {
     pub ptr: *const u8,
 }
@@ -16,7 +18,6 @@ type IOCallback = unsafe extern "C" fn() -> *const u8;
 type ComposeCallback = unsafe extern "C" fn(ptr: *const u8) -> RawFuture<StablePtr>;
 
 extern "C" {
-    fn free_haskell_fun_ptr(ptr: usize);
     fn future_pair(ptr_a: *const u8, ptr_b: *const u8) -> *const u8;
     fn future_left(ptr: *const u8) -> *const u8;
     fn future_right(ptr: *const u8) -> *const u8;

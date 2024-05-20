@@ -4,6 +4,8 @@ module Iced.Time (
   durationFromMillis,
   delay,
   sleep,
+  every,
+  microsSinceStart,
 ) where
 
 import Control.Monad
@@ -13,6 +15,7 @@ import Foreign.C.Types
 
 import Iced.Future
 import Iced.Future.Internal
+import Iced.Subscription
 
 data NativeDuration
 type Duration = Ptr NativeDuration
@@ -40,3 +43,32 @@ delay n = Future (makeDelay n)
 
 sleep :: IO Duration -> Future ()
 sleep duration = Future $ tokio_time_sleep =<< duration
+
+foreign import ccall "iced_time_every"
+  iced_time_every :: Duration -> FunPtr (NativeOnEvery message) -> IO (Subscription message)
+
+type NativeOnEvery message = CULong -> IO (StablePtr message)
+
+foreign import ccall "wrapper"
+  makeOnEveryCallback :: NativeOnEvery message -> IO (FunPtr (NativeOnEvery message))
+
+wrapOnEvery :: OnEvery message -> NativeOnEvery message
+wrapOnEvery callback = newStablePtr . callback . fromIntegral
+
+type OnEvery message = Integer -> message
+
+-- Every duration returns the number of microseconds since STARTED_AT static variable in Rust
+-- STARTED_AT is initialised when first accessed
+every :: IO Duration -> OnEvery message -> IO (Subscription message)
+every ioDuration callback = do
+  duration <- ioDuration
+  callbackPtr <- makeOnEveryCallback $ wrapOnEvery callback
+  iced_time_every duration callbackPtr
+
+foreign import ccall "time_micros_since_start"
+  micros_since_start :: IO CULong
+
+-- Number of microseconds since STARTED_AT static variable in Rust
+-- STARTED_AT is initialised when first accessed
+microsSinceStart :: IO Integer
+microsSinceStart = fmap fromIntegral micros_since_start
