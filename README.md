@@ -62,13 +62,12 @@ ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 This is a research project. The api may change often.
 Not recommended for use in production. But may be a good
 option if you are learning Haskell or need a simple
-way to build a ui or display some data. The selection of widgets
-is currently small, but growing over time.
+way to build a ui or display some data.
 
 
 ## Roadmap
 
- - [ ] Add more widgets
+ - [ ] Widgets
    - [x] button
    - [x] checkbox
    - [x] column
@@ -117,10 +116,12 @@ is currently small, but growing over time.
    - [ ] other events
  - [x] Command api
    - [x] multiple signatures for `update` function:
-     - `Model -> Message -> Model`
-     - `Model -> Message -> IO Model`
-     - `Model -> Message -> (Model, Command Message)`
-     - `Model -> Message -> IO (Model, Command Message)`
+     ```haskell
+     Model -> Message ->    Model
+     Model -> Message -> IO Model
+     Model -> Message ->    (Model, Command Message)
+     Model -> Message -> IO (Model, Command Message)
+     ```
    - [x] `Command.Perform` for Rust `Future`
    - [x] `Command.PerformIO` for blocking tasks
  - [ ] Add all attributes from iced for each widget
