@@ -5,7 +5,9 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Keyboard
 import Iced.Keyboard.Key
+import Iced.Subscription qualified as Subscription
 import Iced.Widget
 
 data Model = Model { message :: Maybe Message }
@@ -27,6 +29,12 @@ showAction :: Message -> String
 showAction (Pressed key) = "pressed " ++ show key
 showAction (Released key) = "released " ++ show key
 
+subscriptionFn :: Model -> IO (Subscription Message)
+subscriptionFn _model = Subscription.batch [
+    onKeyPress Pressed,
+    onKeyRelease Released
+  ]
+
 main :: IO ()
-main = Iced.run [] "Keyboard" model update view
+main = Iced.run [subscription subscriptionFn] "Keyboard" model update view
   where model = Model { message = Nothing }

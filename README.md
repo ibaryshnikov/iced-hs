@@ -112,7 +112,10 @@ way to build a ui or display some data.
  - [ ] Subscriptions
    - [x] subscription attribute for Application
    - [x] Time.every subscription
-   - [ ] keyboard events
+   - [ ] Keyboard
+     - [x] onKeyPress
+     - [x] onKeyRelease
+     - [ ] Key::Character
    - [ ] custom subscriptions
    - [ ] other events
  - [x] Command api
