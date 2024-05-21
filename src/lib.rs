@@ -8,6 +8,7 @@ mod alignment;
 mod color;
 mod command;
 mod future;
+mod keyboard;
 mod length;
 mod line_height;
 mod settings;
@@ -21,9 +22,9 @@ use widget::read_c_string;
 
 type Model = *const u8;
 type Message = *const u8;
-type Title = unsafe extern "C" fn(model: Model) -> *mut c_char;
-type Update = unsafe extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
-type View = unsafe extern "C" fn(model: Model) -> widget::ElementPtr;
+type Title = extern "C" fn(model: Model) -> *mut c_char;
+type Update = extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
+type View = extern "C" fn(model: Model) -> widget::ElementPtr;
 
 extern "C" {
     fn free_haskell_fun_ptr(ptr: usize);
@@ -93,8 +94,8 @@ impl Application for App {
         )
     }
     fn title(&self) -> String {
-        let title_ptr = unsafe { (self.title_hs)(self.model) };
-        read_c_string(title_ptr)
+        let pointer = (self.title_hs)(self.model);
+        read_c_string(pointer)
     }
     fn update(&mut self, message: IcedMessage) -> Command<IcedMessage> {
         match message {
@@ -108,7 +109,7 @@ impl Application for App {
     fn subscription(&self) -> Subscription<IcedMessage> {
         match self.subscription_hs {
             Some(subscription) => {
-                let pointer = unsafe { subscription(self.model) };
+                let pointer = subscription(self.model);
                 unsafe { *Box::from_raw(pointer) }
             }
             None => Subscription::none(),
@@ -118,7 +119,7 @@ impl Application for App {
 
 impl App {
     fn process_update(&mut self, message: Arc<HaskellMessage>) -> Command<IcedMessage> {
-        let result_ptr = unsafe { (self.update_hs)(self.model, message.ptr) };
+        let result_ptr = (self.update_hs)(self.model, message.ptr);
         let result = unsafe { Box::from_raw(result_ptr) };
         // when pointer changes, free the old one
         // in fact, it almost always changes

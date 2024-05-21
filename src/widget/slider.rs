@@ -6,7 +6,7 @@ use iced::Length;
 use super::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Slider<'static, c_int, IcedMessage>;
-type OnChangeFFI = unsafe extern "C" fn(value: c_int) -> *const u8;
+type OnChangeFFI = extern "C" fn(value: c_int) -> *const u8;
 
 #[no_mangle]
 extern "C" fn slider_new(
@@ -16,7 +16,7 @@ extern "C" fn slider_new(
     on_change_ffi: OnChangeFFI,
 ) -> SelfPtr {
     let on_change = move |value| {
-        let message_ptr = unsafe { on_change_ffi(value) };
+        let message_ptr = on_change_ffi(value);
         IcedMessage::ptr(message_ptr)
     };
     let range = range_start..=range_end;

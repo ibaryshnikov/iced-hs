@@ -7,7 +7,7 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Radio<'static, IcedMessage>;
 
-type OnSelectFFI = unsafe extern "C" fn(selected: c_uint) -> *const u8;
+type OnSelectFFI = extern "C" fn(selected: c_uint) -> *const u8;
 
 #[no_mangle]
 extern "C" fn radio_new(
@@ -22,7 +22,7 @@ extern "C" fn radio_new(
         a => Some(a),
     };
     let on_select = move |input| {
-        let message_ptr = unsafe { on_select_ffi(input) };
+        let message_ptr = on_select_ffi(input);
         IcedMessage::ptr(message_ptr)
     };
     let radio = radio(label, value, selected, on_select);

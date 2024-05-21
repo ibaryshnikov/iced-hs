@@ -9,7 +9,7 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextEditor<'static, PlainText, IcedMessage>;
 
-type OnActionFFI = unsafe extern "C" fn(action: *mut Action) -> *const u8;
+type OnActionFFI = extern "C" fn(action: *mut Action) -> *const u8;
 
 #[no_mangle]
 extern "C" fn text_editor_content_new() -> *mut Content {
@@ -46,7 +46,7 @@ extern "C" fn text_editor_on_action(self_ptr: SelfPtr, on_action_ffi: OnActionFF
     let text_editor = unsafe { Box::from_raw(self_ptr) };
     let text_editor = text_editor.on_action(move |action| {
         let action_ptr = Box::into_raw(Box::new(action));
-        let message_ptr = unsafe { on_action_ffi(action_ptr) };
+        let message_ptr = on_action_ffi(action_ptr);
         IcedMessage::ptr(message_ptr)
     });
     Box::into_raw(Box::new(text_editor))

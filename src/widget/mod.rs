@@ -64,24 +64,24 @@ fn read_c_string_to_option(input: *mut c_char) -> Option<String> {
     }
 }
 
-type CallbackForCString = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
+type CallbackForCString = extern "C" fn(input: *mut c_char) -> *const u8;
 
 fn wrap_callback_with_string(callback: CallbackForCString) -> impl Fn(String) -> IcedMessage {
     move |input| {
         let c_string = CString::new(input).expect("Should create a CString");
         let string_ptr = c_string.into_raw();
-        let message_ptr = unsafe { callback(string_ptr) };
+        let message_ptr = callback(string_ptr);
         // free CString
         let _ = unsafe { CString::from_raw(string_ptr) };
         IcedMessage::ptr(message_ptr)
     }
 }
 
-type CallbackForCBool = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+type CallbackForCBool = extern "C" fn(input: c_uchar) -> *const u8;
 
 fn wrap_callback_with_bool(callback: CallbackForCBool) -> impl Fn(bool) -> IcedMessage {
     move |input| {
-        let message_ptr = unsafe { callback(input.into()) };
+        let message_ptr = callback(input.into());
         IcedMessage::ptr(message_ptr)
     }
 }

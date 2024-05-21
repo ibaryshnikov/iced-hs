@@ -3,7 +3,7 @@ use iced::Command;
 use crate::future::{PinnedFuture, RawFuture, StablePtr};
 use crate::{IcedMessage, Message, Model};
 
-pub type CommandCallback = unsafe extern "C" fn() -> Message;
+pub type CommandCallback = extern "C" fn() -> Message;
 
 pub struct UpdateResult {
     pub model: Model,
@@ -30,7 +30,7 @@ impl CommandKind {
 
 fn perform_io(callback: CommandCallback) -> Command<IcedMessage> {
     let handle = tokio::task::spawn_blocking(move || {
-        let ptr = unsafe { callback() };
+        let ptr = callback();
         IcedMessage::ptr(ptr)
     });
     let future = async move {

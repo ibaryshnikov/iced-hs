@@ -11,7 +11,7 @@ use crate::{free_haskell_fun_ptr, IcedMessage, Message};
 
 static STARTED_AT: OnceLock<Instant> = OnceLock::new();
 
-type OnEvery = unsafe extern "C" fn(micros: c_ulong) -> Message;
+type OnEvery = extern "C" fn(micros: c_ulong) -> Message;
 
 #[no_mangle]
 extern "C" fn duration_from_secs(value: c_ulong) -> *mut Duration {
@@ -54,7 +54,7 @@ struct Closure {
 
 impl Hash for Closure {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        "callable".hash(state);
+        "time_on_every".hash(state);
     }
 }
 
@@ -64,7 +64,7 @@ impl Closure {
         Closure { internal }
     }
     fn call(&self, micros: u64) -> IcedMessage {
-        let message_ptr = unsafe { (self.internal.on_every)(micros) };
+        let message_ptr = (self.internal.on_every)(micros);
         IcedMessage::ptr(message_ptr)
     }
 }

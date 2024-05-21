@@ -7,7 +7,7 @@ use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Toggler<'static, IcedMessage>;
 
-type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+type OnToggleFFI = extern "C" fn(input: c_uchar) -> *const u8;
 
 #[no_mangle]
 extern "C" fn toggler_new(

@@ -13,9 +13,8 @@ unsafe impl Send for StablePtr {}
 pub type PinnedFuture<T> = Pin<Box<dyn Future<Output = T> + Send>>;
 pub type RawFuture<T> = *mut PinnedFuture<T>;
 
-type MainCallback = unsafe extern "C" fn() -> RawFuture<()>;
-type IOCallback = unsafe extern "C" fn() -> *const u8;
-type ComposeCallback = unsafe extern "C" fn(ptr: *const u8) -> RawFuture<StablePtr>;
+type MainCallback = extern "C" fn() -> RawFuture<()>;
+type ComposeCallback = extern "C" fn(ptr: *const u8) -> RawFuture<StablePtr>;
 
 extern "C" {
     fn future_pair(ptr_a: *const u8, ptr_b: *const u8) -> *const u8;
@@ -35,7 +34,7 @@ macro_rules! free_fun_ptr {
 extern "C" fn future_run(callback: MainCallback) {
     let runtime = Runtime::new().expect("Should build a runtime");
     runtime.block_on(async move {
-        let future_ptr = unsafe { callback() };
+        let future_ptr = callback();
         free_fun_ptr!(callback);
         let future = unsafe { Box::from_raw(future_ptr) };
         future.await;
@@ -51,16 +50,6 @@ extern "C" fn future_wrap_value(ptr: *const u8) -> RawFuture<StablePtr> {
 }
 
 #[no_mangle]
-extern "C" fn future_wrap_io(callback: IOCallback) -> RawFuture<StablePtr> {
-    let ptr = unsafe { callback() };
-    free_fun_ptr!(callback);
-    let value = StablePtr { ptr };
-    let future = async move { value };
-    let pinned = Box::pin(future);
-    Box::into_raw(Box::new(pinned))
-}
-
-#[no_mangle]
 extern "C" fn future_compose(
     future_ptr_a: RawFuture<StablePtr>,
     fab: ComposeCallback,
@@ -68,7 +57,7 @@ extern "C" fn future_compose(
     let future_a = unsafe { Box::from_raw(future_ptr_a) };
     let future = async move {
         let a = future_a.await;
-        let future_ptr_b = unsafe { fab(a.ptr) };
+        let future_ptr_b = fab(a.ptr);
         free_fun_ptr!(fab);
         let future_b = unsafe { Box::from_raw(future_ptr_b) };
         future_b.await

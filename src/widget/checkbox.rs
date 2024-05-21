@@ -10,7 +10,7 @@ use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
 
-type OnToggleFFI = unsafe extern "C" fn(input: c_uchar) -> *const u8;
+type OnToggleFFI = extern "C" fn(input: c_uchar) -> *const u8;
 
 enum CheckboxStyle {
     Primary,

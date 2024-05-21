@@ -8,6 +8,7 @@ To learn more about iced check [official website](https://iced.rs) and the [book
 The api is inspired by [Elm](https://elm-lang.org/) and [elm-ui](https://github.com/mdgriffith/elm-ui).
 Canvas is inspired by [elm-canvas](https://github.com/joakin/elm-canvas)
 
+
 ## Platform support
 
 Desktop - Windows, macOS, Linux. Supported targets are the same
@@ -93,7 +94,7 @@ way to build a ui or display some data.
    - [x] textInput
    - [x] toggler
    - [x] tooltip
- - [ ] Add helper functions
+ - [ ] Helper functions
    - [ ] lazy
    - [ ] themer
    - [ ] focusNext, focusPrevious

@@ -12,7 +12,7 @@ mod path_builder;
 mod style;
 
 type SelfPtr = *mut Canvas<&'static CanvasState, IcedMessage>;
-type Draw = unsafe extern "C" fn(frame: *mut Frame);
+type Draw = extern "C" fn(frame: *mut Frame);
 
 pub struct CanvasState {
     cache: Cache,
@@ -34,7 +34,7 @@ impl<Message> Program<Message> for CanvasState {
             return vec![];
         };
         let geometry = self.cache.draw(renderer, bounds.size(), |frame| {
-            unsafe { draw(frame) };
+            draw(frame);
         });
         vec![geometry]
     }

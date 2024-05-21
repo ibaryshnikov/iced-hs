@@ -7,7 +7,7 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextInput<'static, IcedMessage>;
 
-type OnInputFFI = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
+type OnInputFFI = extern "C" fn(input: *mut c_char) -> *const u8;
 
 #[no_mangle]
 extern "C" fn text_input_new(placeholder: *mut c_char, value: *mut c_char) -> SelfPtr {

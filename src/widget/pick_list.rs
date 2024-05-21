@@ -7,7 +7,7 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 
-type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
 extern "C" fn pick_list_new(

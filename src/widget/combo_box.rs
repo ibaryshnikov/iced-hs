@@ -10,9 +10,9 @@ use super::{read_c_string, ElementPtr, IcedMessage};
 type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;
 
-type OnSelectFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
-type OnInputFFI = unsafe extern "C" fn(input: *mut c_char) -> *const u8;
-type OnOptionHoveredFFI = unsafe extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnInputFFI = extern "C" fn(input: *mut c_char) -> *const u8;
+type OnOptionHoveredFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
 
 #[no_mangle]
 extern "C" fn combo_box_state_new(

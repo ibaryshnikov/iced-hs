@@ -5,11 +5,12 @@ use iced::Point;
 
 use canvas::path::Builder;
 
-type PathCallback = unsafe extern "C" fn(builder: &mut Builder);
+type PathCallback = extern "C" fn(builder: &mut Builder);
 
 #[no_mangle]
 extern "C" fn path_new(callback: PathCallback) -> *mut Path {
-    let path = Path::new(|builder| unsafe { callback(builder) });
+    #[allow(clippy::redundant_closure)] // false positive
+    let path = Path::new(|builder| callback(builder));
     Box::into_raw(Box::new(path))
 }
 
