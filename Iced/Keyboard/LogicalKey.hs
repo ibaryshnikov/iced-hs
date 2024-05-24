@@ -1,5 +1,7 @@
 module Iced.Keyboard.LogicalKey where
 
+data LogicalKey = Named Named | Character | Unidentified deriving Show
+
 -- The comments below are copied from the original iced file
 
 -- A named key.

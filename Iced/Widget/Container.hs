@@ -20,16 +20,23 @@ data NativeContainer
 type Self = Ptr NativeContainer
 type AttributeFn = Self -> IO Self
 
-data Attribute = AddPadding Padding | CenterX | CenterY | Width Length | Height Length
+data Attribute
+  = AddPadding Padding
+  | CenterX Length
+  | CenterY Length
+  | Width Length
+  | Height Length
 
 foreign import ccall "container_new"
   container_new :: ElementPtr -> IO Self
 
+-- self width
 foreign import ccall "container_center_x"
-  container_center_x :: Self -> IO Self
+  container_center_x :: Self -> LengthPtr -> IO Self
 
+-- self height
 foreign import ccall "container_center_y"
-  container_center_y :: Self -> IO Self
+  container_center_y :: Self -> LengthPtr -> IO Self
 
 -- container top right bottom left
 foreign import ccall "container_padding"
@@ -57,8 +64,8 @@ instance IntoNative Container Self where
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     AddPadding value -> usePadding value
-    CenterX -> container_center_x
-    CenterY -> container_center_y
+    CenterX len -> useFnIO container_center_x len
+    CenterY len -> useFnIO container_center_y len
     Width  len -> useFnIO container_width  len
     Height len -> useFnIO container_height len
 
@@ -74,10 +81,10 @@ instance UseHeight Length Attribute where
 container :: [Attribute] -> Element -> Element
 container attributes content = pack Container { .. } attributes
 
-centerX :: Attribute
+centerX :: Length -> Attribute
 centerX = CenterX
 
-centerY :: Attribute
+centerY :: Length -> Attribute
 centerY = CenterY
 
 usePadding :: Padding -> AttributeFn

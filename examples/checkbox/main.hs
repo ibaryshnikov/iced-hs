@@ -25,7 +25,7 @@ update model message = case message of
 
 view :: Model -> Element
 view model =
-  container [centerX, centerY, width Fill, height Fill] $
+  container [centerX Fill, centerY Fill] $
   column [spacing 20] [
     checkbox [onToggle Default] "Default" model.def,
     row [spacing 20] (map styled pairs),

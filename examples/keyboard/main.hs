@@ -6,19 +6,19 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Keyboard
-import Iced.Keyboard.LogicalKey
+import Iced.Keyboard.PhysicalKey (KeyCode)
 import Iced.Subscription qualified as Subscription
 import Iced.Widget
 
 data Model = Model { message :: Maybe Message }
 
-data Message = Pressed Named | Released Named
+data Message = Pressed KeyCode | Released KeyCode
 
 update :: Model -> Message -> Model
 update model message = model { message = Just message }
 
 view :: Model -> Element
-view model = container [centerX, centerY] $
+view model = container [centerX Fill, centerY Fill] $
   text [size 20] $ label model.message
 
 label :: Maybe Message -> String

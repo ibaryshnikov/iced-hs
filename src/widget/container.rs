@@ -14,15 +14,17 @@ extern "C" fn container_new(content_ptr: ElementPtr) -> SelfPtr {
 }
 
 #[no_mangle]
-extern "C" fn container_center_x(self_ptr: SelfPtr) -> SelfPtr {
+extern "C" fn container_center_x(self_ptr: SelfPtr, width_ptr: *mut Length) -> SelfPtr {
     let container = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(container.center_x()))
+    let width = unsafe { *Box::from_raw(width_ptr) };
+    Box::into_raw(Box::new(container.center_x(width)))
 }
 
 #[no_mangle]
-extern "C" fn container_center_y(self_ptr: SelfPtr) -> SelfPtr {
+extern "C" fn container_center_y(self_ptr: SelfPtr, height_ptr: *mut Length) -> SelfPtr {
     let container = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(container.center_y()))
+    let height = unsafe { *Box::from_raw(height_ptr) };
+    Box::into_raw(Box::new(container.center_y(height)))
 }
 
 #[no_mangle]

@@ -1,12 +1,19 @@
 # iced-hs
 
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
-Very experimental.
+Very experimental, check Roadmap to see progress.
 
 To learn more about iced check [official website](https://iced.rs) and the [book](https://book.iced.rs)
 
 The api is inspired by [Elm](https://elm-lang.org/) and [elm-ui](https://github.com/mdgriffith/elm-ui).
 Canvas is inspired by [elm-canvas](https://github.com/joakin/elm-canvas)
+
+Note: temporarily switched to a fork to provide access to KeyCode from winit.
+Currently iced provides only logical key, check [this pr](https://github.com/iced-rs/iced/pull/2169)
+for more details. Eventually physical key will be added back to iced.
+When that happens, the iced dependency will be changed back to the original crate.
+Also, was using latest upstream to get unreleased styles api. Will use the
+version from crates.io when all the necessary changes are published.
 
 
 ## Platform support
@@ -56,6 +63,14 @@ then pass it to ghc
 ```bash
 ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 ```
+
+
+## Internals
+
+- graphics - [wgpu](https://github.com/gfx-rs/wgpu)
+- windowing - [winit](https://github.com/rust-windowing/winit)
+- runtime - [tokio](https://github.com/tokio-rs/tokio), though other runtimes
+  are available through features in original iced crate
 
 
 ## Status
@@ -115,7 +130,12 @@ way to build a ui or display some data.
    - [ ] Keyboard
      - [x] onKeyPress
      - [x] onKeyRelease
-     - [ ] Key::Character
+     - [ ] PhysicalKey
+       - [x] KeyCode
+       - [ ] NativeKeyCode
+     - [ ] LogicalKey
+       - [x] Named
+       - [ ] Character
    - [ ] custom subscriptions
    - [ ] other events
  - [x] Command api

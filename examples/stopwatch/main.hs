@@ -36,7 +36,7 @@ update model (Tick micros) =
 
 view :: Model -> Element
 view model =
-  container [centerX, centerY] $
+  container [centerX Fill, centerY Fill] $
   column [spacing 25, alignItems Center] [
     label model.timePassed,
     button [onPress Toggle] (if model.running then "Stop" else "Start")

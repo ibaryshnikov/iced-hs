@@ -47,7 +47,7 @@ update model message = case message of
 
 view :: Model -> Element
 view model =
-  container [width Fill, height Fill, centerX, centerY] $
+  container [centerX Fill, centerY Fill] $
   column [width Fill, alignItems Center, spacing 10] [
     text [] $ "Input value: " ++ model.input,
     text [] model.text,

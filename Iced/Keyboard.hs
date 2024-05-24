@@ -1,3 +1,7 @@
+{-# LANGUAGE NoFieldSelectors #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
+
 module Iced.Keyboard (
   onKeyPress,
   onKeyRelease,
@@ -7,14 +11,20 @@ import Control.Monad
 import Foreign
 import Foreign.C.Types
 
+import Iced.Keyboard.Key
+import Iced.Keyboard.PhysicalKey
 import Iced.Keyboard.LogicalKey
 import Iced.Subscription
 
 -- Enum is 0-indexed
-keyFromInt :: Int -> Named
-keyFromInt = toEnum
+namedFromFFI :: CInt -> LogicalKey
+namedFromFFI = Named . toEnum . fromIntegral
 
-type OnKey message = Named -> message
+-- Enum is 0-indexed
+keyCodeFomFFI :: CInt -> KeyCode
+keyCodeFomFFI = toEnum . fromIntegral
+
+type OnKey message = KeyCode -> message
 type NativeOnKey message = CInt -> CInt -> IO (StablePtr message)
 
 foreign import ccall "wrapper"
@@ -22,7 +32,8 @@ foreign import ccall "wrapper"
 
 wrapOnKey :: OnKey message -> NativeOnKey message
 wrapOnKey callback rawKey _modifiers = do
-  let key = keyFromInt $ fromIntegral rawKey
+  -- let key = namedFromFFI rawKey
+  let key = keyCodeFomFFI rawKey
   newStablePtr $ callback key
 
 foreign import ccall "keyboard_on_key_press"
