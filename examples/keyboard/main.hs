@@ -6,7 +6,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Keyboard
-import Iced.Keyboard.Key
+import Iced.Keyboard.LogicalKey
 import Iced.Subscription qualified as Subscription
 import Iced.Widget
 

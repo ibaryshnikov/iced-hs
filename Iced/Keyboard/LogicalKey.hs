@@ -1,4 +1,4 @@
-module Iced.Keyboard.Key where
+module Iced.Keyboard.LogicalKey where
 
 -- The comments below are copied from the original iced file
 

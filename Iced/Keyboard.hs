@@ -7,7 +7,7 @@ import Control.Monad
 import Foreign
 import Foreign.C.Types
 
-import Iced.Keyboard.Key
+import Iced.Keyboard.LogicalKey
 import Iced.Subscription
 
 -- Enum is 0-indexed
