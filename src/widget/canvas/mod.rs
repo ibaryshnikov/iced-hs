@@ -9,6 +9,7 @@ mod frame;
 mod gradient;
 mod path;
 mod path_builder;
+mod stroke;
 mod style;
 
 type SelfPtr = *mut Canvas<&'static CanvasState, IcedMessage>;

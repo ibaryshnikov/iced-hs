@@ -116,7 +116,7 @@ way to build a ui or display some data.
  - [ ] Canvas api
    - [x] canvas widget
    - [x] fill path
-   - [ ] stroke path
+   - [x] stroke path
    - [x] path methods - circle, lineTo, moveTo, rectangle
    - [ ] more path methods
  - [ ] Shader

@@ -76,6 +76,7 @@ drawActions [] _framePtr = pure ()
 drawActions (action:remaining) framePtr = do
   case action of
     FrameFill shapes color -> frameFill framePtr shapes color
+    FrameStroke shapes color width -> frameStroke framePtr shapes color width
   drawActions remaining framePtr
 
 drawCallback :: [FrameAction] -> NativeDraw
