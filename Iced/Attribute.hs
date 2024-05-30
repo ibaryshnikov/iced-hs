@@ -9,10 +9,10 @@ module Iced.Attribute (
     module Iced.Attribute.Style,
 ) where
 
-import Iced.Attribute.Alignment
+import Iced.Attribute.Alignment (alignItems)
 import Iced.Attribute.Length
 import Iced.Attribute.LineHeight
-import Iced.Attribute.Padding
+import Iced.Attribute.Padding (padding, padding2, padding4)
 import Iced.Attribute.Size
 import Iced.Attribute.SliderCommon
 import Iced.Attribute.Spacing

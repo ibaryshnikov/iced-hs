@@ -11,6 +11,7 @@ module Iced.Widget.Tooltip (
 
 import Foreign
 import Foreign.C.Types
+import Prelude hiding (Left, Right)
 
 import Iced.Attribute.Internal
 import Iced.Attribute.Padding
@@ -21,7 +22,7 @@ type Self = Ptr NativeTooltip
 type AttributeFn = Self -> IO Self
 data NativeStyle
 type StylePtr = Ptr NativeStyle
-data Position = FollowCursor | Top | Bottom | LeftSide | RightSide
+data Position = FollowCursor | Top | Bottom | Left | Right
 
 data Attribute = Gap Float | AddPadding Float | SnapWithViewport Bool -- | Style Style
 
@@ -61,8 +62,8 @@ positionToNative position = CUChar $
     FollowCursor -> 1
     Top -> 2
     Bottom -> 3
-    LeftSide -> 4 -- to avoid overlap with Either
-    RightSide -> 5 --
+    Left -> 4
+    Right -> 5
 
 instance Builder Self where
   build = into_element

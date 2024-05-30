@@ -5,6 +5,7 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Attribute.Alignment
 import Iced.Widget
 
 data Model = Model {

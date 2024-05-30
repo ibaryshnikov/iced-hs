@@ -39,5 +39,5 @@ import Iced.Widget.Text
 import Iced.Widget.TextEditor (textEditor, onAction)
 import Iced.Widget.TextInput
 import Iced.Widget.Toggler
-import Iced.Widget.Tooltip
+import Iced.Widget.Tooltip hiding (Position(..))
 import Iced.Widget.VerticalSlider

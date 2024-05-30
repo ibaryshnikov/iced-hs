@@ -2,6 +2,7 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Attribute.Alignment
 import Iced.Color
 import Iced.Widget
 import Iced.Widget.Button qualified as Button

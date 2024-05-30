@@ -5,6 +5,7 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Attribute.Alignment
 import Iced.Widget
 
 data Language = Rust | Elm | Ruby | Haskell | C | Javascript | Other deriving (Show, Read)

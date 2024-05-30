@@ -6,6 +6,7 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Attribute.Alignment
 import Iced.Widget
 import Iced.Widget.ComboBox qualified as ComboBox
 
