@@ -3,20 +3,21 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
-import Iced.Command
+import Iced.Command qualified as Command
+import Iced.Extra
 import Iced.Time
 import Iced.Widget
 
 data Message = StartTimer | Tick
 
 tick :: Command Message
-tick = Perform $ do
+tick = Command.perform $ do
   delay 2
   pure Tick
 
 update :: Int -> Message -> (Int, Command Message)
 update value StartTimer = (value, tick)
-update value Tick = (value + 1, None)
+update value Tick = (value + 1, Command.none)
 
 view :: Int -> Element
 view value =

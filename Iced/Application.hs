@@ -8,7 +8,7 @@ import Data.Word
 import Foreign
 import Foreign.C.String
 
-import Iced.Command
+import Iced.Internal.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Future.Internal
 import Iced.Settings
@@ -75,7 +75,7 @@ packResult model command = do
 
 packCommand :: UpdateResultPtr -> Command message -> IO UpdateResultPtr
 packCommand resultPtr None = pure resultPtr
-packCommand resultPtr (PerformIO callback) = do
+packCommand resultPtr (PerformBlocking callback) = do
   callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
   update_result_add_command_io resultPtr callbackPtr
   return resultPtr

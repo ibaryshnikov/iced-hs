@@ -5,7 +5,8 @@ module Main where
 
 import Iced
 import Iced.Attribute
-import Iced.Command
+import Iced.Command qualified as Command
+import Iced.Extra
 import Iced.Widget
 import Iced.Widget.TextEditor qualified as TextEditor
 
@@ -16,7 +17,7 @@ data Message
   | ReadFile
   | FileContents TextEditor.Content
 
-commandFn :: IO (Message)
+commandFn :: IO Message
 commandFn = do
   string <- readFile "main.hs"
   content <- TextEditor.contentWithText string
@@ -26,9 +27,9 @@ update :: Model -> Message -> IO (Model, Command Message)
 update model message = case message of
   EditorAction action -> do
     TextEditor.perform model.content action
-    pure (model, None)
-  FileContents content -> pure (model { content = content }, None)
-  ReadFile -> pure (model, PerformIO commandFn)
+    pure (model, Command.none)
+  FileContents content -> pure (model { content = content }, Command.none)
+  ReadFile -> pure (model, Command.performBlocking commandFn)
 
 view :: Model -> Element
 view model = column [] [

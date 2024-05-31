@@ -5,6 +5,7 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Extra
 import Iced.Keyboard
 import Iced.Keyboard.PhysicalKey (KeyCode)
 import Iced.Subscription qualified as Subscription

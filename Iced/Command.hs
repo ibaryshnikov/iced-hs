@@ -1,18 +1,18 @@
 module Iced.Command (
---  perform,
---  performIO,
-  Command(..),
+  perform,
+  performBlocking,
+  none,
+  Command,
 ) where
 
 import Iced.Future
+import Iced.Internal.Command
 
-data Command message
-  = Perform (Future message)
-  | PerformIO (IO message)
-  | None
+perform :: Future message -> Command message
+perform = Perform
 
---perform :: Future -> Command message
---perform future = Perform future
---
---performIO :: IO (message) -> Command message
---performIO io = PerformIO io
+performBlocking :: IO message -> Command message
+performBlocking = PerformBlocking
+
+none :: Command message
+none = None

@@ -6,6 +6,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
+import Iced.Extra
 import Iced.Subscription qualified as Subscription
 import Iced.Time
 import Iced.Widget
