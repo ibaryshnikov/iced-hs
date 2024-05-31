@@ -231,7 +231,7 @@ subscriptionFn model = case model.screen of
   Game -> Subscription.batch [
       onKeyPress Pressed,
       onKeyRelease Released,
-      every (durationFromMillis 15) Tick
+      everyMillis 15 Tick
     ]
 
 main :: IO ()

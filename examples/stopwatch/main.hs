@@ -67,7 +67,7 @@ showLeading n =
 subscriptionFn :: Model -> IO (Subscription Message)
 subscriptionFn model = do
   if model.running
-  then every (durationFromMillis 10) Tick
+  then everyMillis 10 Tick
   else Subscription.none
 
 main :: IO ()

@@ -20,7 +20,7 @@ data Message = StartTimer | Tick
 
 tick :: Command Message
 tick = Command.perform $ do
-  sleep $ durationFromMillis 15
+  delayMillis 15
   pure Tick
 
 update :: Model -> Message -> (Model, Command Message)

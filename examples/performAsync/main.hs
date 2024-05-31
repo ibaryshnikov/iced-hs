@@ -12,7 +12,7 @@ data Message = StartTimer | Tick
 
 tick :: Command Message
 tick = Command.perform $ do
-  delay 2
+  delaySecs 2
   pure Tick
 
 update :: Int -> Message -> (Int, Command Message)
