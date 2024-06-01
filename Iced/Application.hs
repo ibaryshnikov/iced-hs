@@ -2,21 +2,26 @@ module Iced.Application (
   run,
   addFont,
   subscription,
+  theme,
 ) where
 
+import Control.Monad
 import Data.Word
 import Foreign
 import Foreign.C.String
+import Foreign.C.Types
 
 import Iced.Internal.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Future.Internal
 import Iced.Settings
 import Iced.Subscription
+import Iced.Theme
 
 data Attribute model message
   = Font [Word8]
   | AddSubscription (SubscriptionFn model message)
+  | AddTheme (ThemeFn model)
 
 data NativeFlags
 type Flags model message = Ptr NativeFlags
@@ -34,6 +39,12 @@ foreign import ccall "app_flags_set_subscription"
   app_flags_set_subscription
     :: Flags model message
     -> FunPtr (NativeSubscriptionFn model message)
+    -> IO ()
+
+foreign import ccall "app_flags_set_theme"
+  app_flags_set_theme
+    :: Flags model message
+    -> FunPtr (NativeThemeFn model)
     -> IO ()
 
 foreign import ccall "app_run"
@@ -122,9 +133,15 @@ foreign import ccall "wrapper" makeSubscriptionCallback
   -> IO (FunPtr (NativeSubscriptionFn model message))
 
 wrapSubscriptionFn :: SubscriptionFn model message -> NativeSubscriptionFn model message
-wrapSubscriptionFn callback modelPtr = do
-  model <- deRefStablePtr modelPtr
-  callback model
+wrapSubscriptionFn callback = callback <=< deRefStablePtr
+
+type NativeThemeFn model = StablePtr model -> IO CUChar
+
+foreign import ccall "wrapper"
+  makeThemeCallback :: NativeThemeFn model -> IO (FunPtr (NativeThemeFn model))
+
+wrapThemeFn :: ThemeFn model -> NativeThemeFn model
+wrapThemeFn callback = pure . fromIntegral . fromEnum . callback <=< deRefStablePtr
 
 useAttribute :: Flags model message -> SettingsPtr -> Attribute model message -> IO ()
 useAttribute flagsPtr settingsPtr attribute = do
@@ -133,6 +150,9 @@ useAttribute flagsPtr settingsPtr attribute = do
     AddSubscription subscriptionFn -> do
       makeSubscriptionCallback (wrapSubscriptionFn subscriptionFn)
         >>= app_flags_set_subscription flagsPtr
+    AddTheme themeFn -> do
+      makeThemeCallback (wrapThemeFn themeFn)
+        >>= app_flags_set_theme flagsPtr
 
 applyAttributes :: Flags model message -> SettingsPtr -> [Attribute model message] -> IO ()
 applyAttributes _flagsPtr _settingsPtr [] = pure ()
@@ -210,3 +230,24 @@ type SubscriptionFn model message = model -> IO (Subscription message)
 
 subscription :: SubscriptionFn model message -> Attribute model message
 subscription = AddSubscription
+
+type ThemeFn model = model -> Theme
+
+--
+-- Provides the following signatures:
+--
+-- theme :: Theme
+-- theme :: Model -> Theme
+--
+class IntoTheme theme model where
+  intoTheme :: theme -> model -> Theme
+
+instance IntoTheme Theme model where
+  intoTheme value _model = value
+
+instance IntoTheme (model -> Theme) model where
+  intoTheme themeFn = themeFn
+
+theme :: IntoTheme theme model
+      => theme -> Attribute model message
+theme = AddTheme . intoTheme

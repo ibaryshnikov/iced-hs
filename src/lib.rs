@@ -13,11 +13,13 @@ mod length;
 mod line_height;
 mod settings;
 mod subscription;
+mod theme;
 mod time;
 mod widget;
 
 use command::UpdateResult;
 use subscription::SubscriptionFn;
+use theme::{theme_from_raw, ThemeFn};
 use widget::read_c_string;
 
 type Model = *const u8;
@@ -64,6 +66,7 @@ struct Flags {
     update: Update,
     view: View,
     subscription: Option<SubscriptionFn>,
+    theme: Option<ThemeFn>,
 }
 
 struct App {
@@ -72,6 +75,7 @@ struct App {
     update_hs: Update,
     view_hs: View,
     subscription_hs: Option<SubscriptionFn>,
+    theme_hs: Option<ThemeFn>,
 }
 
 impl Application for App {
@@ -89,6 +93,7 @@ impl Application for App {
                 update_hs: flags.update,
                 view_hs: flags.view,
                 subscription_hs: flags.subscription,
+                theme_hs: flags.theme,
             },
             Command::none(),
         )
@@ -105,6 +110,15 @@ impl Application for App {
     }
     fn view(&self) -> Element<IcedMessage> {
         unsafe { *Box::from_raw((self.view_hs)(self.model)) }
+    }
+    fn theme(&self) -> Theme {
+        match self.theme_hs {
+            Some(theme_fn) => {
+                let value = theme_fn(self.model);
+                theme_from_raw(value)
+            }
+            None => Self::Theme::default(),
+        }
     }
     fn subscription(&self) -> Subscription<IcedMessage> {
         match self.subscription_hs {
@@ -166,6 +180,7 @@ extern "C" fn app_flags_new(
         update,
         view,
         subscription: None,
+        theme: None,
     };
     Box::into_raw(Box::new(flags))
 }
@@ -173,6 +188,11 @@ extern "C" fn app_flags_new(
 #[no_mangle]
 extern "C" fn app_flags_set_subscription(flags: &mut Flags, subscription: SubscriptionFn) {
     flags.subscription = Some(subscription);
+}
+
+#[no_mangle]
+extern "C" fn app_flags_set_theme(flags: &mut Flags, theme: ThemeFn) {
+    flags.theme = Some(theme);
 }
 
 #[no_mangle]

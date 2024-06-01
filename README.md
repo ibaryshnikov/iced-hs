@@ -26,10 +26,13 @@ may be possible, just not out of the box.
 
 ## Example
 
-Check [examples](./examples) for more
+Check [examples](examples) for more
 
 ```haskell
 import Iced
+import Iced.Attribute
+import Iced.Attribute.Alignment
+import Iced.Theme
 import Iced.Widget
 
 data Message = Inc | Dec
@@ -39,15 +42,26 @@ update value Inc = value + 1
 update value Dec = value - 1
 
 view :: Int -> Element
-view value = column [] [
-    button [onPress Inc] "Inc",
-    text [] $ show value,
-    button [onPress Dec] "Dec"
+view value =
+  container [centerX Fill, centerY Fill] $
+  column [alignItems Center, spacing 10] [
+    button [onPress Inc] "Increment",
+    text [size 50] $ show value,
+    button [onPress Dec] "Decrement"
   ]
 
 main :: IO ()
-main = Iced.run [] "Counter" 0 update view
+main = Iced.run [theme GruvboxLight] "Counter" 0 update view
 ```
+
+![Counter preview](examples/counter/counter.png)
+
+
+## Preview
+
+From [themes](examples/themes) example:
+
+![Themes preview](examples/themes/themes.png)
 
 
 ## Usage

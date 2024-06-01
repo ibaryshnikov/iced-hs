@@ -1,7 +1,7 @@
 module Iced.Subscription (
-  Subscription,
-  none,
   batch,
+  none,
+  Subscription,
 ) where
 
 import Foreign

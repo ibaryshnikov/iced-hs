@@ -1,7 +1,8 @@
-# Space shooter example
+# Counter example
 
-An oversimplified space shooter to showcase the usage of iced-hs,
-a wrapper around [iced](https://github.com/iced-rs/iced)
+A basic app written in iced-hs, a wrapper around [iced](https://github.com/iced-rs/iced)
+
+![Preview](counter.png)
 
 
 ## Build

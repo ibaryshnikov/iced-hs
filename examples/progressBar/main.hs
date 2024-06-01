@@ -8,6 +8,7 @@ import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Command qualified as Command
 import Iced.Extra
+import Iced.Theme
 import Iced.Time
 import Iced.Widget
 
@@ -40,5 +41,5 @@ view model =
   ]
 
 main :: IO ()
-main = Iced.run [] "ProgressBar" model update view
+main = Iced.run [theme Oxocarbon] "ProgressBar" model update view
   where model = Model { value = 0, running = False }
