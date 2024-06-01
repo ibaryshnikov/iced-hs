@@ -18,7 +18,7 @@ update model (WidthChanged value) = model { value = value }
 
 view :: Model -> Element
 view model =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center] [
     text [size 20] "Contents disappear if width is less than 200",
     spaceHeight (Fixed 20),

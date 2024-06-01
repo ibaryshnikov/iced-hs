@@ -33,7 +33,7 @@ update model (Toggle value) = model { value = value }
 update model (ToggleCheckBox value) = model { checkBoxValue = value }
 
 view :: Model -> Element
-view model = container [centerX Fill, centerY Fill] $
+view model = center [] $
   column [alignItems Center, spacing 20] [
     pickList [placeholder "Choose a theme..."] options model.selected Selected,
     text [] "Examples:",

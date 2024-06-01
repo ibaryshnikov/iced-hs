@@ -34,7 +34,7 @@ update model Tick = if model.value > 100
 
 view :: Model -> Element
 view model =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center, spacing 50] [
     progressBar [width $ Fixed 300, height $ Fixed 30] 0 100 model.value,
     button [onPressIf (not model.running) StartTimer] "Start"

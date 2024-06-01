@@ -43,7 +43,7 @@ update value Dec = value - 1
 
 view :: Int -> Element
 view value =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center, spacing 10] [
     button [onPress Inc] "Increment",
     text [size 50] $ show value,
@@ -81,9 +81,9 @@ ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 
 ## Internals
 
-- graphics - [wgpu](https://github.com/gfx-rs/wgpu)
-- windowing - [winit](https://github.com/rust-windowing/winit)
-- runtime - [tokio](https://github.com/tokio-rs/tokio), though other runtimes
+- [wgpu](https://github.com/gfx-rs/wgpu) - graphics
+- [winit](https://github.com/rust-windowing/winit) - windowing
+- [tokio](https://github.com/tokio-rs/tokio) - runtime, though other runtimes
   are available through features in original iced crate
 
 
@@ -127,6 +127,7 @@ way to build a ui or display some data.
    - [ ] lazy
    - [ ] themer
    - [ ] focusNext, focusPrevious
+ - [x] Themes
  - [ ] Canvas api
    - [x] canvas widget
    - [x] fill path
@@ -163,7 +164,6 @@ way to build a ui or display some data.
    - [x] `Command.Perform` for Rust `Future`
    - [x] `Command.PerformIO` for blocking tasks
  - [ ] Add all attributes from iced for each widget
- - [ ] theme attribute for Application
  - [ ] Styles for widgets
    - [x] button
    - [ ] ...

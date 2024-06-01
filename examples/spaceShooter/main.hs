@@ -13,6 +13,7 @@ import Iced.Extra
 import Iced.Keyboard
 import Iced.Keyboard.PhysicalKey (KeyCode(..))
 import Iced.Subscription qualified as Subscription
+import Iced.Theme
 import Iced.Time
 import Iced.Widget
 import Iced.Widget.Canvas qualified as Canvas
@@ -191,12 +192,12 @@ updateScreen Game [] = Win
 updateScreen screen _enemies = screen
 
 view :: Model -> Element
-view model = container [centerX Fill, centerY Fill] $
+view model = center [] $
   case model.screen of
     Start -> button [onPress StartGame] "Start"
     Game -> canvas [width (Fixed 640), height (Fixed 480)] (shapes model) model.state
-    Win -> column [alignItems Alignment.Center, spacing 20] [
-        text [] "You won!",
+    Win -> column [alignItems Alignment.Center, spacing 30] [
+        text [size 22] "You won!",
         button [onPress StartGame] "Start new game"
       ]
 
@@ -214,15 +215,15 @@ shapes model = [
   ++ drawEnemies model.enemies
 
 drawShip :: Position -> FrameAction
-drawShip Position { .. } = fillRectangle (x - 50) y 100 30 (rgb8 255 255 255)
+drawShip Position { .. } = fillRectangle (x - 50) y 100 30 (rgb8 180 180 180)
 
 drawBullets :: [Bullet] -> [FrameAction]
 drawBullets = map (\item -> drawOne item.position)
-  where drawOne Position { .. } = fillRectangle x y 4 20 $ rgb8 255 255 255
+  where drawOne Position { .. } = fillRectangle x y 4 20 $ rgb8 180 180 180
 
 drawEnemies :: [Enemy] -> [FrameAction]
 drawEnemies = map (\item -> drawOne item.position)
-  where drawOne Position { .. } = fillRectangle x y 40 40 $ rgb8 255 255 255
+  where drawOne Position { .. } = fillRectangle x y 40 40 $ rgb8 180 180 180
 
 subscriptionFn :: Model -> IO (Subscription Message)
 subscriptionFn model = case model.screen of
@@ -237,4 +238,5 @@ subscriptionFn model = case model.screen of
 main :: IO ()
 main = do
   model <- newModel
-  Iced.run [subscription subscriptionFn] "Space shooter" model update view
+  Iced.run [subscription subscriptionFn, theme Oxocarbon]
+    "Space shooter" model update view

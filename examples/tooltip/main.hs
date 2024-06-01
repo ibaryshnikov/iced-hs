@@ -4,7 +4,6 @@
 module Main where
 
 import Iced
-import Iced.Attribute
 import Iced.Widget
 import Iced.Widget.Tooltip qualified as Tooltip
 
@@ -24,7 +23,7 @@ update model message = case message of
 
 view :: Model -> Element
 view model =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   tooltip [gap 10] content (toText model.position) model.position
   where
     content = button [onPress ChangePosition] "Press to change position"

@@ -31,7 +31,7 @@ greyButton =
 
 view :: Int -> Element
 view value =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center, spacing 10] [
     button [
       onPress Click,

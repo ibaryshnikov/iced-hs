@@ -16,7 +16,7 @@ update value Dec = value - 1
 
 view :: Int -> Element
 view _value =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center, spacing 10] [
     button [onPress Inc] "Increment",
     text [size 20] "The value is in title",

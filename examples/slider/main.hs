@@ -27,7 +27,7 @@ update model ReleasedHorizontal = model { vertical = model.horizontal }
 
 view :: Model -> Element
 view model =
-  container [centerX Fill, centerY Fill] $
+  center [] $
   column [alignItems Center, spacing 10, width (Fixed 150)] [
     label "Vertical" model.vertical,
     label "Horizontal" model.horizontal,

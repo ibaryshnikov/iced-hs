@@ -1,6 +1,7 @@
 module Iced.Widget (
   module Iced.Widget.Button,
   module Iced.Widget.Canvas,
+  module Iced.Widget.Center,
   module Iced.Widget.Checkbox,
   module Iced.Widget.Column,
   module Iced.Widget.ComboBox,
@@ -23,6 +24,7 @@ module Iced.Widget (
 
 import Iced.Widget.Button hiding (AppearanceAttribute)
 import Iced.Widget.Canvas (canvas)
+import Iced.Widget.Center
 import Iced.Widget.Checkbox
 import Iced.Widget.Column
 import Iced.Widget.ComboBox hiding (State, newState)

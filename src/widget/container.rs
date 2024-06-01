@@ -1,6 +1,6 @@
 use std::ffi::c_float;
 
-use iced::widget::{container, Container};
+use iced::widget::{center, container, Container};
 use iced::{Length, Padding};
 
 use super::{ElementPtr, IcedMessage};
@@ -11,6 +11,12 @@ type SelfPtr = *mut Container<'static, IcedMessage>;
 extern "C" fn container_new(content_ptr: ElementPtr) -> SelfPtr {
     let content = unsafe { *Box::from_raw(content_ptr) };
     Box::into_raw(Box::new(container(content)))
+}
+
+#[no_mangle]
+extern "C" fn container_new_centered(content_ptr: ElementPtr) -> SelfPtr {
+    let content = unsafe { *Box::from_raw(content_ptr) };
+    Box::into_raw(Box::new(center(content)))
 }
 
 #[no_mangle]
