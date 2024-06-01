@@ -9,7 +9,6 @@ import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment qualified as Alignment
 import Iced.Color
-import Iced.Extra
 import Iced.Keyboard
 import Iced.Keyboard.PhysicalKey (KeyCode(..))
 import Iced.Subscription qualified as Subscription

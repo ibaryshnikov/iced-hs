@@ -6,7 +6,6 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Command qualified as Command
-import Iced.Extra
 import Iced.Widget
 import Iced.Widget.TextEditor qualified as TextEditor
 

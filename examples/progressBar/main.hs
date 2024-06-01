@@ -7,7 +7,6 @@ import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Command qualified as Command
-import Iced.Extra
 import Iced.Theme
 import Iced.Time
 import Iced.Widget
