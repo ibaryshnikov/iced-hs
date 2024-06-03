@@ -10,12 +10,17 @@ module Iced.Widget.Button (
   background,
   border,
   textColor,
+  active,
   hovered,
   pressed,
   disabled,
-  AppearanceAttribute,
+  StyleAttribute,
+  Status(..),
+  StatusAttribute,
+  BasicStyle(..),
 ) where
 
+import Data.List
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
@@ -27,14 +32,13 @@ import Iced.Attribute.Style
 import Iced.Color
 import Iced.ColorFFI
 import Iced.Element
+import Iced.Theme
 
 data NativeButton
 type Self = Ptr NativeButton
 type AttributeFn = Self -> IO Self
-data NativeAppearance
-type Appearance = Ptr NativeAppearance
-data NativeStyleSheet
-type StyleSheet = Ptr NativeStyleSheet
+data NativeStyle
+type Style = Ptr NativeStyle
 
 data Background = BgColor Color -- | BgGradient Gradient
 
@@ -50,20 +54,24 @@ data Border = Border {
 --  blurRadius :: Float
 --}
 
-data AppearanceAttribute
+data StyleAttribute
  = ShadowOffset Float Float
  | AddBackground Background
  | TextColor Color
  | AddBorder Border
  -- | AddShadow Shadow
- | Hovered  [AppearanceAttribute]
- | Pressed  [AppearanceAttribute]
- | Disabled [AppearanceAttribute]
+
+data Status = Active | Hovered | Pressed | Disabled deriving (Enum, Eq)
+
+type StatusAttribute = (Status, [StyleAttribute])
+
+data BasicStyle = Primary | Secondary | Success | Danger | Text deriving Enum
 
 data Attribute message
   = AddPadding Padding
   | OnPress message
-  | Style [AppearanceAttribute]
+  | BasicStyle BasicStyle
+  | CustomStyle StyleCallback
   | Width Length
   | Height Length
   | None
@@ -78,8 +86,11 @@ foreign import ccall "button_on_press"
 foreign import ccall "button_padding"
   button_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
 
-foreign import ccall "button_style"
-  button_style :: Self -> StyleSheet -> IO Self
+foreign import ccall "button_style_basic"
+  button_style_basic :: Self -> CUChar -> IO Self
+
+foreign import ccall "button_style_custom"
+  button_style_custom :: Self -> FunPtr NativeStyleCallback -> IO Self
 
 foreign import ccall "button_width"
   button_width :: Self -> LengthPtr -> IO Self
@@ -90,42 +101,17 @@ foreign import ccall "button_height"
 foreign import ccall "button_into_element"
   into_element :: Self -> IO ElementPtr
 
-foreign import ccall "button_appearance_new"
-  appearance_new :: IO Appearance
+-- style color
+foreign import ccall "button_style_set_background"
+  set_background :: Style -> ColorPtr -> IO ()
 
-foreign import ccall "button_appearance_clone"
-  appearance_clone :: Appearance -> IO Appearance
+-- style color width radius
+foreign import ccall "button_style_set_border"
+  set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
 
-foreign import ccall "button_appearance_free"
-  appearance_free :: Appearance -> IO ()
-
--- appearance color
-foreign import ccall "button_appearance_set_background"
-  set_background :: Appearance -> ColorPtr -> IO ()
-
--- appearance color width radius
-foreign import ccall "button_appearance_set_border"
-  set_border :: Appearance -> ColorPtr -> CFloat -> CFloat -> IO ()
-
--- appearance color
-foreign import ccall "button_appearance_set_text_color"
-  set_text_color :: Appearance -> ColorPtr -> IO ()
-
--- active
-foreign import ccall "button_stylesheet_new"
-  stylesheet_new :: Appearance -> IO StyleSheet
-
--- stylesheet appearance
-foreign import ccall "button_stylesheet_set_hovered"
-  stylesheet_set_hovered :: StyleSheet -> Appearance -> IO ()
-
--- stylesheet appearance
-foreign import ccall "button_stylesheet_set_pressed"
-  stylesheet_set_pressed :: StyleSheet -> Appearance -> IO ()
-
--- stylesheet appearance
-foreign import ccall "button_stylesheet_set_disabled"
-  stylesheet_set_disabled :: StyleSheet -> Appearance -> IO ()
+-- style color
+foreign import ccall "button_style_set_text_color"
+  set_text_color :: Style -> ColorPtr -> IO ()
 
 data Button = Button {
   label :: String
@@ -143,7 +129,8 @@ instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     OnPress message -> useOnPress message
     AddPadding value -> usePadding value
-    Style value -> useStyle value
+    BasicStyle value -> useBasicStyle value
+    CustomStyle value -> useCustomStyle value
     Width  len -> useFnIO button_width  len
     Height len -> useFnIO button_height len
     None -> pure
@@ -151,8 +138,8 @@ instance UseAttribute Self (Attribute message) where
 instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding
 
-instance UseStyle [AppearanceAttribute] (Attribute message) where
-  style = Style
+instance IntoStyle a => UseStyle a (Attribute message) where
+  style = intoStyle
 
 instance UseWidth Length (Attribute message) where
   width = Width
@@ -179,7 +166,48 @@ usePadding :: Padding -> AttributeFn
 usePadding Padding { .. } self =
   button_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
-applyStyles :: [AppearanceAttribute] -> Appearance -> IO ()
+-- style theme status
+type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()
+
+foreign import ccall "wrapper"
+  makeStyleCallback :: NativeStyleCallback -> IO (FunPtr NativeStyleCallback)
+
+wrapStyleCallback :: StyleCallback -> NativeStyleCallback
+wrapStyleCallback callback appearance themeRaw statusRaw = do
+  let theme = toEnum $ fromIntegral themeRaw
+  let status = toEnum $ fromIntegral statusRaw
+  let attributes = callback theme status
+  applyStyles attributes appearance
+
+type StyleCallback = Theme -> Status -> [StyleAttribute]
+
+class IntoStyle a where
+  intoStyle :: a -> Attribute message
+
+instance IntoStyle BasicStyle where
+  intoStyle value = BasicStyle value
+
+instance IntoStyle [StyleAttribute] where
+  intoStyle attributes = CustomStyle (\_theme _status -> attributes)
+
+selectStyles :: [StatusAttribute] -> Status -> [StyleAttribute]
+selectStyles extra status = case find (\(s, _a) -> s == status) extra of
+  Just (_s, attributes) -> attributes
+  Nothing -> []
+
+instance IntoStyle [StatusAttribute] where
+  intoStyle extra = CustomStyle (\_theme -> selectStyles extra)
+
+instance IntoStyle ([StyleAttribute], [StatusAttribute]) where
+  intoStyle (base, extra) = CustomStyle (\_theme -> (base ++) . selectStyles extra)
+
+instance IntoStyle (Status -> [StyleAttribute]) where
+  intoStyle callback = CustomStyle (\_theme -> callback)
+
+instance IntoStyle StyleCallback where
+  intoStyle callback = CustomStyle callback
+
+applyStyles :: [StyleAttribute] -> Style -> IO ()
 applyStyles [] _appearance = pure ()
 applyStyles (first:remaining) appearance = do
   case first of
@@ -194,82 +222,33 @@ applyStyles (first:remaining) appearance = do
       colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     -- AddShadow _shadow -> pure ()
-    Hovered  _attrs -> pure ()
-    Pressed  _attrs -> pure ()
-    Disabled _attrs -> pure ()
   applyStyles remaining appearance
 
-border :: Color -> Float -> Float -> AppearanceAttribute
+border :: Color -> Float -> Float -> StyleAttribute
 border color w radius = AddBorder $ Border color w radius
 
-hovered :: [AppearanceAttribute] -> AppearanceAttribute
-hovered = Hovered
+active :: [StyleAttribute] -> StatusAttribute
+active = (Active,)
 
-pressed :: [AppearanceAttribute] -> AppearanceAttribute
-pressed = Pressed
+hovered :: [StyleAttribute] -> StatusAttribute
+hovered = (Hovered,)
 
-disabled :: [AppearanceAttribute] -> AppearanceAttribute
-disabled = Disabled
+pressed :: [StyleAttribute] -> StatusAttribute
+pressed = (Pressed,)
 
-findHovered :: [AppearanceAttribute] -> Maybe [AppearanceAttribute]
-findHovered [] = Nothing
-findHovered (first:remaining) = case first of
-  Hovered attributes -> Just attributes
-  _ -> findHovered remaining
+disabled :: [StyleAttribute] -> StatusAttribute
+disabled = (Disabled,)
 
-findPressed :: [AppearanceAttribute] -> Maybe [AppearanceAttribute]
-findPressed [] = Nothing
-findPressed (first:remaining) = case first of
-  Pressed attributes -> Just attributes
-  _ -> findPressed remaining
+useBasicStyle :: BasicStyle -> AttributeFn
+useBasicStyle value self = button_style_basic self $ fromIntegral $ fromEnum value
 
-findDisabled :: [AppearanceAttribute] -> Maybe [AppearanceAttribute]
-findDisabled [] = Nothing
-findDisabled (first:remaining) = case first of
-  Disabled attributes -> Just attributes
-  _ -> findDisabled remaining
+useCustomStyle :: StyleCallback -> AttributeFn
+useCustomStyle callback self = do
+  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
+  button_style_custom self callbackPtr
 
-useStyle :: [AppearanceAttribute] -> AttributeFn
-useStyle attributes self = do
-  appearance <- appearance_new
-  applyStyles attributes appearance
-  tmpAppearance <- appearance_clone appearance
-  stylesheet <- stylesheet_new appearance
-  applyHovered  attributes tmpAppearance stylesheet
-  applyPressed  attributes tmpAppearance stylesheet
-  applyDisabled attributes tmpAppearance stylesheet
-  appearance_free tmpAppearance
-  button_style self stylesheet
-
-applyHovered :: [AppearanceAttribute] -> Appearance -> StyleSheet -> IO ()
-applyHovered allAttributes active stylesheet = do
-  case findHovered allAttributes of
-    Just attributes -> do
-      appearance <- appearance_clone active
-      applyStyles attributes appearance
-      stylesheet_set_hovered stylesheet appearance
-    Nothing -> pure ()
-
-applyPressed :: [AppearanceAttribute] -> Appearance -> StyleSheet -> IO ()
-applyPressed allAttributes active stylesheet = do
-  case findPressed allAttributes of
-    Just attributes -> do
-      appearance <- appearance_clone active
-      applyStyles attributes appearance
-      stylesheet_set_pressed stylesheet appearance
-    Nothing -> pure ()
-
-applyDisabled :: [AppearanceAttribute] -> Appearance -> StyleSheet -> IO ()
-applyDisabled allAttributes active stylesheet = do
-  case findDisabled allAttributes of
-    Just attributes -> do
-      appearance <- appearance_clone active
-      applyStyles attributes appearance
-      stylesheet_set_disabled stylesheet appearance
-    Nothing -> pure ()
-
-textColor :: Color -> AppearanceAttribute
+textColor :: Color -> StyleAttribute
 textColor = TextColor
 
-background :: Color -> AppearanceAttribute
+background :: Color -> StyleAttribute
 background = AddBackground . BgColor

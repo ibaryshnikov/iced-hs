@@ -22,7 +22,21 @@ module Iced.Widget (
   module Iced.Widget.VerticalSlider,
 ) where
 
-import Iced.Widget.Button hiding (AppearanceAttribute)
+--
+-- Reexport only key widget constructors and attributes
+--
+
+import Iced.Widget.Button (
+  button,
+  onPress,
+  onPressIf,
+  background,
+  border,
+  textColor,
+  active,
+  hovered,
+  pressed,
+  disabled)
 import Iced.Widget.Canvas (canvas)
 import Iced.Widget.Center
 import Iced.Widget.Checkbox

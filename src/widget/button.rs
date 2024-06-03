@@ -1,12 +1,37 @@
-use std::ffi::{c_char, c_float};
+use std::ffi::{c_char, c_float, c_uchar};
 
-use button::Style;
+use button::{Status, Style};
 use iced::widget::{button, text, Button};
-use iced::{Background, Border, Color, Length, Padding, Theme};
+use iced::{Background, Border, Color, Length, Padding};
 
 use super::{read_c_string, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Button<'static, IcedMessage>;
+
+type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar);
+
+enum BasicStyle {
+    Primary,
+    Secondary,
+    Success,
+    Danger,
+    Text,
+}
+
+use BasicStyle::*;
+
+impl BasicStyle {
+    fn from_raw(value: u8) -> Self {
+        match value {
+            0 => Primary,
+            1 => Secondary,
+            2 => Success,
+            3 => Danger,
+            4 => Text,
+            other => panic!("Unexpected value in button BasicStyle: {other}"),
+        }
+    }
+}
 
 #[no_mangle]
 extern "C" fn button_new(input: *mut c_char) -> SelfPtr {
@@ -41,33 +66,36 @@ extern "C" fn button_padding(
 }
 
 #[no_mangle]
-extern "C" fn button_style(self_ptr: SelfPtr, style_ptr: *mut ButtonStyle) -> SelfPtr {
+extern "C" fn button_style_basic(self_ptr: SelfPtr, kind_raw: c_uchar) -> SelfPtr {
     let button = unsafe { Box::from_raw(self_ptr) };
-    let style = unsafe { *Box::from_raw(style_ptr) };
-    let base = style.active_hs;
-    Box::into_raw(Box::new(button.style(move |_theme, status| match status {
-        button::Status::Active => base,
-        button::Status::Hovered => {
-            if let Some(hovered) = style.hovered_hs {
-                hovered
-            } else {
-                base
-            }
-        }
-        button::Status::Pressed => {
-            if let Some(pressed) = style.pressed_hs {
-                pressed
-            } else {
-                base
-            }
-        }
-        button::Status::Disabled => {
-            if let Some(disabled) = style.disabled_hs {
-                disabled
-            } else {
-                base
-            }
-        }
+    let style_fn = match BasicStyle::from_raw(kind_raw) {
+        Primary => button::primary,
+        Secondary => button::secondary,
+        Success => button::success,
+        Danger => button::danger,
+        Text => button::text,
+    };
+    Box::into_raw(Box::new(button.style(style_fn)))
+}
+
+fn status_to_raw(status: Status) -> c_uchar {
+    match status {
+        Status::Active => 0,
+        Status::Hovered => 1,
+        Status::Pressed => 2,
+        Status::Disabled => 3,
+    }
+}
+
+#[no_mangle]
+extern "C" fn button_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
+    let button = unsafe { Box::from_raw(self_ptr) };
+    Box::into_raw(Box::new(button.style(move |theme, status| {
+        let theme_raw = crate::theme::theme_to_raw(theme);
+        let status_raw = status_to_raw(status);
+        let mut style = button::primary(theme, status);
+        callback(&mut style, theme_raw, status_raw);
+        style
     })))
 }
 
@@ -91,45 +119,21 @@ extern "C" fn button_into_element(self_ptr: SelfPtr) -> ElementPtr {
     Box::into_raw(Box::new(button.into()))
 }
 
-#[derive(Default)]
-struct ButtonStyle {
-    active_hs: Style,
-    hovered_hs: Option<Style>,
-    pressed_hs: Option<Style>,
-    disabled_hs: Option<Style>,
-}
-
 #[no_mangle]
-extern "C" fn button_appearance_new() -> *mut Style {
-    let appearance = button::primary(&Theme::Light, button::Status::Active);
-    Box::into_raw(Box::new(appearance))
-}
-
-#[no_mangle]
-extern "C" fn button_appearance_clone(appearance: &Style) -> *mut Style {
-    Box::into_raw(Box::new(*appearance))
-}
-
-#[no_mangle]
-extern "C" fn button_appearance_free(ptr: *mut Style) {
-    let _ = unsafe { Box::from_raw(ptr) };
-}
-
-#[no_mangle]
-extern "C" fn button_appearance_set_background(appearance: &mut Style, color_ptr: *mut Color) {
+extern "C" fn button_style_set_background(style: &mut Style, color_ptr: *mut Color) {
     let color = unsafe { *Box::from_raw(color_ptr) };
-    appearance.background = Some(Background::Color(color));
+    style.background = Some(Background::Color(color));
 }
 
 #[no_mangle]
-extern "C" fn button_appearance_set_border(
-    appearance: &mut Style,
+extern "C" fn button_style_set_border(
+    style: &mut Style,
     color_ptr: *mut Color,
     width: c_float,
     radius: c_float,
 ) {
     let color = unsafe { *Box::from_raw(color_ptr) };
-    appearance.border = Border {
+    style.border = Border {
         color,
         width,
         radius: radius.into(),
@@ -137,35 +141,7 @@ extern "C" fn button_appearance_set_border(
 }
 
 #[no_mangle]
-extern "C" fn button_appearance_set_text_color(appearance: &mut Style, color_ptr: *mut Color) {
+extern "C" fn button_style_set_text_color(style: &mut Style, color_ptr: *mut Color) {
     let color = unsafe { *Box::from_raw(color_ptr) };
-    appearance.text_color = color;
-}
-
-#[no_mangle]
-extern "C" fn button_stylesheet_new(pointer: *mut Style) -> *mut ButtonStyle {
-    let active_hs = unsafe { *Box::from_raw(pointer) };
-    let stylesheet = ButtonStyle {
-        active_hs,
-        ..Default::default()
-    };
-    Box::into_raw(Box::new(stylesheet))
-}
-
-#[no_mangle]
-extern "C" fn button_stylesheet_set_hovered(stylesheet: &mut ButtonStyle, pointer: *mut Style) {
-    let appearance = unsafe { *Box::from_raw(pointer) };
-    stylesheet.hovered_hs = Some(appearance)
-}
-
-#[no_mangle]
-extern "C" fn button_stylesheet_set_pressed(stylesheet: &mut ButtonStyle, pointer: *mut Style) {
-    let appearance = unsafe { *Box::from_raw(pointer) };
-    stylesheet.pressed_hs = Some(appearance)
-}
-
-#[no_mangle]
-extern "C" fn button_stylesheet_set_disabled(stylesheet: &mut ButtonStyle, pointer: *mut Style) {
-    let appearance = unsafe { *Box::from_raw(pointer) };
-    stylesheet.disabled_hs = Some(appearance)
+    style.text_color = color;
 }

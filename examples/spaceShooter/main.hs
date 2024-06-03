@@ -135,7 +135,7 @@ shoot model = case model.shooting of
 
 makeBullet :: Position -> Bullet
 makeBullet ship = Bullet { .. }
-  where position = Position { x = ship.x, y = ship.y }
+  where position = Position { x = ship.x - 2, y = ship.y }
 
 updatePosition :: Moving -> Position -> Float -> Position
 updatePosition moving position distance = case (moving.left, moving.right) of
@@ -148,6 +148,11 @@ updateBullets bullets distance = filter inMap $ map updateOne bullets
   where
     updateOne bullet = updateBulletPosition bullet (distance * 2)
     inMap bullet = bullet.position.y > 0
+
+updateBulletPosition :: Bullet -> Float -> Bullet
+updateBulletPosition bullet distance = Bullet { position = position }
+  where
+    position = bullet.position { y = bullet.position.y - distance }
 
 checkCollisions :: [Bullet] -> [Bullet] -> [Enemy] -> ([Bullet], [Enemy])
 checkCollisions [] bullets enemies = (bullets, enemies)
@@ -180,11 +185,6 @@ intersectsInDimension ax1 ax2 bx1 bx2 =
 
 pointInRange :: Float -> Float -> Float -> Bool
 pointInRange from to x = x > from && x < to
-
-updateBulletPosition :: Bullet -> Float -> Bullet
-updateBulletPosition bullet distance = Bullet { position = position }
-  where
-    position = bullet.position { y = bullet.position.y - distance }
 
 updateScreen :: Screen -> [Enemy] -> Screen
 updateScreen Game [] = Win

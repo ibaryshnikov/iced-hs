@@ -33,3 +33,31 @@ pub fn theme_from_raw(raw: c_uchar) -> Theme {
         other => panic!("Unexpected value in theme_from_raw: {other}"),
     }
 }
+
+pub fn theme_to_raw(theme: &Theme) -> c_uchar {
+    match theme {
+        Light => 0,
+        Dark => 1,
+        Dracula => 2,
+        Nord => 3,
+        SolarizedLight => 4,
+        SolarizedDark => 5,
+        GruvboxLight => 6,
+        GruvboxDark => 7,
+        CatppuccinLatte => 8,
+        CatppuccinFrappe => 9,
+        CatppuccinMacchiato => 10,
+        CatppuccinMocha => 11,
+        TokyoNight => 12,
+        TokyoNightStorm => 13,
+        TokyoNightLight => 14,
+        KanagawaWave => 15,
+        KanagawaDragon => 16,
+        KanagawaLotus => 17,
+        Moonfly => 18,
+        Nightfly => 19,
+        Oxocarbon => 20,
+        Ferra => 21,
+        Custom(_) => panic!("Custom themes are not supported yet"),
+    }
+}
