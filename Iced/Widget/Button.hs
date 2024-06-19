@@ -1,4 +1,3 @@
-{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
@@ -7,13 +6,6 @@ module Iced.Widget.Button (
   button,
   onPress,
   onPressIf,
-  background,
-  border,
-  textColor,
-  active,
-  hovered,
-  pressed,
-  disabled,
   StyleAttribute,
   Status(..),
   StatusAttribute,
@@ -28,6 +20,7 @@ import Foreign.C.Types
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
+import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Color
 import Iced.ColorFFI
@@ -56,7 +49,7 @@ data Border = Border {
 
 data StyleAttribute
  = ShadowOffset Float Float
- | AddBackground Background
+ | Background Background
  | TextColor Color
  | AddBorder Border
  -- | AddShadow Shadow
@@ -138,7 +131,7 @@ instance UseAttribute Self (Attribute message) where
 instance PaddingToAttribute Padding (Attribute message) where
   paddingToAttribute = AddPadding
 
-instance IntoStyle a => UseStyle a (Attribute message) where
+instance IntoStyle value => UseStyle value (Attribute message) where
   style = intoStyle
 
 instance UseWidth Length (Attribute message) where
@@ -181,11 +174,11 @@ wrapStyleCallback callback appearance themeRaw statusRaw = do
 
 type StyleCallback = Theme -> Status -> [StyleAttribute]
 
-class IntoStyle a where
-  intoStyle :: a -> Attribute message
+class IntoStyle value where
+  intoStyle :: value -> Attribute message
 
 instance IntoStyle BasicStyle where
-  intoStyle value = BasicStyle value
+  intoStyle = BasicStyle
 
 instance IntoStyle [StyleAttribute] where
   intoStyle attributes = CustomStyle (\_theme _status -> attributes)
@@ -212,7 +205,7 @@ applyStyles [] _appearance = pure ()
 applyStyles (first:remaining) appearance = do
   case first of
     ShadowOffset _x _y -> pure ()
-    AddBackground (BgColor color) -> do
+    Background (BgColor color) -> do
       colorPtr <- valueToNativeIO color
       set_background appearance colorPtr
     TextColor color -> do
@@ -224,21 +217,6 @@ applyStyles (first:remaining) appearance = do
     -- AddShadow _shadow -> pure ()
   applyStyles remaining appearance
 
-border :: Color -> Float -> Float -> StyleAttribute
-border color w radius = AddBorder $ Border color w radius
-
-active :: [StyleAttribute] -> StatusAttribute
-active = (Active,)
-
-hovered :: [StyleAttribute] -> StatusAttribute
-hovered = (Hovered,)
-
-pressed :: [StyleAttribute] -> StatusAttribute
-pressed = (Pressed,)
-
-disabled :: [StyleAttribute] -> StatusAttribute
-disabled = (Disabled,)
-
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = button_style_basic self $ fromIntegral $ fromEnum value
 
@@ -247,8 +225,23 @@ useCustomStyle callback self = do
   callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
   button_style_custom self callbackPtr
 
-textColor :: Color -> StyleAttribute
-textColor = TextColor
+instance UseBackground StyleAttribute where
+  background = Background . BgColor
 
-background :: Color -> StyleAttribute
-background = AddBackground . BgColor
+instance UseBorder StyleAttribute where
+  border color w radius = AddBorder $ Border color w radius
+
+instance UseTextColor StyleAttribute where
+  textColor = TextColor
+
+instance UseActive [StyleAttribute] StatusAttribute where
+  active = (Active,)
+
+instance UseHovered [StyleAttribute] StatusAttribute where
+  hovered = (Hovered,)
+
+instance UsePressed [StyleAttribute] StatusAttribute where
+  pressed = (Pressed,)
+
+instance UseDisabled [StyleAttribute] StatusAttribute where
+  disabled = (Disabled,)

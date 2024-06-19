@@ -7,7 +7,9 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Font
+import Iced.Theme
 import Iced.Widget
+import Iced.Widget.Checkbox (BasicStyle(..))
 
 data Model = Model {
   def :: Bool,
@@ -37,6 +39,6 @@ view model =
       where attributes = [style value, onToggleIf model.def Styled]
 
 main :: IO ()
-main = Iced.run [addFont bytes] "Checkbox" model update view
+main = Iced.run [addFont bytes, theme SolarizedDark] "Checkbox" model update view
   where bytes = $(includeBytes "fonts/icons.ttf")
         model = Model { def = False, styled = False, custom = False }

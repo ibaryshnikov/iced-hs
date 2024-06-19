@@ -10,9 +10,13 @@ module Iced.Widget.Checkbox (
   textLineHeight,
   textShaping,
   textSize,
-  Style(..),
+  StyleAttribute,
+  Status(..),
+  StatusAttribute,
+  BasicStyle(..),
 ) where
 
+import Data.List
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
@@ -22,24 +26,49 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
+import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Attribute.TextFFI
+import Iced.Color
+import Iced.ColorFFI
 import Iced.Element
+import Iced.Theme
 
 data NativeCheckbox
 type Self = Ptr NativeCheckbox
 type AttributeFn = Self -> IO Self
 data NativeStyle
-type StylePtr = Ptr NativeStyle
+type Style = Ptr NativeStyle
 data NativeIcon
 type IconPtr = Ptr NativeIcon
+
+data Background = BgColor Color -- | BgGradient Gradient
+
+data Border = Border {
+  color :: Color,
+  width :: Float,
+  radius :: Float
+}
+
+data StyleAttribute
+ = Background Background
+ | IconColor Color
+ | AddBorder Border
+ | TextColor Color
+
+data Status = Active | Hovered | Disabled deriving (Enum, Eq)
+
+type StatusAttribute = (Status, [StyleAttribute])
+
+data BasicStyle = Primary | Secondary | Success | Danger deriving Enum
 
 data Attribute message
   = Icon Word32
   | AddOnToggle (OnToggle message)
   | Size Float
   | Spacing Float
-  | AddStyle Style
+  | BasicStyle BasicStyle
+  | CustomStyle StyleCallback
   | TextLineHeight LineHeight
   | TextShaping Shaping
   | TextSize Float
@@ -62,8 +91,11 @@ foreign import ccall "checkbox_size"
 foreign import ccall "checkbox_spacing"
   checkbox_spacing :: Self -> CFloat -> IO Self
 
-foreign import ccall "checkbox_style"
-  checkbox_style :: Self -> StylePtr -> IO Self
+foreign import ccall "checkbox_style_basic"
+  checkbox_style_basic :: Self -> CUChar -> IO Self
+
+foreign import ccall "checkbox_style_custom"
+  checkbox_style_custom :: Self -> FunPtr NativeStyleCallback -> IO Self
 
 foreign import ccall "checkbox_text_line_height"
   checkbox_text_line_height :: Self -> LineHeightPtr -> IO Self
@@ -80,21 +112,25 @@ foreign import ccall "checkbox_width"
 foreign import ccall "checkbox_into_element"
   into_element :: Self -> IO ElementPtr
 
+-- style color
+foreign import ccall "checkbox_style_set_background"
+  set_background :: Style -> ColorPtr -> IO ()
+
+-- style color
+foreign import ccall "checkbox_style_set_icon_color"
+  set_icon_color :: Style -> ColorPtr -> IO ()
+
+-- style color width radius
+foreign import ccall "checkbox_style_set_border"
+  set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
+
+-- style color
+foreign import ccall "checkbox_style_set_text_color"
+  set_text_color :: Style -> ColorPtr -> IO ()
+
 type NativeOnToggle message = CBool -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeCallback :: NativeOnToggle message -> IO (FunPtr (NativeOnToggle message))
-
-foreign import ccall "checkbox_primary"
-  checkbox_primary :: IO StylePtr
-
-foreign import ccall "checkbox_secondary"
-  checkbox_secondary :: IO StylePtr
-
-foreign import ccall "checkbox_success"
-  checkbox_success :: IO StylePtr
-
-foreign import ccall "checkbox_danger"
-  checkbox_danger :: IO StylePtr
 
 -- use decimal code points
 foreign import ccall "checkbox_icon_new"
@@ -105,8 +141,6 @@ wrapOnToggle callback c_bool = do
   newStablePtr $ callback $ toBool c_bool
 
 type OnToggle message = Bool -> message
-
-data Style = Primary | Secondary | Success | Danger
 
 data Checkbox = Checkbox {
   label :: String,
@@ -128,7 +162,8 @@ instance UseAttribute Self (Attribute message) where
     AddOnToggle callback -> useOnToggle callback
     Size value -> useFn checkbox_size value
     Spacing value -> useFn checkbox_spacing value
-    AddStyle value -> useFnIO checkbox_style value
+    BasicStyle value -> useBasicStyle value
+    CustomStyle value -> useCustomStyle value
     TextLineHeight value -> useFnIO checkbox_text_line_height value
     TextShaping    value -> useFn checkbox_text_shaping     value
     TextSize       value -> useFn checkbox_text_size        value
@@ -141,8 +176,8 @@ instance UseSize (Attribute message) where
 instance UseSpacing (Attribute message) where
   spacing = Spacing
 
-instance UseStyle Style (Attribute message) where
-  style = AddStyle
+instance IntoStyle value => UseStyle value (Attribute message) where
+  style = intoStyle
 
 instance UseWidth Length (Attribute message) where
   width = Width
@@ -162,13 +197,6 @@ useOnToggle callback self =
   makeCallback (wrapOnToggle callback)
     >>= checkbox_on_toggle self
 
-instance ValueToNativeIO Style StylePtr where
-  valueToNativeIO value = case value of
-    Primary -> checkbox_primary
-    Secondary -> checkbox_secondary
-    Success -> checkbox_success
-    Danger -> checkbox_danger
-
 icon :: Word32 -> Attribute message
 icon = Icon
 
@@ -185,3 +213,95 @@ textShaping = TextShaping
 
 textSize :: Float -> Attribute message
 textSize = TextSize
+
+-- style theme status is_checked
+type NativeStyleCallback = Style -> CUChar -> CUChar -> CBool -> IO ()
+
+foreign import ccall "wrapper"
+  makeStyleCallback :: NativeStyleCallback -> IO (FunPtr NativeStyleCallback)
+
+wrapStyleCallback :: StyleCallback -> NativeStyleCallback
+wrapStyleCallback callback appearance themeRaw statusRaw isCheckedRaw = do
+  let theme = toEnum $ fromIntegral themeRaw
+  let status = toEnum $ fromIntegral statusRaw
+  let isChecked = toBool isCheckedRaw
+  let attributes = callback theme status isChecked
+  applyStyles attributes appearance
+
+type StyleCallback = Theme -> Status -> Bool -> [StyleAttribute]
+
+class IntoStyle value where
+  intoStyle :: value -> Attribute message
+
+instance IntoStyle BasicStyle where
+  intoStyle = BasicStyle
+
+instance IntoStyle [StyleAttribute] where
+  intoStyle attributes = CustomStyle (\_theme _status _isChecked -> attributes)
+
+selectStyles :: [StatusAttribute] -> Status -> [StyleAttribute]
+selectStyles extra status = case find (\(s, _a) -> s == status) extra of
+  Just (_s, attributes) -> attributes
+  Nothing -> []
+
+instance IntoStyle [StatusAttribute] where
+  intoStyle extra = CustomStyle (\_theme status _isChecked -> selectStyles extra status)
+
+instance IntoStyle ([StyleAttribute], [StatusAttribute]) where
+  intoStyle (base, extra) = CustomStyle (\_theme status _isChecked -> base ++ selectStyles extra status)
+
+instance IntoStyle (Status -> [StyleAttribute]) where
+  intoStyle callback = CustomStyle (\_theme status _isChecked -> callback status)
+
+instance IntoStyle (Bool -> [StyleAttribute]) where
+  intoStyle callback = CustomStyle (\_theme _status -> callback)
+
+instance IntoStyle (Status -> Bool -> [StyleAttribute]) where
+  intoStyle callback = CustomStyle (\_theme -> callback)
+
+instance IntoStyle StyleCallback where
+  intoStyle callback = CustomStyle callback
+
+applyStyles :: [StyleAttribute] -> Style -> IO ()
+applyStyles [] _appearance = pure ()
+applyStyles (first:remaining) appearance = do
+  case first of
+    Background (BgColor color) -> do
+      colorPtr <- valueToNativeIO color
+      set_background appearance colorPtr
+    IconColor color -> do
+      colorPtr <- valueToNativeIO color
+      set_icon_color appearance colorPtr
+    AddBorder Border { color, width = w, radius } -> do
+      colorPtr <- valueToNativeIO color
+      set_border appearance colorPtr (CFloat w) (CFloat radius)
+    TextColor color -> do
+      colorPtr <- valueToNativeIO color
+      set_text_color appearance colorPtr
+  applyStyles remaining appearance
+
+useCustomStyle :: StyleCallback -> AttributeFn
+useCustomStyle callback self = do
+  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
+  checkbox_style_custom self callbackPtr
+
+useBasicStyle :: BasicStyle -> AttributeFn
+useBasicStyle value self = checkbox_style_basic self $ fromIntegral $ fromEnum value
+
+instance UseBackground StyleAttribute where
+  background = Background . BgColor
+
+instance UseBorder StyleAttribute where
+  border color w radius = AddBorder $ Border color w radius
+
+instance UseTextColor StyleAttribute where
+  textColor = TextColor
+
+instance UseActive [StyleAttribute] StatusAttribute where
+  active = (Active,)
+
+instance UseHovered [StyleAttribute] StatusAttribute where
+  hovered = (Hovered,)
+
+instance UseDisabled [StyleAttribute] StatusAttribute where
+  disabled = (Disabled,)

@@ -8,6 +8,7 @@ import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Theme
 import Iced.Widget
+import Iced.Widget.Checkbox (BasicStyle(..))
 
 data Model = Model {
   selected :: Maybe Theme,

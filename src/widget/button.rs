@@ -66,9 +66,9 @@ extern "C" fn button_padding(
 }
 
 #[no_mangle]
-extern "C" fn button_style_basic(self_ptr: SelfPtr, kind_raw: c_uchar) -> SelfPtr {
+extern "C" fn button_style_basic(self_ptr: SelfPtr, style_raw: c_uchar) -> SelfPtr {
     let button = unsafe { Box::from_raw(self_ptr) };
-    let style_fn = match BasicStyle::from_raw(kind_raw) {
+    let style_fn = match BasicStyle::from_raw(style_raw) {
         Primary => button::primary,
         Secondary => button::secondary,
         Success => button::success,

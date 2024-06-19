@@ -27,19 +27,21 @@ module Iced.Widget (
 --
 
 import Iced.Widget.Button (
-  button,
-  onPress,
-  onPressIf,
-  background,
-  border,
-  textColor,
-  active,
-  hovered,
-  pressed,
-  disabled)
+    button,
+    onPress,
+    onPressIf,
+  )
 import Iced.Widget.Canvas (canvas)
 import Iced.Widget.Center
-import Iced.Widget.Checkbox
+import Iced.Widget.Checkbox (
+    checkbox,
+    onToggle,
+    onToggleIf,
+    icon,
+    textLineHeight,
+    textShaping,
+    textSize,
+  )
 import Iced.Widget.Column
 import Iced.Widget.ComboBox hiding (State, newState)
 import Iced.Widget.Container
