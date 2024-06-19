@@ -201,9 +201,9 @@ view model = center [] $
       ]
 
 fillRectangle :: Float -> Float -> Float -> Float -> Color -> FrameAction
-fillRectangle x y width_ height_ color = fill [
+fillRectangle x y width_ height_ color_ = fill [
     rectangle x y width_ height_
-  ] color
+  ] color_
 
 shapes :: Model -> [FrameAction]
 shapes model = [

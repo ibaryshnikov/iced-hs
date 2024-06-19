@@ -12,7 +12,8 @@ type IconPtr = *mut Icon<Font>;
 
 type OnToggleFFI = extern "C" fn(input: c_uchar) -> *const u8;
 
-type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_checked: c_uchar);
+type StyleCallback =
+    extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_checked: c_uchar);
 
 enum BasicStyle {
     Primary,

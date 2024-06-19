@@ -154,16 +154,11 @@ way to build a ui or display some data.
    - [ ] custom subscriptions
    - [ ] other events
  - [x] Command api
-   - [x] multiple signatures for `update` function:
-     ```haskell
-     Model -> Message ->    Model
-     Model -> Message -> IO Model
-     Model -> Message ->    (Model, Command Message)
-     Model -> Message -> IO (Model, Command Message)
-     ```
-   - [x] `Command.Perform` for Rust `Future`
-   - [x] `Command.PerformIO` for blocking tasks
+   - [x] `Command.perform` for Rust `Future`
+   - [x] `Command.performBlocking` for blocking tasks
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles for widgets
    - [x] button
+   - [x] checkobx
+   - [x] text
    - [ ] ...

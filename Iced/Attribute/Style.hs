@@ -1,4 +1,3 @@
-
 module Iced.Attribute.Style where
 
 import Iced.Color
