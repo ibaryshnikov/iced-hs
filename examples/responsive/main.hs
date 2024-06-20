@@ -7,7 +7,9 @@ import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Size
+import Iced.Theme
 import Iced.Widget
+import Iced.Widget.Container (BasicStyle(..))
 
 data Model = Model { value :: Int }
 
@@ -27,23 +29,19 @@ view model =
       slider [width (Fixed 200)] 0 500 model.value WidthChanged
     ],
     spaceHeight (Fixed 20),
-    container [width (Fixed $ fromIntegral model.value), height (Fixed 100)] $
-      responsive label
+    container containerAttributes $ responsive label
   ]
+  where
+    containerAttributes = [style RoundedBox, width containerWidth, height (Fixed 100)]
+    containerWidth = Fixed $ fromIntegral model.value
 
 label :: Size -> Element
 label s = column [] $ if s.width < 200 then [] else [
     text [] "Responsive widget size",
     text [] $ "width   " ++ show s.width,
-    text [] $ "height  " ++ show s.height,
-    verticalSpace,
-    row [] [
-      text [] "left",
-      horizontalSpace,
-      text [] "right"
-    ]
+    text [] $ "height  " ++ show s.height
   ]
 
 main :: IO ()
-main = Iced.run [] "Responsive" model update view
+main = Iced.run [theme SolarizedLight] "Responsive" model update view
   where model = Model { value = 250 }
