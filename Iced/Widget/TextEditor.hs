@@ -15,11 +15,11 @@ module Iced.Widget.TextEditor (
 import Control.Monad
 import Foreign
 import Foreign.C.String
-import Foreign.C.Types
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Element
 
 data NativeTextEditor
@@ -66,9 +66,9 @@ foreign import ccall "text_editor_new"
 foreign import ccall "text_editor_on_action"
   text_editor_on_action :: Self -> FunPtr (NativeOnAction message) -> IO Self
 
--- text_editor top right bottom left
+-- text_editor padding
 foreign import ccall "text_editor_padding"
-  text_editor_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  text_editor_padding :: Self -> PaddingPtr -> IO Self
 
 foreign import ccall "text_editor_height"
   text_editor_height :: Self -> LengthPtr -> IO Self
@@ -99,11 +99,17 @@ instance IntoNative (TextEditor message) Self where
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnAction callback -> useOnAction callback
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO text_editor_padding value
     Height len -> useFnIO text_editor_height len
 
-instance PaddingToAttribute Padding (Attribute message) where
-  paddingToAttribute = AddPadding
+instance UsePadding (Attribute message) where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 (Attribute message) where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 (Attribute message) where
+  padding4 top right bottom left = AddPadding Padding { .. }
 
 instance UseHeight Length (Attribute message) where
   height = Height
@@ -118,7 +124,3 @@ useOnAction :: OnAction message -> AttributeFn
 useOnAction callback self =
   makeCallback (wrapOnAction callback)
     >>= text_editor_on_action self
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  text_editor_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

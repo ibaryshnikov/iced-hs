@@ -15,11 +15,11 @@ import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Spacing
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Element
 
 data NativeRow
 type Self = Ptr NativeRow
-type AttributeFn = Self -> IO Self
 
 data Attribute
   = Spacing Float
@@ -35,9 +35,9 @@ data Attribute
 foreign import ccall "row_align_items"
   row_align_items :: Self -> AlignmentPtr -> IO Self
 
--- row top right bottom left
+-- row padding
 foreign import ccall "row_padding"
-  row_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  row_padding :: Self -> PaddingPtr -> IO Self
 
 -- row value
 foreign import ccall "row_spacing"
@@ -76,7 +76,7 @@ instance IntoNative Row Self where
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Spacing value -> useFn row_spacing value
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO row_padding value
     AlignItems value -> useFnIO row_align_items value
     Width  len -> useFnIO row_width  len
     Height len -> useFnIO row_height len
@@ -84,8 +84,14 @@ instance UseAttribute Self Attribute where
 instance UseAlignment Attribute where
   alignItems = AlignItems
 
-instance PaddingToAttribute Padding Attribute where
-  paddingToAttribute = AddPadding
+instance UsePadding Attribute where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 Attribute where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 Attribute where
+  padding4 top right bottom left = AddPadding Padding { .. }
 
 instance UseSpacing Attribute where
   spacing = Spacing
@@ -98,7 +104,3 @@ instance UseHeight Length Attribute where
 
 row :: [Attribute] -> [Element] -> Element
 row attributes children = pack Row { .. } attributes
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  row_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

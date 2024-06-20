@@ -1,4 +1,4 @@
-use std::ffi::{c_char, c_float};
+use std::ffi::c_char;
 
 use iced::widget::{pick_list, PickList};
 use iced::{Length, Padding};
@@ -24,20 +24,9 @@ extern "C" fn pick_list_new(
 }
 
 #[no_mangle]
-extern "C" fn pick_list_padding(
-    self_ptr: SelfPtr,
-    top: c_float,
-    right: c_float,
-    bottom: c_float,
-    left: c_float,
-) -> SelfPtr {
+extern "C" fn pick_list_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
     let pick_list = unsafe { Box::from_raw(self_ptr) };
-    let padding = Padding {
-        top,
-        right,
-        bottom,
-        left,
-    };
+    let padding = unsafe { *Box::from_raw(padding_ptr) };
     Box::into_raw(Box::new(pick_list.padding(padding)))
 }
 

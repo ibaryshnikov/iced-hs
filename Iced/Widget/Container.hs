@@ -6,6 +6,8 @@ module Iced.Widget.Container (
   container,
   centerX,
   centerY,
+  StyleAttribute,
+  BasicStyle(..),
 ) where
 
 import Foreign
@@ -14,16 +16,41 @@ import Foreign.C.Types
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
+import Iced.Attribute.Style
+import Iced.Color
+import Iced.ColorFFI
 import Iced.Element
+import Iced.Theme
 
 data NativeContainer
 type Self = Ptr NativeContainer
 type AttributeFn = Self -> IO Self
+data NativeStyle
+type Style = Ptr NativeStyle
+
+data Background = BgColor Color -- | BgGradient Gradient
+
+data Border = Border {
+  color :: Color,
+  width :: Float,
+  radius :: Float
+}
+
+data StyleAttribute
+  = TextColor Color
+  | Background Background
+  | AddBorder Border
+  -- | AddShadow Shadow
+
+data BasicStyle = BorderedBox | RoundedBox | Transparent deriving Enum
 
 data Attribute
   = AddPadding Padding
   | CenterX Length
   | CenterY Length
+  | BasicStyle BasicStyle
+  | CustomStyle StyleCallback
   | Width Length
   | Height Length
 
@@ -38,9 +65,15 @@ foreign import ccall "container_center_x"
 foreign import ccall "container_center_y"
   container_center_y :: Self -> LengthPtr -> IO Self
 
--- container top right bottom left
+-- container padding
 foreign import ccall "container_padding"
-  container_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  container_padding :: Self -> PaddingPtr -> IO Self
+
+foreign import ccall "container_style_basic"
+  container_style_basic :: Self -> CUChar -> IO Self
+
+foreign import ccall "container_style_custom"
+  container_style_custom :: Self -> FunPtr NativeStyleCallback -> IO Self
 
 foreign import ccall "container_width"
   container_width :: Self -> LengthPtr -> IO Self
@@ -50,6 +83,18 @@ foreign import ccall "container_height"
 
 foreign import ccall "container_into_element"
   into_element :: Self -> IO ElementPtr
+
+-- style color
+foreign import ccall "container_style_set_background"
+  set_background :: Style -> ColorPtr -> IO ()
+
+-- style color width radius
+foreign import ccall "container_style_set_border"
+  set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
+
+-- style color
+foreign import ccall "container_style_set_text_color"
+  set_text_color :: Style -> ColorPtr -> IO ()
 
 data Container = Container { content :: Element }
 
@@ -63,14 +108,25 @@ instance IntoNative Container Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO container_padding value
     CenterX len -> useFnIO container_center_x len
     CenterY len -> useFnIO container_center_y len
+    BasicStyle value -> useBasicStyle value
+    CustomStyle value -> useCustomStyle value
     Width  len -> useFnIO container_width  len
     Height len -> useFnIO container_height len
 
-instance PaddingToAttribute Padding Attribute where
-  paddingToAttribute = AddPadding
+instance UsePadding Attribute where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 Attribute where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 Attribute where
+  padding4 top right bottom left = AddPadding Padding { .. }
+
+instance IntoStyle value => UseStyle value Attribute where
+  style = intoStyle
 
 instance UseWidth Length Attribute where
   width = Width
@@ -87,6 +143,61 @@ centerX = CenterX
 centerY :: Length -> Attribute
 centerY = CenterY
 
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  container_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+-- style theme
+type NativeStyleCallback = Style -> CUChar -> IO ()
+
+foreign import ccall "wrapper"
+  makeStyleCallback :: NativeStyleCallback -> IO (FunPtr NativeStyleCallback)
+
+wrapStyleCallback :: StyleCallback -> NativeStyleCallback
+wrapStyleCallback callback appearance themeRaw = do
+  let theme = toEnum $ fromIntegral themeRaw
+  let attributes = callback theme
+  applyStyles attributes appearance
+
+type StyleCallback = Theme -> [StyleAttribute]
+
+class IntoStyle value where
+  intoStyle :: value -> Attribute
+
+instance IntoStyle BasicStyle where
+  intoStyle = BasicStyle
+
+instance IntoStyle [StyleAttribute] where
+  intoStyle attributes = CustomStyle (\_theme -> attributes)
+
+instance IntoStyle StyleCallback where
+  intoStyle callback = CustomStyle callback
+
+applyStyles :: [StyleAttribute] -> Style -> IO ()
+applyStyles [] _appearance = pure ()
+applyStyles (first:remaining) appearance = do
+  case first of
+    Background (BgColor color) -> do
+      colorPtr <- valueToNativeIO color
+      set_background appearance colorPtr
+    TextColor color -> do
+      colorPtr <- valueToNativeIO color
+      set_text_color appearance colorPtr
+    AddBorder Border { color, width = w, radius } -> do
+      colorPtr <- valueToNativeIO color
+      set_border appearance colorPtr (CFloat w) (CFloat radius)
+    -- AddShadow _shadow -> pure ()
+  applyStyles remaining appearance
+
+useBasicStyle :: BasicStyle -> AttributeFn
+useBasicStyle value self = container_style_basic self $ fromIntegral $ fromEnum value
+
+useCustomStyle :: StyleCallback -> AttributeFn
+useCustomStyle callback self = do
+  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
+  container_style_custom self callbackPtr
+
+instance UseBackground StyleAttribute where
+  background = Background . BgColor
+
+instance UseBorder StyleAttribute where
+  border color w radius = AddBorder $ Border color w radius
+
+instance UseTextColor StyleAttribute where
+  textColor = TextColor

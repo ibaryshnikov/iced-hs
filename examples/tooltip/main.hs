@@ -4,8 +4,11 @@
 module Main where
 
 import Iced
+import Iced.Attribute
+import Iced.Theme
 import Iced.Widget
 import Iced.Widget.Tooltip qualified as Tooltip
+import Iced.Widget.Container (BasicStyle(..))
 
 data Model = Model { position :: Tooltip.Position }
 
@@ -29,7 +32,7 @@ view model =
     content = button [onPress ChangePosition] "Press to change position"
 
 toText :: Tooltip.Position -> Element
-toText position = text [] label where
+toText position = container [padding 6, style RoundedBox] $ text [] label where
   label = case position of
     Tooltip.FollowCursor -> "Follow Cursor"
     Tooltip.Top -> "Top"
@@ -38,5 +41,5 @@ toText position = text [] label where
     Tooltip.Right -> "Right"
 
 main :: IO ()
-main = Iced.run [] "Tooltip" model update view
+main = Iced.run [theme Nord] "Tooltip" model update view
   where model = Model { position = Tooltip.FollowCursor }

@@ -20,6 +20,7 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.OnInput
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Size
 import Iced.Element
 
@@ -70,9 +71,9 @@ foreign import ccall "combo_box_line_height"
 foreign import ccall "combo_box_on_close"
   combo_box_on_close :: Self -> StablePtr a -> IO Self
 
--- combo_box top right bottom left
+-- combo_box padding
 foreign import ccall "combo_box_padding"
-  combo_box_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  combo_box_padding :: Self -> PaddingPtr -> IO Self
 
 foreign import ccall "combo_box_size"
   combo_box_size :: Self -> CFloat -> IO Self
@@ -142,7 +143,7 @@ instance Read option => UseAttribute Self (Attribute option message) where
     AddLineHeight value -> useFnIO combo_box_line_height value
     AddOnInput callback -> useOnInput callback
     AddOnHover callback -> useOnHover callback
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO combo_box_padding value
     OnClose message -> useOnClose message
     Size value -> useFn combo_box_size value
     Width value -> useFnIO combo_box_width value
@@ -153,8 +154,14 @@ instance UseLineHeight (Attribute option message) where
 instance UseOnInput (OnInput message) (Attribute option message) where
   onInput = AddOnInput
 
-instance PaddingToAttribute Padding (Attribute option message) where
-  paddingToAttribute = AddPadding
+instance UsePadding (Attribute option message) where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 (Attribute option message) where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 (Attribute option message) where
+  padding4 top right bottom left = AddPadding Padding { .. }
 
 instance UseSize (Attribute option message) where
   size = Size
@@ -191,7 +198,3 @@ useOnHover :: Read option => OnOptionHovered option message -> AttributeFn
 useOnHover callback self =
   makeOnHoverCallback (wrapOnHover callback)
     >>= combo_box_on_option_hovered self
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  combo_box_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

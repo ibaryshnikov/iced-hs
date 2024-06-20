@@ -20,6 +20,7 @@ import Foreign.C.Types
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Color
@@ -48,11 +49,11 @@ data Border = Border {
 --}
 
 data StyleAttribute
- = ShadowOffset Float Float
- | Background Background
- | TextColor Color
- | AddBorder Border
- -- | AddShadow Shadow
+  = ShadowOffset Float Float
+  | Background Background
+  | TextColor Color
+  | AddBorder Border
+  -- | AddShadow Shadow
 
 data Status = Active | Hovered | Pressed | Disabled deriving (Enum, Eq)
 
@@ -75,9 +76,9 @@ foreign import ccall "button_new"
 foreign import ccall "button_on_press"
   button_on_press :: Self -> StablePtr a -> IO Self
 
--- button top right bottom left
+-- button padding
 foreign import ccall "button_padding"
-  button_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  button_padding :: Self -> PaddingPtr -> IO Self
 
 foreign import ccall "button_style_basic"
   button_style_basic :: Self -> CUChar -> IO Self
@@ -121,15 +122,21 @@ instance IntoNative Button Self where
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     OnPress message -> useOnPress message
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO button_padding value
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
     Width  len -> useFnIO button_width  len
     Height len -> useFnIO button_height len
     None -> pure
 
-instance PaddingToAttribute Padding (Attribute message) where
-  paddingToAttribute = AddPadding
+instance UsePadding (Attribute message) where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 (Attribute message) where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 (Attribute message) where
+  padding4 top right bottom left = AddPadding Padding { .. }
 
 instance IntoStyle value => UseStyle value (Attribute message) where
   style = intoStyle
@@ -154,10 +161,6 @@ useOnPress :: message -> AttributeFn
 useOnPress message self =
   newStablePtr message
     >>= button_on_press self
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  button_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
 
 -- style theme status
 type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()

@@ -78,7 +78,7 @@ instance IntoNative Tooltip Self where
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Gap value -> useGap value
-    AddPadding value -> useFn tooltip_padding value
+    AddPadding value -> usePadding value
     SnapWithViewport snap -> useSnapWithViewport snap
 
 instance UsePadding Attribute where
@@ -99,3 +99,6 @@ snapWithViewport = SnapWithViewport
 useSnapWithViewport :: Bool -> AttributeFn
 useSnapWithViewport snap self =
   tooltip_snap_within_viewport self (fromBool snap)
+
+usePadding :: Float -> AttributeFn
+usePadding value self = tooltip_padding self (CFloat value)

@@ -7,10 +7,11 @@ module Iced.Widget.TextInput (textInput, onInput, onSubmit) where
 import Control.Monad
 import Foreign
 import Foreign.C.String
-import Foreign.C.Types
 
+import Iced.Attribute.Internal
 import Iced.Attribute.OnInput
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Element
 
 data NativeTextInput
@@ -31,9 +32,9 @@ foreign import ccall "text_input_on_input"
 foreign import ccall "text_input_on_submit"
   text_input_on_submit :: Self -> StablePtr a -> IO Self
 
--- text_input top right bottom left
+-- text_input padding
 foreign import ccall "text_input_padding"
-  text_input_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  text_input_padding :: Self -> PaddingPtr -> IO Self
 
 foreign import ccall "text_input_into_element"
   into_element :: Self -> IO ElementPtr
@@ -65,13 +66,19 @@ instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnInput callback -> useOnInput callback
     AddOnSubmit message -> useOnSubmit message
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO text_input_padding value
 
 instance UseOnInput (OnInput message) (Attribute message) where
   onInput = AddOnInput
 
-instance PaddingToAttribute Padding (Attribute message) where
-  paddingToAttribute = AddPadding
+instance UsePadding (Attribute message) where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 (Attribute message) where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 (Attribute message) where
+  padding4 top right bottom left = AddPadding Padding { .. }
 
 textInput :: [Attribute message] -> String -> String -> Element
 textInput attributes placeholder value = pack TextInput { .. } attributes
@@ -88,7 +95,3 @@ useOnSubmit :: message -> AttributeFn
 useOnSubmit message self =
     newStablePtr message
       >>= text_input_on_submit self
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  text_input_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

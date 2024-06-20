@@ -20,20 +20,9 @@ extern "C" fn column_align_items(self_ptr: SelfPtr, alignment: *mut Alignment) -
 }
 
 #[no_mangle]
-extern "C" fn column_padding(
-    self_ptr: SelfPtr,
-    top: c_float,
-    right: c_float,
-    bottom: c_float,
-    left: c_float,
-) -> SelfPtr {
+extern "C" fn column_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
     let column = unsafe { Box::from_raw(self_ptr) };
-    let padding = Padding {
-        top,
-        right,
-        bottom,
-        left,
-    };
+    let padding = unsafe { *Box::from_raw(padding_ptr) };
     Box::into_raw(Box::new(column.padding(padding)))
 }
 

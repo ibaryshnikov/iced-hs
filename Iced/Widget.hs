@@ -44,7 +44,11 @@ import Iced.Widget.Checkbox (
   )
 import Iced.Widget.Column
 import Iced.Widget.ComboBox hiding (State, newState)
-import Iced.Widget.Container
+import Iced.Widget.Container (
+    container,
+    centerX,
+    centerY,
+  )
 import Iced.Widget.PickList
 import Iced.Widget.ProgressBar
 import Iced.Widget.Radio

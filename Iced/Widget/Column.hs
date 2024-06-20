@@ -14,12 +14,12 @@ import Iced.Attribute.AlignmentFFI
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
+import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Spacing
 import Iced.Element
 
 data NativeColumn
 type Self = Ptr NativeColumn
-type AttributeFn = Self -> IO Self
 
 data Attribute
   = Spacing Float
@@ -35,9 +35,9 @@ data Attribute
 foreign import ccall "column_align_items"
   column_align_items :: Self -> AlignmentPtr -> IO Self
 
--- column top right bottom left
+-- column padding
 foreign import ccall "column_padding"
-  column_padding :: Self -> CFloat -> CFloat -> CFloat -> CFloat -> IO Self
+  column_padding :: Self -> PaddingPtr -> IO Self
 
 -- column value
 foreign import ccall "column_spacing"
@@ -76,7 +76,7 @@ instance IntoNative Column Self where
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Spacing value -> useFn column_spacing value
-    AddPadding value -> usePadding value
+    AddPadding value -> useFnIO column_padding value
     AlignItems value -> useFnIO column_align_items value
     Width  len -> useFnIO column_width  len
     Height len -> useFnIO column_height len
@@ -87,8 +87,15 @@ instance UseAlignment Attribute where
 instance UseSpacing Attribute where
   spacing = Spacing
 
-instance PaddingToAttribute Padding Attribute where
-  paddingToAttribute = AddPadding
+instance UsePadding Attribute where
+  padding = AddPadding . paddingFromOne
+
+instance UsePadding2 Attribute where
+  padding2 a b = AddPadding $ paddingFromTwo a b
+
+instance UsePadding4 Attribute where
+  padding4 top right bottom left = AddPadding Padding { .. }
+
 
 instance UseWidth Length Attribute where
   width = Width
@@ -98,7 +105,3 @@ instance UseHeight Length Attribute where
 
 column :: [Attribute] -> [Element] -> Element
 column attributes children = pack Column { .. } attributes
-
-usePadding :: Padding -> AttributeFn
-usePadding Padding { .. } self =
-  column_padding self (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

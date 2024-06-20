@@ -80,20 +80,9 @@ extern "C" fn combo_box_on_option_hovered(
 }
 
 #[no_mangle]
-extern "C" fn combo_box_padding(
-    self_ptr: SelfPtr,
-    top: c_float,
-    right: c_float,
-    bottom: c_float,
-    left: c_float,
-) -> SelfPtr {
+extern "C" fn combo_box_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
     let combo_box = unsafe { Box::from_raw(self_ptr) };
-    let padding = Padding {
-        top,
-        right,
-        bottom,
-        left,
-    };
+    let padding = unsafe { *Box::from_raw(padding_ptr) };
     Box::into_raw(Box::new(combo_box.padding(padding)))
 }
 
