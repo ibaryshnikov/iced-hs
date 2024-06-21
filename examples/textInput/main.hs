@@ -4,7 +4,9 @@
 module Main where
 
 import Iced
+import Iced.Attribute
 import Iced.Widget
+import Iced.Theme
 
 data Model = Model {
     input :: String,
@@ -15,17 +17,21 @@ data Message = Input String | Submit
 
 update :: Model -> Message -> Model
 update model message = case message of
-  Input value -> model { input = value }
+  Input value_ -> model { input = value_ }
   Submit -> case model.input of
     "" -> model -- filter empty strings
-    value -> model { items = items, input = "" }
-      where items = [value] ++ model.items
+    value_ -> model { items = items, input = "" }
+      where items = [value_] ++ model.items
 
 view :: Model -> Element
-view model = column [] ([input] ++ labels)
-  where input = textInput [onInput Input, onSubmit Submit] "Placeholder" model.input
-        labels = map (text []) model.items
+view model =
+  container [centerX Fill, centerY Fill] $
+  column [] ([input] ++ labels)
+    where
+      input = textInput [width (Fixed 300), onInput Input, onSubmit Submit]
+        "Placeholder" model.input
+      labels = map (text []) model.items
 
 main :: IO ()
-main = Iced.run [] "TextInput" model update view
+main = Iced.run [theme GruvboxLight] "TextInput" model update view
   where model = Model { input = "", items = [] }

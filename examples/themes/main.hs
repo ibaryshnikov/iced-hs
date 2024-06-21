@@ -13,7 +13,7 @@ import Iced.Widget.Checkbox (BasicStyle(..))
 data Model = Model {
   selected :: Maybe Theme,
   option :: Maybe Option,
-  value :: Bool,
+  value_ :: Bool,
   checkBoxValue :: Bool
 }
 
@@ -27,11 +27,11 @@ data Message
 data Option = First | Second | Third deriving Enum
 
 update :: Model -> Message -> Model
-update model (Selected value) = model { selected = Just value }
-update model (ChangeOption value) = model { option = Just value }
+update model (Selected value_) = model { selected = Just value_ }
+update model (ChangeOption value_) = model { option = Just value_ }
 update model ClearOption = model { option = Nothing }
-update model (Toggle value) = model { value = value }
-update model (ToggleCheckBox value) = model { checkBoxValue = value }
+update model (Toggle value_) = model { value_ = value_ }
+update model (ToggleCheckBox value_) = model { checkBoxValue = value_ }
 
 view :: Model -> Element
 view model = center [] $
@@ -44,13 +44,13 @@ view model = center [] $
       radio [] "Third" Third model.option ChangeOption
     ],
     button [onPress ClearOption] "Clear",
-    toggler [width Shrink] (lights model.value) model.value Toggle,
+    toggler [width Shrink] (lights model.value_) model.value_ Toggle,
     row [spacing 20] (map styled pairs)
   ]
   where
     pairs = [(Primary, "Primary"), (Secondary, "Secondary"), (Success, "Success"), (Danger, "Danger")]
-    styled (value, label) = checkbox attributes label model.checkBoxValue
-      where attributes = [style value, onToggle ToggleCheckBox]
+    styled (value_, label) = checkbox attributes label model.checkBoxValue
+      where attributes = [style value_, onToggle ToggleCheckBox]
 
 options :: [Theme]
 options = [
@@ -66,9 +66,9 @@ lights False = "Lights off"
 
 themeFn :: Model -> Theme
 themeFn model = case model.selected of
-  Just value -> value
+  Just value_ -> value_
   Nothing -> Ferra
 
 main :: IO ()
 main = Iced.run [theme themeFn] "Themes" model update view
-  where model = Model { selected = Nothing, option = Nothing, value = False, checkBoxValue = False }
+  where model = Model { selected = Nothing, option = Nothing, value_ = False, checkBoxValue = False }

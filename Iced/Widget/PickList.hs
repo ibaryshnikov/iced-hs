@@ -4,7 +4,6 @@
 
 module Iced.Widget.PickList (
   pickList,
-  placeholder,
 ) where
 
 import Control.Monad
@@ -16,6 +15,7 @@ import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Attribute.PaddingFFI
+import Iced.Attribute.Shared
 import Iced.Element
 
 data NativePickList
@@ -96,6 +96,9 @@ instance UsePadding2 Attribute where
 instance UsePadding4 Attribute where
   padding4 top right bottom left = AddPadding Padding { .. }
 
+instance UsePlaceholder String Attribute where
+  placeholder = Placeholder
+
 instance UseWidth Length Attribute where
   width = Width
 
@@ -105,9 +108,6 @@ pickList :: (Show option, Read option) => [Attribute]
                                        -> OnSelect option message
                                        -> Element
 pickList attributes options selected onSelect = pack PickList { .. } attributes
-
-placeholder :: String -> Attribute
-placeholder = Placeholder
 
 usePlaceholder :: String -> AttributeFn
 usePlaceholder value self =

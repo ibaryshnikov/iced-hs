@@ -37,7 +37,6 @@ import Iced.Widget.Checkbox (
     checkbox,
     onToggle,
     onToggleIf,
-    icon,
     textLineHeight,
     textShaping,
     textSize,
@@ -59,7 +58,11 @@ import Iced.Widget.Slider
 import Iced.Widget.Space
 import Iced.Widget.Text (text)
 import Iced.Widget.TextEditor (textEditor, onAction)
-import Iced.Widget.TextInput
+import Iced.Widget.TextInput (
+    textInput,
+    onInput,
+    onSubmit,
+  )
 import Iced.Widget.Toggler
 import Iced.Widget.Tooltip hiding (Position(..))
 import Iced.Widget.VerticalSlider

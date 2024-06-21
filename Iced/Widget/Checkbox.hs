@@ -6,7 +6,6 @@ module Iced.Widget.Checkbox (
   checkbox,
   onToggle,
   onToggleIf,
-  icon,
   textLineHeight,
   textShaping,
   textSize,
@@ -24,6 +23,7 @@ import Foreign.C.Types
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
+import Iced.Attribute.Shared
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
 import Iced.Attribute.Status
@@ -170,6 +170,9 @@ instance UseAttribute Self (Attribute message) where
     Width len -> useFnIO checkbox_width len
     None -> pure
 
+instance UseIcon Word32 (Attribute message) where
+  icon = Icon
+
 instance UseSize (Attribute message) where
   size = Size
 
@@ -196,9 +199,6 @@ useOnToggle :: OnToggle message -> AttributeFn
 useOnToggle callback self =
   makeCallback (wrapOnToggle callback)
     >>= checkbox_on_toggle self
-
-icon :: Word32 -> Attribute message
-icon = Icon
 
 useIcon :: Word32 -> AttributeFn
 useIcon codePoint self = do

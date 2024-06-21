@@ -76,7 +76,6 @@ foreign import ccall "button_new"
 foreign import ccall "button_on_press"
   button_on_press :: Self -> StablePtr a -> IO Self
 
--- button padding
 foreign import ccall "button_padding"
   button_padding :: Self -> PaddingPtr -> IO Self
 
@@ -95,7 +94,6 @@ foreign import ccall "button_height"
 foreign import ccall "button_into_element"
   into_element :: Self -> IO ElementPtr
 
--- style color
 foreign import ccall "button_style_set_background"
   set_background :: Style -> ColorPtr -> IO ()
 
@@ -103,7 +101,6 @@ foreign import ccall "button_style_set_background"
 foreign import ccall "button_style_set_border"
   set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
 
--- style color
 foreign import ccall "button_style_set_text_color"
   set_text_color :: Style -> ColorPtr -> IO ()
 
@@ -201,7 +198,7 @@ instance IntoStyle (Status -> [StyleAttribute]) where
   intoStyle callback = CustomStyle (\_theme -> callback)
 
 instance IntoStyle StyleCallback where
-  intoStyle callback = CustomStyle callback
+  intoStyle = CustomStyle
 
 applyStyles :: [StyleAttribute] -> Style -> IO ()
 applyStyles [] _appearance = pure ()

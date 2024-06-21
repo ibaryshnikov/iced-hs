@@ -78,7 +78,7 @@ extern "C" fn container_style_custom(self_ptr: SelfPtr, callback: StyleCallback)
     let container = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(container.style(move |theme| {
         let theme_raw = crate::theme::theme_to_raw(theme);
-        let mut style = Style::default();
+        let mut style = container::transparent(theme);
         callback(&mut style, theme_raw);
         style
     })))
