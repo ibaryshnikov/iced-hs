@@ -28,7 +28,7 @@ data NativeStyle
 type Style = Ptr NativeStyle
 
 data StyleAttribute
-  = StyleColor Color
+  = TextColor Color
 
 data Attribute
   = AddColor Color
@@ -125,7 +125,7 @@ applyStyles :: [StyleAttribute] -> Style -> IO ()
 applyStyles [] _appearance = pure ()
 applyStyles (first:remaining) appearance = do
   case first of
-    StyleColor value -> do
+    TextColor value -> do
       colorPtr <- valueToNativeIO value
       set_color appearance colorPtr
   applyStyles remaining appearance
@@ -136,4 +136,4 @@ useCustomStyle callback self = do
   text_style_custom self callbackPtr
 
 instance UseColor StyleAttribute where
-  color = StyleColor
+  color = TextColor

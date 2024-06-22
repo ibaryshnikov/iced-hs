@@ -53,7 +53,7 @@ data Border = Border {
 data StyleAttribute
  = Background Background
  | IconColor Color
- | AddBorder Border
+ | BorderStyle Border
  | TextColor Color
 
 data Status = Active | Hovered | Disabled deriving (Enum, Eq)
@@ -272,7 +272,7 @@ applyStyles (first:remaining) appearance = do
     IconColor color -> do
       colorPtr <- valueToNativeIO color
       set_icon_color appearance colorPtr
-    AddBorder Border { color, width = w, radius } -> do
+    BorderStyle Border { color, width = w, radius } -> do
       colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     TextColor color -> do
@@ -292,7 +292,7 @@ instance UseBackground StyleAttribute where
   background = Background . BgColor
 
 instance UseBorder StyleAttribute where
-  border color w radius = AddBorder $ Border color w radius
+  border color w radius = BorderStyle $ Border color w radius
 
 instance UseTextColor StyleAttribute where
   textColor = TextColor

@@ -17,11 +17,11 @@ data Message = Input String | Submit
 
 update :: Model -> Message -> Model
 update model message = case message of
-  Input value_ -> model { input = value_ }
+  Input value -> model { input = value }
   Submit -> case model.input of
     "" -> model -- filter empty strings
-    value_ -> model { items = items, input = "" }
-      where items = [value_] ++ model.items
+    value -> model { items = items, input = "" }
+      where items = [value] ++ model.items
 
 view :: Model -> Element
 view model =

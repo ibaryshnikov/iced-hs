@@ -22,7 +22,6 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.OnInput
 import Iced.Attribute.Padding
 import Iced.Attribute.PaddingFFI
-import Iced.Attribute.Shared
 import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Color
@@ -46,10 +45,10 @@ data Border = Border {
 
 data StyleAttribute
   = Background Background
-  | AddBorder Border
+  | BorderStyle Border
   | Icon Color
   | Placeholder Color
-  | Value Color
+  | Text Color
   | Selection Color
 
 data Status = Active | Hovered | Focused | Disabled deriving (Enum, Eq)
@@ -113,8 +112,8 @@ wrapOnInput callback = newStablePtr . callback <=< peekCString
 type OnInput message = String -> message
 
 data TextInput = TextInput {
-  placeholder_ :: String,
-  value_ :: String
+  placeholder :: String,
+  value :: String
 }
 
 instance Builder Self where
@@ -122,16 +121,16 @@ instance Builder Self where
 
 instance IntoNative TextInput Self where
   toNative details = do
-    placeholder_ <- newCString details.placeholder_
-    value_ <- newCString details.value_
-    text_input_new placeholder_ value_
+    placeholder <- newCString details.placeholder
+    value <- newCString details.value
+    text_input_new placeholder value
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnInput callback -> useOnInput callback
     AddOnSubmit message -> useOnSubmit message
-    AddPadding value_ -> useFnIO text_input_padding value_
-    CustomStyle value_ -> useCustomStyle value_
+    AddPadding value -> useFnIO text_input_padding value
+    CustomStyle value -> useCustomStyle value
     Width  len -> useFnIO text_input_width  len
 
 instance UseOnInput (OnInput message) (Attribute message) where
@@ -153,7 +152,7 @@ instance UseWidth Length (Attribute message) where
   width = Width
 
 textInput :: [Attribute message] -> String -> String -> Element
-textInput attributes placeholder_ value_ = pack TextInput { .. } attributes
+textInput attributes placeholder value = pack TextInput { .. } attributes
 
 useOnInput :: OnInput message -> AttributeFn
 useOnInput callback self =
@@ -213,7 +212,7 @@ applyStyles (first:remaining) appearance = do
     Background (BgColor color) -> do
       colorPtr <- valueToNativeIO color
       set_background appearance colorPtr
-    AddBorder Border { color, width = w, radius } -> do
+    BorderStyle Border { color, width = w, radius } -> do
       colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     Icon color -> do
@@ -222,7 +221,7 @@ applyStyles (first:remaining) appearance = do
     Placeholder color -> do
       colorPtr <- valueToNativeIO color
       set_placeholder appearance colorPtr
-    Value color -> do
+    Text color -> do
       colorPtr <- valueToNativeIO color
       set_value appearance colorPtr
     Selection color -> do
@@ -239,19 +238,19 @@ instance UseBackground StyleAttribute where
   background = Background . BgColor
 
 instance UseBorder StyleAttribute where
-  border color w radius = AddBorder $ Border color w radius
+  border color w radius = BorderStyle $ Border color w radius
 
-instance UseIcon Color StyleAttribute where
-  icon = Icon
+instance UseIconColor StyleAttribute where
+  iconColor = Icon
 
-instance UsePlaceholder Color StyleAttribute where
-  placeholder = Placeholder
+instance UsePlaceholderColor StyleAttribute where
+  placeholderColor = Placeholder
 
-instance UseValue StyleAttribute where
-  value = Value
+instance UseTextColor StyleAttribute where
+  textColor = Text
 
-instance UseSelection StyleAttribute where
-  selection = Selection
+instance UseSelectionColor StyleAttribute where
+  selectionColor = Selection
 
 instance UseActive [StyleAttribute] StatusAttribute where
   active = (Active,)

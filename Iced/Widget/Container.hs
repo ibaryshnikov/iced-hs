@@ -40,7 +40,7 @@ data Border = Border {
 data StyleAttribute
   = TextColor Color
   | Background Background
-  | AddBorder Border
+  | BorderStyle Border
   -- | AddShadow Shadow
 
 data BasicStyle = BorderedBox | RoundedBox | Transparent deriving Enum
@@ -179,7 +179,7 @@ applyStyles (first:remaining) appearance = do
     TextColor color -> do
       colorPtr <- valueToNativeIO color
       set_text_color appearance colorPtr
-    AddBorder Border { color, width = w, radius } -> do
+    BorderStyle Border { color, width = w, radius } -> do
       colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     -- AddShadow _shadow -> pure ()
@@ -197,7 +197,7 @@ instance UseBackground StyleAttribute where
   background = Background . BgColor
 
 instance UseBorder StyleAttribute where
-  border color w radius = AddBorder $ Border color w radius
+  border color w radius = BorderStyle $ Border color w radius
 
 instance UseTextColor StyleAttribute where
   textColor = TextColor

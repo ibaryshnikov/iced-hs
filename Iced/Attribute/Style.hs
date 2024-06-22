@@ -15,11 +15,11 @@ class UseBorder attribute where
 class UseIconColor attribute where
   iconColor :: Color -> attribute
 
-class UseValue attribute where
-  value :: Color -> attribute
-
-class UseSelection attribute where
-  selection :: Color -> attribute
+class UsePlaceholderColor attribute where
+  placeholderColor :: Color -> attribute
 
 class UseTextColor attribute where
   textColor :: Color -> attribute
+
+class UseSelectionColor attribute where
+  selectionColor :: Color -> attribute

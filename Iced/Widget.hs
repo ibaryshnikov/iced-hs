@@ -57,7 +57,10 @@ import Iced.Widget.Scrollable
 import Iced.Widget.Slider
 import Iced.Widget.Space
 import Iced.Widget.Text (text)
-import Iced.Widget.TextEditor (textEditor, onAction)
+import Iced.Widget.TextEditor (
+    textEditor,
+    onAction,
+  )
 import Iced.Widget.TextInput (
     textInput,
     onInput,

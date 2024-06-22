@@ -10,17 +10,27 @@ module Iced.Widget.TextEditor (
   Action,
   Content,
   onAction,
+  StyleAttribute,
+  Status(..),
+  StatusAttribute,
 ) where
 
 import Control.Monad
+import Data.List
 import Foreign
 import Foreign.C.String
+import Foreign.C.Types
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.Padding
 import Iced.Attribute.PaddingFFI
+import Iced.Attribute.Status
+import Iced.Attribute.Style
+import Iced.Color
+import Iced.ColorFFI
 import Iced.Element
+import Iced.Theme
 
 data NativeTextEditor
 type Self = Ptr NativeTextEditor
@@ -29,10 +39,33 @@ data NativeContent
 type Content = ForeignPtr NativeContent
 data NativeAction
 type Action = Ptr NativeAction
+data NativeStyle
+type Style = Ptr NativeStyle
+
+data Background = BgColor Color -- | BgGradient Gradient
+
+data Border = Border {
+  color :: Color,
+  width :: Float,
+  radius :: Float
+}
+
+data StyleAttribute
+  = Background Background
+  | BorderStyle Border
+  | Icon Color
+  | Placeholder Color
+  | Text Color
+  | Selection Color
+
+data Status = Active | Hovered | Focused | Disabled deriving (Enum, Eq)
+
+type StatusAttribute = (Status, [StyleAttribute])
 
 data Attribute message
   = AddOnAction (OnAction message)
   | AddPadding Padding
+  | CustomStyle StyleCallback
   | Height Length
 
 foreign import ccall "text_editor_content_new"
@@ -70,11 +103,33 @@ foreign import ccall "text_editor_on_action"
 foreign import ccall "text_editor_padding"
   text_editor_padding :: Self -> PaddingPtr -> IO Self
 
+foreign import ccall "text_editor_style_custom"
+  text_editor_style_custom :: Self -> FunPtr NativeStyleCallback -> IO Self
+
 foreign import ccall "text_editor_height"
   text_editor_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall "text_editor_into_element"
   into_element :: Self -> IO ElementPtr
+
+foreign import ccall "text_editor_style_set_background"
+  set_background :: Style -> ColorPtr -> IO ()
+
+-- style color width radius
+foreign import ccall "text_editor_style_set_border"
+  set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
+
+foreign import ccall "text_editor_style_set_icon"
+  set_icon :: Style -> ColorPtr -> IO ()
+
+foreign import ccall "text_editor_style_set_placeholder"
+  set_placeholder :: Style -> ColorPtr -> IO ()
+
+foreign import ccall "text_editor_style_set_value"
+  set_value :: Style -> ColorPtr -> IO ()
+
+foreign import ccall "text_editor_style_set_selection"
+  set_selection :: Style -> ColorPtr -> IO ()
 
 type NativeOnAction message = Action -> IO (StablePtr message)
 foreign import ccall "wrapper"
@@ -100,6 +155,7 @@ instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
     AddOnAction callback -> useOnAction callback
     AddPadding value -> useFnIO text_editor_padding value
+    CustomStyle value -> useCustomStyle value
     Height len -> useFnIO text_editor_height len
 
 instance UsePadding (Attribute message) where
@@ -110,6 +166,9 @@ instance UsePadding2 (Attribute message) where
 
 instance UsePadding4 (Attribute message) where
   padding4 top right bottom left = AddPadding Padding { .. }
+
+instance IntoStyle value => UseStyle value (Attribute message) where
+  style = intoStyle
 
 instance UseHeight Length (Attribute message) where
   height = Height
@@ -124,3 +183,100 @@ useOnAction :: OnAction message -> AttributeFn
 useOnAction callback self =
   makeCallback (wrapOnAction callback)
     >>= text_editor_on_action self
+
+-- style theme status
+type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()
+
+foreign import ccall "wrapper"
+  makeStyleCallback :: NativeStyleCallback -> IO (FunPtr NativeStyleCallback)
+
+wrapStyleCallback :: StyleCallback -> NativeStyleCallback
+wrapStyleCallback callback appearance themeRaw statusRaw = do
+  let theme = toEnum $ fromIntegral themeRaw
+  let status = toEnum $ fromIntegral statusRaw
+  let attributes = callback theme status
+  applyStyles attributes appearance
+
+type StyleCallback = Theme -> Status -> [StyleAttribute]
+
+class IntoStyle value where
+  intoStyle :: value -> Attribute message
+
+instance IntoStyle [StyleAttribute] where
+  intoStyle attributes = CustomStyle (\_theme _status -> attributes)
+
+selectStyles :: [StatusAttribute] -> Status -> [StyleAttribute]
+selectStyles extra status = case find (\(s, _a) -> s == status) extra of
+  Just (_s, attributes) -> attributes
+  Nothing -> []
+
+instance IntoStyle [StatusAttribute] where
+  intoStyle extra = CustomStyle (\_theme -> selectStyles extra)
+
+instance IntoStyle ([StyleAttribute], [StatusAttribute]) where
+  intoStyle (base, extra) = CustomStyle (\_theme -> (base ++) . selectStyles extra)
+
+instance IntoStyle (Status -> [StyleAttribute]) where
+  intoStyle callback = CustomStyle (\_theme -> callback)
+
+instance IntoStyle StyleCallback where
+  intoStyle = CustomStyle
+
+applyStyles :: [StyleAttribute] -> Style -> IO ()
+applyStyles [] _appearance = pure ()
+applyStyles (first:remaining) appearance = do
+  case first of
+    Background (BgColor color) -> do
+      colorPtr <- valueToNativeIO color
+      set_background appearance colorPtr
+    BorderStyle Border { color, width = w, radius } -> do
+      colorPtr <- valueToNativeIO color
+      set_border appearance colorPtr (CFloat w) (CFloat radius)
+    Icon color -> do
+      colorPtr <- valueToNativeIO color
+      set_icon appearance colorPtr
+    Placeholder color -> do
+      colorPtr <- valueToNativeIO color
+      set_placeholder appearance colorPtr
+    Text color -> do
+      colorPtr <- valueToNativeIO color
+      set_value appearance colorPtr
+    Selection color -> do
+      colorPtr <- valueToNativeIO color
+      set_selection appearance colorPtr
+  applyStyles remaining appearance
+
+useCustomStyle :: StyleCallback -> AttributeFn
+useCustomStyle callback self = do
+  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
+  text_editor_style_custom self callbackPtr
+
+instance UseBackground StyleAttribute where
+  background = Background . BgColor
+
+instance UseBorder StyleAttribute where
+  border color w radius = BorderStyle $ Border color w radius
+
+instance UseIconColor StyleAttribute where
+  iconColor = Icon
+
+instance UsePlaceholderColor StyleAttribute where
+  placeholderColor = Placeholder
+
+instance UseTextColor StyleAttribute where
+  textColor = Text
+
+instance UseSelectionColor StyleAttribute where
+  selectionColor = Selection
+
+instance UseActive [StyleAttribute] StatusAttribute where
+  active = (Active,)
+
+instance UseHovered [StyleAttribute] StatusAttribute where
+  hovered = (Hovered,)
+
+instance UseFocused [StyleAttribute] StatusAttribute where
+  focused = (Focused,)
+
+instance UseDisabled [StyleAttribute] StatusAttribute where
+  disabled = (Disabled,)

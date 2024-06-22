@@ -163,4 +163,5 @@ way to build a ui or display some data.
    - [x] container
    - [x] text
    - [x] textInput
+   - [x] textEditor
    - [ ] ...
