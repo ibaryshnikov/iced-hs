@@ -49,7 +49,7 @@ import Iced.Widget.Container (
     centerY,
   )
 import Iced.Widget.PickList
-import Iced.Widget.ProgressBar
+import Iced.Widget.ProgressBar (progressBar)
 import Iced.Widget.Radio (radio)
 import Iced.Widget.Responsive
 import Iced.Widget.Row

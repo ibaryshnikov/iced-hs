@@ -17,6 +17,9 @@ applyStyles (attribute:remaining) appearance = do
 class UseBackground attribute where
   background :: Color -> attribute
 
+class UseBar attribute where
+  bar :: Color -> attribute
+
 class UseBorder attribute where
   -- color width radius
   border :: Color -> Float -> Float -> attribute

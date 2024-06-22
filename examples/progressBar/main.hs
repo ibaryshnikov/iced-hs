@@ -10,6 +10,8 @@ import Iced.Command qualified as Command
 import Iced.Theme
 import Iced.Time
 import Iced.Widget
+import Iced.Widget.Button qualified as Button
+import Iced.Widget.ProgressBar qualified as ProgressBar
 
 data Model = Model {
   value :: Float,
@@ -35,8 +37,8 @@ view :: Model -> Element
 view model =
   center [] $
   column [alignItems Center, spacing 50] [
-    progressBar [width $ Fixed 300, height $ Fixed 30] 0 100 model.value,
-    button [onPressIf (not model.running) StartTimer] "Start"
+    progressBar [width $ Fixed 300, height $ Fixed 30, style ProgressBar.Danger] 0 100 model.value,
+    button [onPressIf (not model.running) StartTimer, style Button.Danger] "Start"
   ]
 
 main :: IO ()

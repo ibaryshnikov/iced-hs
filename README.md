@@ -3,11 +3,6 @@
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
 Very experimental, check [Roadmap](#roadmap) to see progress.
 
-To learn more about iced check [official website](https://iced.rs) and the [book](https://book.iced.rs)
-
-The api is inspired by [Elm](https://elm-lang.org/) and [elm-ui](https://github.com/mdgriffith/elm-ui).
-Canvas is inspired by [elm-canvas](https://github.com/joakin/elm-canvas)
-
 Note: temporarily switched to a fork to provide access to KeyCode from winit.
 Currently iced provides only logical key, check [this pr](https://github.com/iced-rs/iced/pull/2169)
 for more details. Eventually physical key will be added back to iced.
@@ -43,7 +38,7 @@ update value Dec = value - 1
 
 view :: Int -> Element
 view value =
-  center [] $
+  container [centerX Fill, centerY Fill] $
   column [alignItems Center, spacing 10] [
     button [onPress Inc] "Increment",
     text [size 50] $ show value,
@@ -83,16 +78,26 @@ ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 
 - [wgpu](https://github.com/gfx-rs/wgpu) - graphics
 - [winit](https://github.com/rust-windowing/winit) - windowing
-- [tokio](https://github.com/tokio-rs/tokio) - runtime, though other runtimes
-  are available through features in original iced crate
+- [tokio](https://github.com/tokio-rs/tokio) - runtime
+- [cosmic-text](https://github.com/pop-os/cosmic-text) - multi-line text handling
+
+
+## Credits
+
+Below is a list of inspiring projects
+- [Elm](https://elm-lang.org/)
+- [elm-ui](https://github.com/mdgriffith/elm-ui)
+- [elm-canvas](https://github.com/joakin/elm-canvas)
+- [webgl](https://github.com/elm-explorations/webgl)
+- [miso](https://github.com/dmjio/miso)
+- [monomer](https://github.com/fjvallarino/monomer)
 
 
 ## Status
 
 This is a research project. The api may change often.
-Not recommended for use in production. But may be a good
-option if you are learning Haskell or need a simple
-way to build a ui or display some data.
+Not recommended for use in production. It still may be a good
+option if you need a simple way to build some ui.
 
 
 ## Roadmap
@@ -161,6 +166,7 @@ way to build a ui or display some data.
    - [x] button
    - [x] checkobx
    - [x] container
+   - [x] progressBar
    - [x] radio
    - [x] text
    - [x] textInput
