@@ -50,7 +50,7 @@ import Iced.Widget.Container (
   )
 import Iced.Widget.PickList
 import Iced.Widget.ProgressBar
-import Iced.Widget.Radio
+import Iced.Widget.Radio (radio)
 import Iced.Widget.Responsive
 import Iced.Widget.Row
 import Iced.Widget.Scrollable

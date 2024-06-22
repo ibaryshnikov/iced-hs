@@ -121,14 +121,11 @@ instance IntoStyle [StyleAttribute] where
 instance IntoStyle StyleCallback where
   intoStyle callback = CustomStyle callback
 
-applyStyles :: [StyleAttribute] -> Style -> IO ()
-applyStyles [] _appearance = pure ()
-applyStyles (first:remaining) appearance = do
-  case first of
+instance UseStyleAttribute Style StyleAttribute where
+  useStyleAttribute attribute appearance = case attribute of
     TextColor value -> do
       colorPtr <- valueToNativeIO value
       set_color appearance colorPtr
-  applyStyles remaining appearance
 
 useCustomStyle :: StyleCallback -> AttributeFn
 useCustomStyle callback self = do

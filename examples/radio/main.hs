@@ -6,6 +6,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
+import Iced.Theme
 import Iced.Widget
 
 data Option = First | Second | Third deriving Enum
@@ -32,5 +33,5 @@ view model =
   ]
 
 main :: IO ()
-main = Iced.run [] "Radio" model update view
+main = Iced.run [theme TokyoNightLight] "Radio" model update view
   where model = Model { selected = Nothing }

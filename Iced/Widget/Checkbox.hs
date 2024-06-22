@@ -260,12 +260,10 @@ instance IntoStyle (Status -> Bool -> [StyleAttribute]) where
   intoStyle callback = CustomStyle (\_theme -> callback)
 
 instance IntoStyle StyleCallback where
-  intoStyle callback = CustomStyle callback
+  intoStyle = CustomStyle
 
-applyStyles :: [StyleAttribute] -> Style -> IO ()
-applyStyles [] _appearance = pure ()
-applyStyles (first:remaining) appearance = do
-  case first of
+instance UseStyleAttribute Style StyleAttribute where
+  useStyleAttribute attribute appearance = case attribute of
     Background (BgColor color) -> do
       colorPtr <- valueToNativeIO color
       set_background appearance colorPtr
@@ -278,7 +276,6 @@ applyStyles (first:remaining) appearance = do
     TextColor color -> do
       colorPtr <- valueToNativeIO color
       set_text_color appearance colorPtr
-  applyStyles remaining appearance
 
 useCustomStyle :: StyleCallback -> AttributeFn
 useCustomStyle callback self = do

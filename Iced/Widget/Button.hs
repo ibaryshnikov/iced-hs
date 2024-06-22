@@ -200,10 +200,8 @@ instance IntoStyle (Status -> [StyleAttribute]) where
 instance IntoStyle StyleCallback where
   intoStyle = CustomStyle
 
-applyStyles :: [StyleAttribute] -> Style -> IO ()
-applyStyles [] _appearance = pure ()
-applyStyles (first:remaining) appearance = do
-  case first of
+instance UseStyleAttribute Style StyleAttribute where
+  useStyleAttribute attribute appearance = case attribute of
     ShadowOffset _x _y -> pure ()
     Background (BgColor color) -> do
       colorPtr <- valueToNativeIO color
@@ -215,7 +213,6 @@ applyStyles (first:remaining) appearance = do
       colorPtr <- valueToNativeIO color
       set_border appearance colorPtr (CFloat w) (CFloat radius)
     -- AddShadow _shadow -> pure ()
-  applyStyles remaining appearance
 
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = button_style_basic self $ fromIntegral $ fromEnum value

@@ -161,6 +161,7 @@ way to build a ui or display some data.
    - [x] button
    - [x] checkobx
    - [x] container
+   - [x] radio
    - [x] text
    - [x] textInput
    - [x] textEditor

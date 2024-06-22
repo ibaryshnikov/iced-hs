@@ -205,10 +205,8 @@ instance IntoStyle (Status -> [StyleAttribute]) where
 instance IntoStyle StyleCallback where
   intoStyle = CustomStyle
 
-applyStyles :: [StyleAttribute] -> Style -> IO ()
-applyStyles [] _appearance = pure ()
-applyStyles (first:remaining) appearance = do
-  case first of
+instance UseStyleAttribute Style StyleAttribute where
+  useStyleAttribute attribute appearance = case attribute of
     Background (BgColor color) -> do
       colorPtr <- valueToNativeIO color
       set_background appearance colorPtr
@@ -227,7 +225,6 @@ applyStyles (first:remaining) appearance = do
     Selection color -> do
       colorPtr <- valueToNativeIO color
       set_selection appearance colorPtr
-  applyStyles remaining appearance
 
 useCustomStyle :: StyleCallback -> AttributeFn
 useCustomStyle callback self = do
