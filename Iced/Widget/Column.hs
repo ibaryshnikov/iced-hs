@@ -13,7 +13,6 @@ import Iced.Attribute.Alignment
 import Iced.Attribute.AlignmentFFI
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
-import Iced.Attribute.Padding
 import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Spacing
 import Iced.Element

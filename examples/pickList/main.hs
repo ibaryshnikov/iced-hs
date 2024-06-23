@@ -7,6 +7,7 @@ import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Widget
+import Iced.Theme
 
 data Language = Rust | Elm | Ruby | Haskell | C | Javascript | Other deriving (Show, Read)
 
@@ -35,5 +36,5 @@ view model =
       options model.selected Selected
 
 main :: IO ()
-main = Iced.run [] "PickList" model update view
+main = Iced.run [theme Moonfly] "PickList" model update view
   where model = Model { selected = Nothing }

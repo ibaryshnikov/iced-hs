@@ -1,6 +1,11 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.ColorFFI where
+module Iced.ColorFFI (
+  ColorPtr,
+  -- reexports
+  module Iced.Color,
+  --
+) where
 
 import Foreign
 import Foreign.C.Types

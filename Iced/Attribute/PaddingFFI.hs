@@ -1,6 +1,11 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Iced.Attribute.PaddingFFI where
+module Iced.Attribute.PaddingFFI (
+  PaddingPtr,
+  -- reexports
+  module Iced.Attribute.Padding,
+  --
+) where
 
 import Foreign
 import Foreign.C.Types

@@ -19,7 +19,6 @@ import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.OnInput
-import Iced.Attribute.Padding
 import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Size
 import Iced.Element

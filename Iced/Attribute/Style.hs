@@ -36,6 +36,9 @@ class UseDotColor attribute where
 class UseIconColor attribute where
   iconColor :: Color -> attribute
 
+class UseHandleColor attribute where
+  handleColor :: Color -> attribute
+
 class UsePlaceholderColor attribute where
   placeholderColor :: Color -> attribute
 

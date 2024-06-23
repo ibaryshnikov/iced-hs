@@ -11,6 +11,9 @@ class UseHovered value attribute | attribute -> value where
 class UseFocused value attribute | attribute -> value where
   focused :: value -> attribute
 
+class UseOpened value attribute | attribute -> value where
+  opened :: value -> attribute
+
 class UsePressed value attribute | attribute -> value where
   pressed :: value -> attribute
 

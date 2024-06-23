@@ -20,16 +20,15 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
+import Iced.Attribute.Icon
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
-import Iced.Attribute.Shared
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
 import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Attribute.TextFFI
-import Iced.Color
 import Iced.ColorFFI
 import Iced.Element
 import Iced.Theme
@@ -170,7 +169,7 @@ instance UseAttribute Self (Attribute message) where
     Width len -> useFnIO checkbox_width len
     None -> pure
 
-instance UseIcon Word32 (Attribute message) where
+instance UseIcon (Attribute message) where
   icon = Icon
 
 instance UseSize (Attribute message) where

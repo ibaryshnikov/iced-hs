@@ -166,6 +166,7 @@ option if you need a simple way to build some ui.
    - [x] button
    - [x] checkobx
    - [x] container
+   - [x] pickList
    - [x] progressBar
    - [x] radio
    - [x] text

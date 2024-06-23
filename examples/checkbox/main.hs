@@ -4,8 +4,6 @@
 
 module Main where
 
-import Data.Word
-
 import Iced
 import Iced.Attribute
 import Iced.Font
@@ -33,7 +31,7 @@ view model =
   column [spacing 20] [
     checkbox [onToggle Default] "Default" model.def,
     row [spacing 20] (map styled pairs),
-    checkbox [icon @Word32 59649, onToggle Custom] "Custom" model.custom -- use icon id
+    checkbox [icon 59649, onToggle Custom] "Custom" model.custom -- use icon id
   ]
   where
     pairs = [(Primary, "Primary"), (Secondary, "Secondary"), (Success, "Success"), (Danger, "Danger")]
