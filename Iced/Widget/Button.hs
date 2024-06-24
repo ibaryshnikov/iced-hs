@@ -47,11 +47,11 @@ data Border = Border {
 --}
 
 data StyleAttribute
-  = ShadowOffset Float Float
-  | Background Background
+  = Background Background
   | TextColor Color
   | BorderStyle Border
   -- | AddShadow Shadow
+  -- | ShadowOffset Float Float
 
 data Status = Active | Hovered | Pressed | Disabled deriving (Enum, Eq)
 
@@ -153,9 +153,7 @@ onPressIf True message = onPress message
 onPressIf False _ = None
 
 useOnPress :: message -> AttributeFn
-useOnPress message self =
-  newStablePtr message
-    >>= button_on_press self
+useOnPress message self = button_on_press self =<< newStablePtr message
 
 -- style theme status
 type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()
@@ -199,26 +197,24 @@ instance IntoStyle StyleCallback where
   intoStyle = CustomStyle
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    ShadowOffset _x _y -> pure ()
-    Background (BgColor color) -> do
-      colorPtr <- valueToNativeIO color
-      set_background appearance colorPtr
-    TextColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_text_color appearance colorPtr
-    BorderStyle Border { color, width = w, radius } -> do
-      colorPtr <- valueToNativeIO color
-      set_border appearance colorPtr (CFloat w) (CFloat radius)
+  useStyleAttribute attribute = case attribute of
+    -- ShadowOffset _x _y -> pure ()
+    Background (BgColor color) -> useFnIO set_background color
+    BorderStyle value -> useBorder value
+    TextColor color -> useFnIO set_text_color color
     -- AddShadow _shadow -> pure ()
+
+useBorder :: Border -> Style -> IO ()
+useBorder Border { color, width = w, radius } appearance = do
+  colorPtr <- valueToNativeIO color
+  set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = button_style_basic self $ fromIntegral $ fromEnum value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  button_style_custom self callbackPtr
+useCustomStyle callback self = button_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

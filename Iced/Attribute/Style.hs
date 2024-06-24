@@ -5,15 +5,6 @@ import Iced.Color
 class UseStyle value attribute where
   style :: value -> attribute
 
-class UseStyleAttribute appearance attribute where
-  useStyleAttribute :: attribute -> appearance -> IO ()
-
-applyStyles :: UseStyleAttribute appearance attribute => [attribute] -> appearance -> IO ()
-applyStyles [] _ = pure ()
-applyStyles (attribute:remaining) appearance = do
-  useStyleAttribute attribute appearance
-  applyStyles remaining appearance
-
 class UseBackground attribute where
   background :: Color -> attribute
 

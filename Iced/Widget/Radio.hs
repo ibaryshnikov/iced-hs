@@ -79,8 +79,7 @@ foreign import ccall "wrapper"
   makeCallback :: NativeOnClick message -> IO (FunPtr (NativeOnClick message))
 
 wrapOnClick :: Enum option => OnClick option message -> NativeOnClick message
-wrapOnClick callback =
-  newStablePtr . callback . optionFromInt . fromIntegral
+wrapOnClick callback = newStablePtr . callback . optionFromInt . fromIntegral
 
 type OnClick option message = option -> message
 
@@ -181,25 +180,16 @@ instance IntoStyle StyleCallback where
   intoStyle callback = CustomStyle callback
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    Background (BgColor color) -> do
-      colorPtr <- valueToNativeIO color
-      set_background appearance colorPtr
-    DotColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_dot_color appearance colorPtr
-    BorderWidth value -> set_border_width appearance (CFloat value)
-    BorderColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_border_color appearance colorPtr
-    TextColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_text_color appearance colorPtr
+  useStyleAttribute attribute = case attribute of
+    Background (BgColor color) -> useFnIO set_background color
+    DotColor color -> useFnIO set_dot_color color
+    BorderWidth value -> useFn set_border_width value
+    BorderColor color -> useFnIO set_border_color color
+    TextColor color -> useFnIO set_text_color color
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  radio_style_custom self callbackPtr
+useCustomStyle callback self = radio_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

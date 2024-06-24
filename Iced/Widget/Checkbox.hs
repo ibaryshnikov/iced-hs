@@ -136,8 +136,7 @@ foreign import ccall "checkbox_icon_new"
   checkbox_icon_new :: CUInt -> IO IconPtr
 
 wrapOnToggle :: OnToggle message -> NativeOnToggle message
-wrapOnToggle callback c_bool = do
-  newStablePtr $ callback $ toBool c_bool
+wrapOnToggle callback = newStablePtr . callback . toBool
 
 type OnToggle message = Bool -> message
 
@@ -195,14 +194,10 @@ onToggleIf True callback = onToggle callback
 onToggleIf False _ = None
 
 useOnToggle :: OnToggle message -> AttributeFn
-useOnToggle callback self =
-  makeCallback (wrapOnToggle callback)
-    >>= checkbox_on_toggle self
+useOnToggle callback self = checkbox_on_toggle self =<< makeCallback (wrapOnToggle callback)
 
 useIcon :: Word32 -> AttributeFn
-useIcon codePoint self = do
-  iconPtr <- checkbox_icon_new (CUInt codePoint)
-  checkbox_icon self iconPtr
+useIcon codePoint self = checkbox_icon self =<< checkbox_icon_new (CUInt codePoint)
 
 textLineHeight :: LineHeight -> Attribute message
 textLineHeight = TextLineHeight
@@ -262,24 +257,20 @@ instance IntoStyle StyleCallback where
   intoStyle = CustomStyle
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    Background (BgColor color) -> do
-      colorPtr <- valueToNativeIO color
-      set_background appearance colorPtr
-    IconColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_icon_color appearance colorPtr
-    BorderStyle Border { color, width = w, radius } -> do
-      colorPtr <- valueToNativeIO color
-      set_border appearance colorPtr (CFloat w) (CFloat radius)
-    TextColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_text_color appearance colorPtr
+  useStyleAttribute attribute = case attribute of
+    Background (BgColor color) -> useFnIO set_background color
+    BorderStyle value -> useBorder value
+    IconColor color -> useFnIO set_icon_color color
+    TextColor color -> useFnIO set_text_color color
+
+useBorder :: Border -> Style -> IO ()
+useBorder Border { color, width = w, radius } appearance = do
+  colorPtr <- valueToNativeIO color
+  set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  checkbox_style_custom self callbackPtr
+useCustomStyle callback self = checkbox_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = checkbox_style_basic self $ fromIntegral $ fromEnum value

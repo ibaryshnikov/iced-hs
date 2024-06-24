@@ -168,25 +168,22 @@ instance IntoStyle StyleCallback where
   intoStyle callback = CustomStyle callback
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    Background (BgColor color) -> do
-      colorPtr <- valueToNativeIO color
-      set_background appearance colorPtr
-    TextColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_text_color appearance colorPtr
-    BorderStyle Border { color, width = w, radius } -> do
-      colorPtr <- valueToNativeIO color
-      set_border appearance colorPtr (CFloat w) (CFloat radius)
-    -- AddShadow _shadow -> pure ()
+  useStyleAttribute attribute = case attribute of
+    Background (BgColor color) -> useFnIO set_background color
+    BorderStyle value -> useBorder value
+    TextColor color -> useFnIO set_text_color color
+
+useBorder :: Border -> Style -> IO ()
+useBorder Border { color, width = w, radius } appearance = do
+  colorPtr <- valueToNativeIO color
+  set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = container_style_basic self $ fromIntegral $ fromEnum value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  container_style_custom self callbackPtr
+useCustomStyle callback self = container_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

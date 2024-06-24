@@ -166,9 +166,7 @@ pickList :: (Show option, Read option)
 pickList attributes options selected onSelect = pack PickList { .. } attributes
 
 usePlaceholder :: String -> AttributeFn
-usePlaceholder value self =
-  newCString value
-    >>= pick_list_placeholder self
+usePlaceholder value self = pick_list_placeholder self =<< newCString value
 
 -- style theme status
 type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()
@@ -209,27 +207,21 @@ instance IntoStyle StyleCallback where
   intoStyle = CustomStyle
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    Background (BgColor color) -> do
-      colorPtr <- valueToNativeIO color
-      set_background appearance colorPtr
-    BorderStyle Border { color, width = w, radius } -> do
-      colorPtr <- valueToNativeIO color
-      set_border appearance colorPtr (CFloat w) (CFloat radius)
-    Text color -> do
-      colorPtr <- valueToNativeIO color
-      set_text_color appearance colorPtr
-    PlaceholderColor color -> do
-      colorPtr <- valueToNativeIO color
-      set_placeholder_color appearance colorPtr
-    Handle color -> do
-      colorPtr <- valueToNativeIO color
-      set_handle_color appearance colorPtr
+  useStyleAttribute attribute = case attribute of
+    Background (BgColor color) -> useFnIO set_background color
+    BorderStyle value -> useBorder value
+    Text color -> useFnIO set_text_color color
+    PlaceholderColor color -> useFnIO set_placeholder_color color
+    Handle color -> useFnIO set_handle_color color
+
+useBorder :: Border -> Style -> IO ()
+useBorder Border { color, width = w, radius } appearance = do
+  colorPtr <- valueToNativeIO color
+  set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  pick_list_style_custom self callbackPtr
+useCustomStyle callback self = pick_list_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

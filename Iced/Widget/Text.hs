@@ -121,15 +121,12 @@ instance IntoStyle StyleCallback where
   intoStyle callback = CustomStyle callback
 
 instance UseStyleAttribute Style StyleAttribute where
-  useStyleAttribute attribute appearance = case attribute of
-    TextColor value -> do
-      colorPtr <- valueToNativeIO value
-      set_color appearance colorPtr
+  useStyleAttribute attribute = case attribute of
+    TextColor value -> useFnIO set_color value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = do
-  callbackPtr <- makeStyleCallback $ wrapStyleCallback callback
-  text_style_custom self callbackPtr
+useCustomStyle callback self = text_style_custom self
+  =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseColor StyleAttribute where
   color = TextColor

@@ -21,8 +21,7 @@ foreign import ccall "wrapper"
 type NativeView = CFloat -> CFloat -> IO ElementPtr
 
 wrapView :: View -> NativeView
-wrapView view (CFloat width) (CFloat height) =
-  elementToNative $ view Size { .. }
+wrapView view (CFloat width) (CFloat height) = elementToNative $ view Size { .. }
 
 type View = Size -> Element
 
