@@ -15,8 +15,8 @@ data Model = Model { value :: Int }
 
 data Message = WidthChanged Int
 
-update :: Model -> Message -> Model
-update model (WidthChanged value) = model { value = value }
+update :: Message -> Model -> Model
+update (WidthChanged value) model = model { value = value }
 
 view :: Model -> Element
 view model =

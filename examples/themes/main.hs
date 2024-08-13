@@ -26,12 +26,12 @@ data Message
 
 data Option = First | Second | Third deriving Enum
 
-update :: Model -> Message -> Model
-update model (Selected value) = model { selected = Just value }
-update model (ChangeOption value) = model { option = Just value }
-update model ClearOption = model { option = Nothing }
-update model (Toggle value) = model { value = value }
-update model (ToggleCheckBox value) = model { checkBoxValue = value }
+update :: Message -> Model -> Model
+update (Selected value) model = model { selected = Just value }
+update (ChangeOption value) model = model { option = Just value }
+update ClearOption model = model { option = Nothing }
+update (Toggle value) model = model { value = value }
+update (ToggleCheckBox value) model = model { checkBoxValue = value }
 
 view :: Model -> Element
 view model = center [] $

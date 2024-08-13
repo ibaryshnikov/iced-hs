@@ -18,11 +18,11 @@ data Model = Model {
 
 data Message = Toggle | Tick Integer
 
-update :: Model -> Message -> IO Model
-update model Toggle = do
+update :: Message -> Model -> IO Model
+update Toggle model = do
   lastTick <- microsSinceStart
   pure model { running = not model.running, lastTick = lastTick }
-update model (Tick micros) =
+update (Tick micros) model =
   -- after we click the button subscription stops producing new events,
   -- but old events are still be delivered
   if model.running

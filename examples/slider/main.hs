@@ -19,11 +19,11 @@ data Message
   | ReleasedVertical
   | ReleasedHorizontal
 
-update :: Model -> Message -> Model
-update model (ChangedVertical value) = model { vertical = value }
-update model (ChangedHorizontal value) = model { horizontal = value }
-update model ReleasedVertical = model { horizontal = model.vertical }
-update model ReleasedHorizontal = model { vertical = model.horizontal }
+update :: Message -> Model -> Model
+update (ChangedVertical value) model = model { vertical = value }
+update (ChangedHorizontal value) model = model { horizontal = value }
+update ReleasedVertical model = model { horizontal = model.vertical }
+update ReleasedHorizontal model = model { vertical = model.horizontal }
 
 view :: Model -> Element
 view model =

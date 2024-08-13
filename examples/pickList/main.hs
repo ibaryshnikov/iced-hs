@@ -15,8 +15,8 @@ data Model = Model { selected :: Maybe Language }
 
 data Message = Selected Language
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   Selected language -> model { selected = Just language }
 
 options :: [Language]

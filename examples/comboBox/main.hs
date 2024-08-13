@@ -33,8 +33,8 @@ data Message
   | OptionHovered Language
   | Closed
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   Selected language -> model {
     selected = Just language,
     text = hello language

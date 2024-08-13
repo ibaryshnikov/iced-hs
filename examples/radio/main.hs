@@ -15,8 +15,8 @@ data Model = Model { selected :: Maybe Option }
 
 data Message = Selected Option | Clear
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   Selected option -> model { selected = Just option }
   Clear -> model { selected = Nothing }
 

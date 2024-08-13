@@ -14,8 +14,8 @@ data Model = Model { content :: TextEditor.Content }
 
 data Message = EditorAction TextEditor.Action
 
-update :: Model -> Message -> IO Model
-update model message = case message of
+update :: Message -> Model -> IO Model
+update message model = case message of
   EditorAction action -> do
     TextEditor.perform model.content action
     pure model

@@ -15,8 +15,8 @@ data Model = Model {
 
 data Message = Input String | Submit
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   Input value -> model { input = value }
   Submit -> case model.input of
     "" -> model -- filter empty strings

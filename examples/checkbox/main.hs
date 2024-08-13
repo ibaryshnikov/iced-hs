@@ -19,8 +19,8 @@ data Model = Model {
 
 data Message = Default Bool | Custom Bool | Styled Bool
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   Default value -> model { def = value }
   Styled value -> model { styled = value }
   Custom value -> model { custom = value }

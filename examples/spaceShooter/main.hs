@@ -77,22 +77,22 @@ data Message
   | Released KeyCode
   | Tick Integer
 
-update :: Model -> Message -> IO Model
-update model StartGame = case model.screen of
+update :: Message -> Model -> IO Model
+update StartGame model = case model.screen of
   Game -> pure model
   Start -> startGame model
   Win   -> startGame model
-update model (Pressed code) = pure $ case code of
+update (Pressed code) model = pure $ case code of
   KeyA -> handleMove model $ Left True
   KeyD -> handleMove model $ Right True
   Space -> model { shooting = True }
   _ -> model
-update model (Released code) = pure $ case code of
+update (Released code) model = pure $ case code of
   KeyA -> handleMove model $ Left False
   KeyD -> handleMove model $ Right False
   Space -> model { shooting = False }
   _ -> model
-update oldModel (Tick micros) = do
+update (Tick micros) oldModel = do
   model <- shoot oldModel
   Canvas.clearCache model.state
   let diff = (fromIntegral (micros - model.lastTick)) / 10_000

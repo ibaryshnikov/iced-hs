@@ -14,8 +14,8 @@ data Model = Model { position :: Tooltip.Position }
 
 data Message = ChangePosition
 
-update :: Model -> Message -> Model
-update model message = case message of
+update :: Message -> Model -> Model
+update message model = case message of
   ChangePosition -> model { position = position } where
     position = case model.position of
       Tooltip.Top -> Tooltip.Bottom

@@ -14,9 +14,9 @@ tick = Command.perform $ do
   delaySecs 2
   pure Tick
 
-update :: Int -> Message -> (Int, Command Message)
-update value StartTimer = (value, tick)
-update value Tick = (value + 1, Command.none)
+update :: Message -> Int -> (Int, Command Message)
+update StartTimer = (, tick)
+update Tick = (, Command.none) . (+ 1)
 
 view :: Int -> Element
 view value =

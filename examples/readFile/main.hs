@@ -22,8 +22,8 @@ commandFn = do
   content <- TextEditor.contentWithText string
   return $ FileContents content
 
-update :: Model -> Message -> IO (Model, Command Message)
-update model message = case message of
+update :: Message -> Model -> IO (Model, Command Message)
+update message model = case message of
   EditorAction action -> do
     TextEditor.perform model.content action
     pure (model, Command.none)

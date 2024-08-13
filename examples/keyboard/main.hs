@@ -14,8 +14,8 @@ data Model = Model { message :: Maybe Message }
 
 data Message = Pressed KeyCode | Released KeyCode
 
-update :: Model -> Message -> Model
-update model message = model { message = Just message }
+update :: Message -> Model -> Model
+update message model = model { message = Just message }
 
 view :: Model -> Element
 view model = center [] $

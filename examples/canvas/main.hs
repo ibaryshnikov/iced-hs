@@ -15,8 +15,8 @@ data Model = Model { state :: Canvas.State }
 
 data Message
 
-update :: Model -> Message -> Model
-update model _message = model
+update :: Message -> Model -> Model
+update _message model = model
 
 view :: Model -> Element
 view model = canvas [width Fill, height Fill] shapes model.state

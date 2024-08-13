@@ -10,8 +10,8 @@ import Iced.Widget.Button qualified as Button
 
 data Message = Click
 
-update :: () -> Message -> ()
-update value Click = value
+update :: Message -> () -> ()
+update Click = id
 
 firstStyle :: [Button.StyleAttribute]
 firstStyle = [

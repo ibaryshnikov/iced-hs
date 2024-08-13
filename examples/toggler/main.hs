@@ -6,8 +6,8 @@ import Iced.Widget
 
 data Message = Toggle Bool
 
-update :: Bool -> Message -> Bool
-update _oldValue (Toggle value) = value
+update :: Message -> Bool -> Bool
+update (Toggle value) _oldValue = value
 
 view :: Bool -> Element
 view value =

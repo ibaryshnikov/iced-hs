@@ -25,13 +25,19 @@ tick = Command.perform $ do
   delayMillis 15
   pure Tick
 
-update :: Model -> Message -> (Model, Command Message)
-update model StartTimer = if model.running
+startTimer :: Model -> (Model, Command Message)
+startTimer model = if model.running
   then (model, Command.none)
   else (model { running = True, value = 0 }, tick)
-update model Tick = if model.value > 100
+
+updateOnTick :: Model -> (Model, Command Message)
+updateOnTick model = if model.value > 100
   then (model { running = False }, Command.none)
   else (model { value = model.value + 0.5 }, tick)
+
+update :: Message -> Model -> (Model, Command Message)
+update StartTimer = startTimer
+update Tick = updateOnTick
 
 view :: Model -> Element
 view model =

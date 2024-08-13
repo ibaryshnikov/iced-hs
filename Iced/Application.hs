@@ -65,8 +65,8 @@ type NativeUpdate model message = StablePtr model -> StablePtr message -> IO Upd
 foreign import ccall "wrapper"
   makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-wrapUpdate :: IntoCommand model message result
-           => Update model message result
+wrapUpdate :: IntoCommand message model result
+           => Update message model result
            -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
   -- modelPtr is freed by Rust when it changes
@@ -75,7 +75,7 @@ wrapUpdate update modelPtr messagePtr = do
   -- the message is no longer in use.
   -- still need to take care of closures like Input String
   message <- deRefStablePtr messagePtr
-  (newModel, command) <- intoCommand update model message
+  (newModel, command) <- intoCommand update message model
   packResult newModel command
 
 packResult :: model -> Command message -> IO UpdateResultPtr
@@ -161,30 +161,30 @@ applyAttributes flagsPtr settingsPtr (attribute:remaining) = do
   applyAttributes flagsPtr settingsPtr remaining
 
 type Title title = title
-type Update model message result = model -> message -> result
+type Update message model result = message -> model -> result
 type View model = model -> Element
 
 --
 -- Provides the following signatures:
 --
--- update :: Model -> Message -> Model
--- update :: Model -> Message -> IO Model
--- update :: Model -> Message -> (Model, Command)
--- update :: Model -> Message -> IO (Model, Command)
+-- update :: Message -> Model -> Model
+-- update :: Message -> Model -> IO Model
+-- update :: Message -> Model -> (Model, Command)
+-- update :: Message -> Model -> IO (Model, Command)
 --
-class IntoCommand model message result where
-  intoCommand :: (model -> message -> result) -> model -> message -> IO (model, Command message)
+class IntoCommand message model result where
+  intoCommand :: (message -> model -> result) -> message -> model -> IO (model, Command message)
 
-instance IntoCommand model message model where
-  intoCommand update model message = pure (update model message, None)
+instance IntoCommand message model model where
+  intoCommand update message model = pure (update message model, None)
 
-instance IntoCommand model message (IO model) where
+instance IntoCommand message model (IO model) where
   intoCommand update = (fmap (, None) .) . update
 
-instance IntoCommand model message (model, Command message) where
+instance IntoCommand message model (model, Command message) where
   intoCommand update = (pure .) . update
 
-instance IntoCommand model message (IO (model, Command message)) where
+instance IntoCommand message model (IO (model, Command message)) where
   intoCommand update = update
 
 --
@@ -202,11 +202,11 @@ instance IntoTitle String model where
 instance IntoTitle (model -> String) model where
   intoTitle title = title
 
-run :: (IntoCommand model message result, IntoTitle title model)
+run :: (IntoCommand message model result, IntoTitle title model)
     => [Attribute model message]
     -> Title title
     -> model
-    -> Update model message result
+    -> Update message model result
     -> View model
     -> IO ()
 

@@ -10,9 +10,9 @@ data Message = Inc | Dec
 title :: Int -> String
 title value = "Counter " ++ show value
 
-update :: Int -> Message -> Int
-update value Inc = value + 1
-update value Dec = value - 1
+update :: Message -> Int -> Int
+update Inc = succ
+update Dec = pred
 
 view :: Int -> Element
 view _value =
