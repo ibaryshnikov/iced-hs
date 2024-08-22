@@ -27,9 +27,10 @@ update (Selected source) model = model { selected = source }
 pixelsRow :: Float -> Float -> [Word8]
 pixelsRow j i = [r, g, b, 255]
   where
-    q = i * i + j * j
+    j' = 500 - j + 1
+    q = i * i + j' * j'
     r = round $ 255 * i / 500
-    g = round $ 255 * j / 500
+    g = round $ 255 * j' / 500
     b = round $ 255 * sin (q / 100)
 
 pixels :: [Word8]
