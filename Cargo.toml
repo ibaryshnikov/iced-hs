@@ -12,7 +12,7 @@ crate-type = ["staticlib"]
 # temporary fork to provide KeyCode from PhysicalKey
 git = "https://github.com/ibaryshnikov/iced"
 rev = "ea6f377"
-features = ["advanced", "canvas", "lazy", "tokio"]
+features = ["advanced", "canvas", "lazy", "tokio", "image"]
 
 # winit version should match the version in iced-rs
 [dependencies.winit]
@@ -20,5 +20,5 @@ git = "https://github.com/iced-rs/winit.git"
 rev = "8affa522bc6dcc497d332a28c03491d22a22f5a7"
 
 [dependencies.tokio]
-version = "1.37"
+version = "1.39"
 features = ["macros", "rt-multi-thread", "sync", "time"]

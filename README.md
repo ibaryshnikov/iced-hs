@@ -108,7 +108,7 @@ option if you need a simple way to build some ui.
    - [x] column
    - [x] comboBox
    - [x] container
-   - [ ] image
+   - [x] image
    - [ ] keyedColumn
    - [ ] mouseArea
    - [ ] paneGrid

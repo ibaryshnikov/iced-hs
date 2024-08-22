@@ -6,6 +6,7 @@ mod checkbox;
 mod column;
 mod combo_box;
 mod container;
+mod image;
 mod pick_list;
 mod progress_bar;
 mod radio;
@@ -30,6 +31,11 @@ pub fn read_c_string(input: *mut c_char) -> String {
     c_string
         .into_string()
         .expect("Should convert CString to String")
+}
+
+fn read_vec(len: usize, array_ptr: *const u8) -> Vec<u8> {
+    let slice = unsafe { std::slice::from_raw_parts(array_ptr, len) };
+    slice.to_vec()
 }
 
 fn read_c_bool(input: c_uchar) -> bool {

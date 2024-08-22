@@ -6,6 +6,7 @@ module Iced.Widget (
   module Iced.Widget.Column,
   module Iced.Widget.ComboBox,
   module Iced.Widget.Container,
+  module Iced.Widget.Image,
   module Iced.Widget.PickList,
   module Iced.Widget.ProgressBar,
   module Iced.Widget.Radio,
@@ -48,6 +49,7 @@ import Iced.Widget.Container (
     centerX,
     centerY,
   )
+import Iced.Widget.Image (image)
 import Iced.Widget.PickList (pickList)
 import Iced.Widget.ProgressBar (progressBar)
 import Iced.Widget.Radio (radio)
