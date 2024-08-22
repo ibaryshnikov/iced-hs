@@ -15,29 +15,29 @@ import Iced.Widget.Image qualified as Image
 data Source = File | Bytes | Pixels deriving (Show, Read)
 
 data Model = Model {
-  selected :: Source,
+  source :: Source,
   bytes :: ByteString.ByteString
 }
 
 data Message = Selected Source
 
 update :: Message -> Model -> Model
-update (Selected source) model = model { selected = source }
+update (Selected source) model = model { source = source }
 
 pixelsRow :: Float -> Float -> [Word8]
-pixelsRow j i = [r, g, b, 255]
+pixelsRow y x = [r, g, b, 255]
   where
-    j' = 500 - j + 1
-    q = i * i + j' * j'
-    r = round $ 255 * i / 500
-    g = round $ 255 * j' / 500
+    y' = 501 - y -- invert y
+    q = x * x + y' * y'
+    r = round $ 255 * x / 500
+    g = round $ 255 * y' / 500
     b = round $ 255 * sin (q / 100)
 
 pixels :: [Word8]
 pixels = concat $ pixelsRow <$> [1..500] <*> [1..500]
 
 getImage :: Model -> Element
-getImage model = case model.selected of
+getImage model = case model.source of
   File -> image attributes "watch_3.png"
   Bytes -> image attributes model.bytes
   Pixels -> Image.fromRgba attributes 500 500 pixels
@@ -51,12 +51,12 @@ view :: Model -> Element
 view model =
   container [centerX Fill, centerY Fill] $
   column [spacing 20, alignItems Center] [
-    pickList [] options (Just model.selected) Selected,
+    pickList [] options (Just model.source) Selected,
     getImage model
   ]
 
 main :: IO ()
 main = do
   bytes <- ByteString.readFile "empty.png"
-  let model = Model { bytes = bytes, selected = Pixels }
+  let model = Model { source = Pixels, bytes = bytes }
   Iced.run [theme Oxocarbon] "Image" model update view
