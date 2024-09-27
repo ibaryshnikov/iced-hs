@@ -1,8 +1,9 @@
 use std::ffi::c_char;
 use std::sync::Arc;
 
-use iced::advanced::Application;
-use iced::{Command, Element, Renderer, Settings, Subscription, Theme};
+use iced::{window, Element, Renderer, Settings, Subscription, Task, Theme};
+use iced_widget::graphics;
+use iced_winit::Program;
 
 mod alignment;
 mod color;
@@ -61,15 +62,6 @@ impl IcedMessage {
     }
 }
 
-struct Flags {
-    title: Title,
-    model: Model,
-    update: Update,
-    view: View,
-    subscription: Option<SubscriptionFn>,
-    theme: Option<ThemeFn>,
-}
-
 struct App {
     title_hs: Title,
     model: Model,
@@ -79,40 +71,30 @@ struct App {
     theme_hs: Option<ThemeFn>,
 }
 
-impl Application for App {
+impl Program for App {
     type Executor = iced::executor::Default;
     type Message = IcedMessage;
     type Theme = Theme;
     type Renderer = Renderer;
-    type Flags = Flags;
+    type Flags = Self;
 
-    fn new(flags: Flags) -> (App, Command<IcedMessage>) {
-        (
-            App {
-                title_hs: flags.title,
-                model: flags.model,
-                update_hs: flags.update,
-                view_hs: flags.view,
-                subscription_hs: flags.subscription,
-                theme_hs: flags.theme,
-            },
-            Command::none(),
-        )
+    fn new(app: Self) -> (App, Task<IcedMessage>) {
+        (app, Task::none())
     }
-    fn title(&self) -> String {
+    fn title(&self, _window: window::Id) -> String {
         let pointer = (self.title_hs)(self.model);
         read_c_string(pointer)
     }
-    fn update(&mut self, message: IcedMessage) -> Command<IcedMessage> {
+    fn update(&mut self, message: Self::Message) -> Task<Self::Message> {
         match message {
             IcedMessage::Ptr(message) => self.process_update(message),
-            IcedMessage::None => Command::none(),
+            IcedMessage::None => Task::none(),
         }
     }
-    fn view(&self) -> Element<IcedMessage> {
+    fn view(&self, _window: window::Id) -> Element<Self::Message, Self::Theme, Self::Renderer> {
         unsafe { *Box::from_raw((self.view_hs)(self.model)) }
     }
-    fn theme(&self) -> Theme {
+    fn theme(&self, _window: window::Id) -> Theme {
         match self.theme_hs {
             Some(theme_fn) => {
                 let value = theme_fn(self.model);
@@ -133,7 +115,7 @@ impl Application for App {
 }
 
 impl App {
-    fn process_update(&mut self, message: Arc<HaskellMessage>) -> Command<IcedMessage> {
+    fn process_update(&mut self, message: Arc<HaskellMessage>) -> Task<IcedMessage> {
         let result_ptr = (self.update_hs)(self.model, message.ptr);
         let result = unsafe { Box::from_raw(result_ptr) };
         // when pointer changes, free the old one
@@ -147,59 +129,51 @@ impl App {
     }
 }
 
-fn add_flags_to_settings(flags: Flags, settings: Settings<()>) -> Settings<Flags> {
-    Settings {
-        flags,
-        id: settings.id,
-        window: settings.window,
-        fonts: settings.fonts,
+#[no_mangle]
+extern "C" fn app_new(title_hs: Title, model: Model, update_hs: Update, view_hs: View) -> *mut App {
+    let app = App {
+        title_hs,
+        model,
+        update_hs,
+        view_hs,
+        subscription_hs: None,
+        theme_hs: None,
+    };
+    Box::into_raw(Box::new(app))
+}
+
+#[no_mangle]
+extern "C" fn app_set_subscription(app: &mut App, subscription: SubscriptionFn) {
+    app.subscription_hs = Some(subscription);
+}
+
+#[no_mangle]
+extern "C" fn app_set_theme(app: &mut App, theme: ThemeFn) {
+    app.theme_hs = Some(theme);
+}
+
+#[no_mangle]
+extern "C" fn app_run(app_ptr: *mut App, settings_ptr: *mut Settings) {
+    let app = unsafe { *Box::from_raw(app_ptr) };
+    let settings = unsafe { *Box::from_raw(settings_ptr) };
+
+    let renderer_settings = iced_widget::graphics::Settings {
         default_font: settings.default_font,
         default_text_size: settings.default_text_size,
-        antialiasing: settings.antialiasing,
-    }
-}
-
-#[no_mangle]
-extern "C" fn app_flags_new(
-    maybe_title: Option<Title>,
-    model: Model,
-    maybe_update: Option<Update>,
-    maybe_view: Option<View>,
-) -> *mut Flags {
-    let Some(title) = maybe_title else {
-        panic!("Title callback is NULL");
+        antialiasing: if settings.antialiasing {
+            Some(graphics::Antialiasing::MSAAx4)
+        } else {
+            None
+        },
     };
-    let Some(update) = maybe_update else {
-        panic!("Update callback is NULL");
-    };
-    let Some(view) = maybe_view else {
-        panic!("View callback is NULL");
-    };
-    let flags = Flags {
-        title,
-        model,
-        update,
-        view,
-        subscription: None,
-        theme: None,
-    };
-    Box::into_raw(Box::new(flags))
-}
 
-#[no_mangle]
-extern "C" fn app_flags_set_subscription(flags: &mut Flags, subscription: SubscriptionFn) {
-    flags.subscription = Some(subscription);
-}
+    let window_settings = Some(window::Settings::default());
 
-#[no_mangle]
-extern "C" fn app_flags_set_theme(flags: &mut Flags, theme: ThemeFn) {
-    flags.theme = Some(theme);
-}
-
-#[no_mangle]
-extern "C" fn app_run(flags_ptr: *mut Flags, settings_ptr: *mut Settings<()>) {
-    let flags = unsafe { *Box::from_raw(flags_ptr) };
-    let settings = unsafe { *Box::from_raw(settings_ptr) };
-    let settings = add_flags_to_settings(flags, settings);
-    App::run(settings).expect("Should run the app")
+    iced_winit::program::run::<App, <Renderer as graphics::compositor::Default>::Compositor>(
+        settings.into(),
+        renderer_settings,
+        window_settings,
+        app,
+    )
+    .expect("Should run the app")
 }

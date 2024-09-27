@@ -42,7 +42,7 @@ update Tick = updateOnTick
 view :: Model -> Element
 view model =
   center [] $
-  column [alignItems Center, spacing 50] [
+  column [alignX Center, spacing 50] [
     progressBar [width $ Fixed 300, height $ Fixed 30, style ProgressBar.Danger] 0 100 model.value,
     button [onPressIf (not model.running) StartTimer, style Button.Danger] "Start"
   ]

@@ -3,7 +3,8 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use iced::{keyboard, Subscription};
-use keyboard::{Key, Modifiers, PhysicalKey};
+use keyboard::key::Physical;
+use keyboard::{Key, Modifiers};
 
 use crate::{free_haskell_fun_ptr, IcedMessage, Message};
 
@@ -46,8 +47,8 @@ impl Closure {
         //     Key::Unidentified => return IcedMessage::None,
         // };
         let physical = match event.physical_key {
-            PhysicalKey::Code(code) => physical::key_code_to_int(code),
-            PhysicalKey::Unidentified => return IcedMessage::None,
+            Physical::Code(code) => physical::key_code_to_int(code),
+            Physical::Unidentified(_) => return IcedMessage::None,
         };
 
         let message_ptr = (self.internal.on_key)(physical, 0);
@@ -57,36 +58,64 @@ impl Closure {
 
 struct Event {
     logical_key: Key,
-    physical_key: PhysicalKey,
+    physical_key: Physical,
     modifiers: Modifiers,
 }
 
-fn make_key_event(
-    logical_key: Key,
-    physical_key: PhysicalKey,
-    modifiers: Modifiers,
-) -> Option<Event> {
-    Some(Event {
-        logical_key,
-        physical_key,
-        modifiers,
-    })
+fn make_key_press_event(event: iced::Event) -> Option<Event> {
+    match event {
+        iced::Event::Keyboard(keyboard::Event::KeyPressed {
+            key: logical_key,
+            physical_key,
+            modifiers,
+            ..
+        }) => Some(Event {
+            logical_key,
+            physical_key,
+            modifiers,
+        }),
+        _ => None,
+    }
+}
+
+fn make_key_release_event(event: iced::Event) -> Option<Event> {
+    match event {
+        iced::Event::Keyboard(keyboard::Event::KeyReleased {
+            key: logical_key,
+            physical_key,
+            modifiers,
+            ..
+        }) => Some(Event {
+            logical_key,
+            physical_key,
+            modifiers,
+        }),
+        _ => None,
+    }
 }
 
 #[no_mangle]
 extern "C" fn keyboard_on_key_press(on_press: OnKey) -> *mut Subscription<IcedMessage> {
     let on_press = Closure::new("keyboard_on_press", on_press);
-    let subscription = keyboard::on_key_press(make_key_event)
+    let subscription = iced::event::listen()
+        .map(make_key_press_event)
         .with(on_press)
-        .map(|(on_press, event)| on_press.call(event));
+        .map(|(on_press, maybe_event)| match maybe_event {
+            Some(event) => on_press.call(event),
+            None => IcedMessage::None,
+        });
     Box::into_raw(Box::new(subscription))
 }
 
 #[no_mangle]
 extern "C" fn keyboard_on_key_release(on_release: OnKey) -> *mut Subscription<IcedMessage> {
     let on_release = Closure::new("keyboard_on_release", on_release);
-    let subscription = keyboard::on_key_release(make_key_event)
+    let subscription = iced::event::listen()
+        .map(make_key_release_event)
         .with(on_release)
-        .map(|(on_release, event)| on_release.call(event));
+        .map(|(on_release, maybe_event)| match maybe_event {
+            Some(event) => on_release.call(event),
+            None => IcedMessage::None,
+        });
     Box::into_raw(Box::new(subscription))
 }

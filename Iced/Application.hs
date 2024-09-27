@@ -27,7 +27,7 @@ data NativeFlags
 type Flags model message = Ptr NativeFlags
 
 -- title model update view
-foreign import ccall "app_flags_new"
+foreign import ccall "app_new"
   app_flags_new
     :: FunPtr (NativeTitle model)
     -> StablePtr model
@@ -35,13 +35,13 @@ foreign import ccall "app_flags_new"
     -> FunPtr (NativeView model)
     -> IO (Flags model message)
 
-foreign import ccall "app_flags_set_subscription"
+foreign import ccall "app_set_subscription"
   app_flags_set_subscription
     :: Flags model message
     -> FunPtr (NativeSubscriptionFn model message)
     -> IO ()
 
-foreign import ccall "app_flags_set_theme"
+foreign import ccall "app_set_theme"
   app_flags_set_theme
     :: Flags model message
     -> FunPtr (NativeThemeFn model)

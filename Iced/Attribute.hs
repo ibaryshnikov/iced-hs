@@ -13,7 +13,7 @@ module Iced.Attribute (
   module Iced.Attribute.Style,
 ) where
 
-import Iced.Attribute.Alignment (alignItems)
+import Iced.Attribute.Alignment (alignX, alignY)
 import Iced.Attribute.Color
 import Iced.Attribute.Icon
 import Iced.Attribute.Length

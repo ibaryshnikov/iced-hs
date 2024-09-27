@@ -195,7 +195,7 @@ view model = center [] $
   case model.screen of
     Start -> button [onPress StartGame] "Start"
     Game -> canvas [width (Fixed 640), height (Fixed 480)] (shapes model) model.state
-    Win -> column [alignItems Alignment.Center, spacing 30] [
+    Win -> column [alignX Alignment.Center, spacing 30] [
         text [size 22] "You won!",
         button [onPress StartGame] "Start new game"
       ]

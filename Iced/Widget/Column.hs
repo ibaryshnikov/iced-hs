@@ -23,7 +23,7 @@ type Self = Ptr NativeColumn
 data Attribute
   = Spacing Float
   | AddPadding Padding
-  | AlignItems Alignment
+  | AlignX Alignment
   | Width Length
   | Height Length
 
@@ -31,8 +31,8 @@ data Attribute
 --foreign import ccall "new_column"
 --  new_column :: IO Self
 
-foreign import ccall "column_align_items"
-  column_align_items :: Self -> AlignmentPtr -> IO Self
+foreign import ccall "column_align_x"
+  column_align_x :: Self -> AlignmentPtr -> IO Self
 
 -- column padding
 foreign import ccall "column_padding"
@@ -76,12 +76,12 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Spacing value -> useFn column_spacing value
     AddPadding value -> useFnIO column_padding value
-    AlignItems value -> useFnIO column_align_items value
+    AlignX value -> useFnIO column_align_x value
     Width  len -> useFnIO column_width  len
     Height len -> useFnIO column_height len
 
-instance UseAlignment Attribute where
-  alignItems = AlignItems
+instance UseAlignX Attribute where
+  alignX = AlignX
 
 instance UseSpacing Attribute where
   spacing = Spacing

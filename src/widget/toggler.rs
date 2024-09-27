@@ -18,7 +18,8 @@ extern "C" fn toggler_new(
     let label = read_c_string(label_ptr);
     let is_toggled = read_c_bool(is_toggled_raw);
     let on_toggle = super::wrap_callback_with_bool(on_toggle_ffi);
-    Box::into_raw(Box::new(toggler(label, is_toggled, on_toggle)))
+    let widget = toggler(is_toggled).label(label).on_toggle(on_toggle);
+    Box::into_raw(Box::new(widget))
 }
 
 #[no_mangle]

@@ -3,12 +3,8 @@
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
 Very experimental, check [Roadmap](#roadmap) to see progress.
 
-Note: temporarily switched to a fork to provide access to KeyCode from winit.
-Currently iced provides only logical key, check [this pr](https://github.com/iced-rs/iced/pull/2169)
-for more details. Eventually physical key will be added back to iced.
-When that happens, the iced dependency will be changed back to the original crate.
-Also, was using latest upstream to get unreleased styles api. Will use the
-version from crates.io when all the necessary changes are published.
+Note: switched to a fork to provide physical keys.
+Waiting for [this pr](https://github.com/iced-rs/iced/pull/2608).
 
 
 ## Platform support

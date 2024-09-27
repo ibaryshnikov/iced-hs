@@ -25,7 +25,7 @@ options = [C, Elm, Ruby, Haskell, Rust, Javascript, Other]
 view :: Model -> Element
 view model =
   scrollable [] $
-  column [width Fill, alignItems Center, spacing 10] [
+  column [width Fill, alignX Center, spacing 10] [
     spaceHeight (Fixed 600),
     text [] "Which is your favorite language?",
     widget,

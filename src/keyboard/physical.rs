@@ -1,8 +1,8 @@
-use winit::keyboard::KeyCode;
+use iced::keyboard::key::Code;
 
-use KeyCode::*;
+use Code::*;
 
-pub fn key_code_to_int(code: KeyCode) -> i32 {
+pub fn key_code_to_int(code: Code) -> i32 {
     match code {
         Backquote => 0,
         Backslash => 1,

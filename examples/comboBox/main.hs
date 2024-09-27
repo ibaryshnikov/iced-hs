@@ -49,7 +49,7 @@ update message model = case message of
 view :: Model -> Element
 view model =
   center [] $
-  column [width Fill, alignItems Center, spacing 10] [
+  column [width Fill, alignX Center, spacing 10] [
     text [] $ "Input value: " ++ model.input,
     text [] model.text,
     text [] "What is your language?",

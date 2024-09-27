@@ -23,7 +23,7 @@ type Self = Ptr NativeRow
 data Attribute
   = Spacing Float
   | AddPadding Padding
-  | AlignItems Alignment
+  | AlignY Alignment
   | Width Length
   | Height Length
 
@@ -31,8 +31,8 @@ data Attribute
 --foreign import ccall "new_row"
 --  new_row :: IO Self
 
-foreign import ccall "row_align_items"
-  row_align_items :: Self -> AlignmentPtr -> IO Self
+foreign import ccall "row_align_y"
+  row_align_y :: Self -> AlignmentPtr -> IO Self
 
 -- row padding
 foreign import ccall "row_padding"
@@ -76,12 +76,12 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     Spacing value -> useFn row_spacing value
     AddPadding value -> useFnIO row_padding value
-    AlignItems value -> useFnIO row_align_items value
+    AlignY value -> useFnIO row_align_y value
     Width  len -> useFnIO row_width  len
     Height len -> useFnIO row_height len
 
-instance UseAlignment Attribute where
-  alignItems = AlignItems
+instance UseAlignY Attribute where
+  alignY = AlignY
 
 instance UsePadding Attribute where
   padding = AddPadding . paddingFromOne

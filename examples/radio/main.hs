@@ -23,7 +23,7 @@ update message model = case message of
 view :: Model -> Element
 view model =
   center [] $
-  column [spacing 50, alignItems Center] [
+  column [spacing 50, alignX Center] [
     row [spacing 20] [
       radio [] "First" First model.selected Selected,
       radio [] "Second" Second model.selected Selected,

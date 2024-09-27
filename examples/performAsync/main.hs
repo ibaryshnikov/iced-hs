@@ -21,7 +21,7 @@ update Tick = (, Command.none) . (+ 1)
 view :: Int -> Element
 view value =
   center [] $
-  column [alignItems Center, spacing 10] [
+  column [alignX Center, spacing 10] [
     text [size 50] $ show value,
     button [onPress StartTimer] "Start timer"
   ]

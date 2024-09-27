@@ -13,10 +13,10 @@ extern "C" fn row_new() -> SelfPtr {
 }
 
 #[no_mangle]
-extern "C" fn row_align_items(self_ptr: SelfPtr, alignment: *mut Alignment) -> SelfPtr {
+extern "C" fn row_align_y(self_ptr: SelfPtr, alignment: *mut Alignment) -> SelfPtr {
     let row = unsafe { Box::from_raw(self_ptr) };
     let alignment = unsafe { *Box::from_raw(alignment) };
-    Box::into_raw(Box::new(row.align_items(alignment)))
+    Box::into_raw(Box::new(row.align_y(alignment)))
 }
 
 #[no_mangle]

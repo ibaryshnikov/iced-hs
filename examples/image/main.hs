@@ -50,7 +50,7 @@ options = [File, Bytes, Pixels]
 view :: Model -> Element
 view model =
   container [centerX Fill, centerY Fill] $
-  column [spacing 20, alignItems Center] [
+  column [spacing 20, alignX Center] [
     pickList [] options (Just model.source) Selected,
     getImage model
   ]

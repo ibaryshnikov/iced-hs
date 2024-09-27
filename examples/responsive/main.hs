@@ -21,10 +21,10 @@ update (WidthChanged value) model = model { value = value }
 view :: Model -> Element
 view model =
   center [] $
-  column [alignItems Center] [
+  column [alignX Center] [
     text [size 20] "Contents disappear if width is less than 200",
     spaceHeight (Fixed 20),
-    row [alignItems Center, spacing 6] [
+    row [alignY Center, spacing 6] [
       text [width (Fixed 200)] $ "Container width: " ++ show model.value,
       slider [width (Fixed 200)] 0 500 model.value WidthChanged
     ],

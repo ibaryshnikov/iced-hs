@@ -1,4 +1,4 @@
-use iced::Command;
+use iced::Task;
 
 use crate::future::{PinnedFuture, RawFuture, StablePtr};
 use crate::{IcedMessage, Message, Model};
@@ -17,18 +17,18 @@ pub enum CommandKind {
 }
 
 impl CommandKind {
-    pub fn perform(self) -> Command<IcedMessage> {
+    pub fn perform(self) -> Task<IcedMessage> {
         match self {
             CommandKind::IO(callback) => perform_io(callback),
             CommandKind::Future(future) => {
-                Command::perform(future, |message| IcedMessage::ptr(message.ptr))
+                Task::perform(future, |message| IcedMessage::ptr(message.ptr))
             }
-            CommandKind::None => Command::none(),
+            CommandKind::None => Task::none(),
         }
     }
 }
 
-fn perform_io(callback: CommandCallback) -> Command<IcedMessage> {
+fn perform_io(callback: CommandCallback) -> Task<IcedMessage> {
     let handle = tokio::task::spawn_blocking(move || {
         let ptr = callback();
         IcedMessage::ptr(ptr)
@@ -39,7 +39,7 @@ fn perform_io(callback: CommandCallback) -> Command<IcedMessage> {
             IcedMessage::None
         })
     };
-    Command::perform(future, |message| message)
+    Task::perform(future, |message| message)
 }
 
 #[no_mangle]

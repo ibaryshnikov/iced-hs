@@ -52,34 +52,34 @@ styleFn status = base ++ case status of
 view :: () -> Element
 view _value =
   center [] $
-  column [spacing 10, alignItems Start] [
+  column [spacing 10, alignX Start] [
     text [] "Default for current theme:",
     row [spacing 10] [
       button [onPress Click] "Active",
       button [] "Disabled"
     ],
     text [] "Basic styles for current theme:",
-    row [spacing 10, alignItems Center] [
+    row [spacing 10, alignY Center] [
       button [style Button.Primary, onPress Click] "Active",
       button [style Button.Primary] "Disabled",
       text [] "Primary"
     ],
-    row [spacing 10, alignItems Center] [
+    row [spacing 10, alignY Center] [
       button [style Button.Secondary, onPress Click] "Active",
       button [style Button.Secondary] "Disabled",
       text [] "Secondary"
     ],
-    row [spacing 10, alignItems Center] [
+    row [spacing 10, alignY Center] [
       button [style Button.Success, onPress Click] "Active",
       button [style Button.Success] "Disabled",
       text [] "Success"
     ],
-    row [spacing 10, alignItems Center] [
+    row [spacing 10, alignY Center] [
       button [style Button.Danger, onPress Click] "Active",
       button [style Button.Danger] "Disabled",
       text [] "Danger"
     ],
-    row [spacing 10, alignItems Center] [
+    row [spacing 10, alignY Center] [
       button [style Button.Text, onPress Click] "Active",
       button [style Button.Text] "Disabled",
       text [] "Text"
