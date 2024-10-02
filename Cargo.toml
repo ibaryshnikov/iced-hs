@@ -9,20 +9,20 @@ crate-type = ["staticlib"]
 
 [dependencies.iced]
 # version = "0.13"
-# temporary fork to provide physical keys
-git = "https://github.com/ibaryshnikov/iced"
-rev = "8b34f99"
+# use upstream to provide physical keys
+git = "https://github.com/iced-rs/iced.git"
+rev = "4a080e2"
 features = ["advanced", "canvas", "lazy", "tokio", "image"]
 
 [dependencies.iced_winit]
 # version = "0.13"
-git = "https://github.com/ibaryshnikov/iced"
-rev = "8b34f99"
+git = "https://github.com/iced-rs/iced.git"
+rev = "4a080e2"
 
 [dependencies.iced_widget]
 # version = "0.13"
-git = "https://github.com/ibaryshnikov/iced"
-rev = "8b34f99"
+git = "https://github.com/iced-rs/iced.git"
+rev = "4a080e2"
 
 [dependencies.tokio]
 version = "1.40"

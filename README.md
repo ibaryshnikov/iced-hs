@@ -3,9 +3,6 @@
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
 Very experimental, check [Roadmap](#roadmap) to see progress.
 
-Note: switched to a fork to provide physical keys.
-Waiting for [this pr](https://github.com/iced-rs/iced/pull/2608).
-
 
 ## Platform support
 
