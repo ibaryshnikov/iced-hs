@@ -12,7 +12,7 @@ crate-type = ["staticlib"]
 # use upstream to provide physical keys
 git = "https://github.com/iced-rs/iced.git"
 rev = "4a080e2"
-features = ["advanced", "canvas", "lazy", "tokio", "image"]
+features = ["advanced", "canvas", "image", "lazy", "markdown", "tokio"]
 
 [dependencies.iced_winit]
 # version = "0.13"

@@ -7,6 +7,7 @@ mod column;
 mod combo_box;
 mod container;
 mod image;
+mod markdown;
 mod pick_list;
 mod progress_bar;
 mod radio;

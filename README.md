@@ -103,6 +103,7 @@ option if you need a simple way to build some ui.
    - [x] container
    - [x] image
    - [ ] keyedColumn
+   - [x] markdown
    - [ ] mouseArea
    - [ ] paneGrid
    - [x] progressBar

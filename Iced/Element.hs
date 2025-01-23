@@ -27,6 +27,9 @@ type ElementPtr = Ptr NativeElement
 class Builder native where
   build :: native -> IO ElementPtr
 
+instance Builder ElementPtr where
+  build = pure
+
 class IntoNative widget native | widget -> native where
   toNative :: widget -> IO native
 
