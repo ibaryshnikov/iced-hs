@@ -1,6 +1,7 @@
 module Iced.Future.Runtime (run) where
 
 import Iced.Future.Internal
+import Foreign (FunPtr)
 
 foreign import ccall "future_run"
   future_run :: FuturePtr a -> IO ()
