@@ -1,0 +1,19 @@
+Welcome to iced-hs, a Haskell wrapper for iced Rust library!
+
+This text exists to share a vision and goals of this
+project. The main goal is to design the best api
+for building UI applications. Haskell is here
+for abstraction and composition, while being concise.
+Rust provides the foundation via iced, brings
+performance and access to crates.io. The api is inspired by
+and continues the ideas of numerous projects such as:
+- Elm and The Elm Architecture, https://elm-lang.org/
+- iced, https://github.com/iced-rs/iced
+- elm-ui, https://github.com/mdgriffith/elm-ui
+- elm-canvas, https://github.com/joakin/elm-canvas
+- webgl, https://github.com/elm-explorations/webgl
+- miso, https://github.com/dmjio/miso
+- monomer, https://github.com/fjvallarino/monomer
+
+Best,
+Ilya Baryshnikov and contributors
