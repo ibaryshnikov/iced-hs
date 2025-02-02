@@ -1,4 +1,4 @@
-cabal-version: 3.0
+cabal-version: 3.14
 name: iced-hs
 version: 0.0.3.0
 homepage: https://github.com/ibaryshnikov/iced-hs
@@ -6,7 +6,7 @@ bug-reports:
   https://github.com/ibaryshnikov/iced-hs/issues
 
 license: MIT
-build-type: Simple
+build-type: Hooks
 tested-with:
   ghc ==9.6.6 || ==9.8.4 || ==9.10.1
 
@@ -14,15 +14,21 @@ extra-source-files:
   LICENSE
   README.md
 
-
 flag examples
-    Description:     Build examples
-    Manual: True
-    Default:         False
+  description: Build examples
+  manual: True
+  default: False
 
 source-repository head
   type: git
   location: https://github.com/ibaryshnikov/iced-hs
+
+custom-setup
+  setup-depends:
+    base        >= 4.18 && < 5,
+    Cabal-hooks >= 3.14 && < 3.15,
+    directory,
+    filepath,
 
 common common
   build-depends:
@@ -138,254 +144,277 @@ library
     Iced.Widget.VerticalSlider
 
 executable buttonStyles
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             buttonStyles/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: buttonStyles/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable canvas
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             canvas/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: canvas/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable checkbox
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             checkbox/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: checkbox/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable comboBox
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             comboBox/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: comboBox/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable counter
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             counter/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: counter/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable image
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             image/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: image/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable keyboard
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             keyboard/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: keyboard/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable markdown
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             markdown/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: markdown/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable performAsync
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             performAsync/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: performAsync/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable pickList
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             pickList/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: pickList/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable progressBar
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             progressBar/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: progressBar/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable radio
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             radio/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: radio/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable readFile
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             readFile/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: readFile/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable responsive
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             responsive/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: responsive/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable slider
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             slider/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: slider/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable spaceShooter
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             spaceShooter/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: spaceShooter/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable stopwatch
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             stopwatch/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: stopwatch/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable textEditor
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             textEditor/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: textEditor/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable textInput
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             textInput/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: textInput/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable themes
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             themes/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: themes/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable title
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             title/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: title/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable toggler
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             toggler/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: toggler/Main.hs
+  build-depends:
+    base,
+    iced-hs,
 
 executable tooltip
+  import: common
+  import: common-rts-options
+
   if !flag(examples)
-    Buildable: False
-  hs-source-dirs:      examples
-  ghc-options:         -threaded -Wall -Wcompat -O2
-  default-language:    Haskell2010
-  default-extensions:  CPP
-  main-is:             tooltip/Main.hs.hs
-  build-depends:       base,
-                       iced-hs,
+    buildable: False
+  hs-source-dirs: examples
+  main-is: tooltip/Main.hs
+  build-depends:
+    base,
+    iced-hs,
