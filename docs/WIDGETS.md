@@ -55,6 +55,8 @@ button [onPress Click] "Click me"
 
 ## Canvas
 
+Detailed [canvas api](./CANVAS.md)
+
 ```haskell
 canvas :: [Attribute] -> [FrameAction] -> State -> Element
 
