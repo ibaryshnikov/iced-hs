@@ -58,9 +58,28 @@ button [onPress Click] "Click me"
 Detailed [canvas api](./CANVAS.md)
 
 ```haskell
+-- canvas requires State, which is a draw cache
+newState :: IO State
+-- you need to clear the cache when you want a redraw
+clearCache :: State -> IO ()
 canvas :: [Attribute] -> [FrameAction] -> State -> Element
 
 -- example
+import Iced.Color
+import Iced.Widget
+import Iced.Widget.Canvas qualified as Canvas
+import Iced.Widget.Canvas.Shape
+import Iced.Widget.Canvas.FrameAction
+
+data Model = Model { state :: Canvas.State }
+
+-- make some state and put it into model
+state <- Canvas.newState
+
+-- clear cache in the update function when you want a redraw
+Canvas.clearCache model.state
+
+-- use widget in view
 canvas [width Fill, height Fill] shapes model.state
 
 shapes :: [FrameAction]
@@ -106,6 +125,7 @@ column [alignX Center, spacing 10] [
 ```haskell
 -- comboBox requires State
 newState :: Show option => [option] -> IO State
+
 -- attributes state placeholder selected onSelect
 comboBox :: (Show option, Read option)
          => [Attribute option message]
@@ -116,13 +136,14 @@ comboBox :: (Show option, Read option)
          -> Element
 
 -- example
+import Iced.Widget
+import Iced.Widget.ComboBox qualified as ComboBox
 
 -- some preparations
 data Language = Haskell | Rust deriving (Show, Read)
 
 options :: [Language]
 options = [Haskell, Rust]
-
 
 data Message
   = Selected Language
@@ -174,14 +195,16 @@ image :: IntoHandle a => [Attribute] -> a -> Element
 fromRgba :: [Attribute] -> Int -> Int -> [Word8] -> Element
 
 -- examples
+import Iced.Widget
+import Iced.Widget.Image qualified as Image
 
 -- From file path
-image [] "watch_3.png"
+image [] "image.png"
 
 
 -- From ByteString
 -- Read the data and store it into the model
-bytes <- ByteString.readFile "empty.png"
+bytes <- ByteString.readFile "image.png"
 
 data Model = Model {
   bytes :: ByteString.ByteString
@@ -197,6 +220,33 @@ pixels :: [Word8]
 
 -- then use it in view
 Image.fromRgba [width (Fixed w), height (Fixed h)] w h pixels
+```
+
+
+## Markdown
+
+```haskell
+-- markdown requires State
+newState :: String -> IO State
+markdown :: State -> Theme -> OnUrlClick message -> Element
+
+-- example
+import Iced.Widget
+import Iced.Widget.Markdown qualified as Markdown
+
+pageContents :: String
+
+data Message = Click String
+
+data Model = Model {
+  state :: Markdown.State
+}
+
+-- Make state and put it into model
+state <- Markdown.newState pageContents
+
+-- then use it in view
+markdown model.state Oxocarbon Click
 ```
 
 
