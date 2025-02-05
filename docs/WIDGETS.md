@@ -101,6 +101,105 @@ column [alignX Center, spacing 10] [
 ```
 
 
+## ComboBox
+
+```haskell
+-- comboBox requires State
+newState :: Show option => [option] -> IO State
+-- attributes state placeholder selected onSelect
+comboBox :: (Show option, Read option)
+         => [Attribute option message]
+         -> State
+         -> String
+         -> Maybe option
+         -> OnSelect option message
+         -> Element
+
+-- example
+
+-- some preparations
+data Language = Haskell | Rust deriving (Show, Read)
+
+options :: [Language]
+options = [Haskell, Rust]
+
+
+data Message
+  = Selected Language
+  | Input String
+  | OptionHovered Language
+  | Closed
+
+data Model = Model {
+  languages :: ComboBox.State,
+  selected :: Maybe Language,
+  -- some more fields
+}
+
+-- comboBox requires state management, you can create it like this
+-- and put it into model
+languages <- ComboBox.newState options
+
+-- widget usage in view
+comboBox [
+  width (Fixed 250),
+  onInput Input,
+  onOptionHovered OptionHovered,
+  onClose Closed
+] model.languages "Type a language..." model.selected Selected
+```
+
+
+## Container
+
+```haskell
+container :: [Attribute] -> Element -> Element
+
+-- example
+container [centerX Fill, centerY Fill] $ text [] "Hello"
+```
+
+
+## Image
+
+```haskell
+-- There are two ways to create an image. First is from a Handle,
+-- which can be either a String path or ByteString file contents.
+-- In case of ByteString, iced will guess the file extension
+-- on its own
+image :: IntoHandle a => [Attribute] -> a -> Element
+
+-- Another one is from pixels, where pixels length must be width * height
+-- attributes width height pixels
+fromRgba :: [Attribute] -> Int -> Int -> [Word8] -> Element
+
+-- examples
+
+-- From file path
+image [] "watch_3.png"
+
+
+-- From ByteString
+-- Read the data and store it into the model
+bytes <- ByteString.readFile "empty.png"
+
+data Model = Model {
+  bytes :: ByteString.ByteString
+}
+
+-- and use it in view
+image [] model.bytes
+
+
+-- From pixels
+-- Make some pixels
+pixels :: [Word8]
+
+-- then use it in view
+Image.fromRgba [width (Fixed w), height (Fixed h)] w h pixels
+```
+
+
 ## Text
 
 ```haskell
