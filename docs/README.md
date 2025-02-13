@@ -23,8 +23,13 @@ import Iced.Attribute
 
 ## Themes
 
-List of [themes](./THEMES.md)
+Detailed documentation for [themes](./THEMES.md)
 
 ```haskell
+-- example
+import Iced
 import Iced.Theme
+
+main :: IO ()
+main = Iced.run [theme Oxocarbon] "App" model update view
 ```
