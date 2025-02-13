@@ -1,7 +1,8 @@
 # iced-hs
 
 Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
-Very experimental, check [Roadmap](#roadmap) to see progress.
+Very experimental, check [Roadmap](#roadmap) to see progress. There is some
+[documentation](./docs) available.
 
 
 ## Platform support

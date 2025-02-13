@@ -357,11 +357,76 @@ responsive label
 row :: [Attribute] -> [Element] -> Element
 
 -- example
+import Iced.Widget
+
+-- use in view
 row [alignY Center, spacing 10] [
   button [onPress Inc] "Increment",
   text [size 50] $ show value,
   button [onPress Dec] "Decrement"
 ]
+```
+
+
+## Scrollable
+
+```haskell
+scrollable :: [Attribute] -> Element -> Element
+
+-- example
+import Iced.Widget
+
+-- use in view
+scrollable [] $
+column [width Fill, alignX Center, spacing 10] [
+  -- space is needed to fill the screen
+  -- so we can have something to scroll
+  spaceHeight (Fixed 600),
+  text [] "Some text",
+  spaceHeight (Fixed 600)
+]
+```
+
+
+## Slider
+
+```haskell
+-- attributes rangeFrom rangeTo value onChange
+slider :: [Attribute message] -> Int -> Int -> Int -> OnChange message -> Element
+verticalSlider :: [Attribute message] -> Int -> Int -> Int -> OnChange message -> Element
+
+-- example
+import Iced.Widget
+
+-- use in view
+-- note that for horizontal slider there's width
+slider [width (Fixed 150), onRelease Released] 0 100 value Changed
+-- and height for vertical
+verticalSlider [height (Fixed 150), onRelease Released] 0 100 value Changed
+```
+
+
+## Space
+
+```haskell
+data Length = Fill | FillPortion Word16 | Shrink | Fixed Float
+
+-- width height
+space :: Length -> Length -> Element
+-- space with given width
+spaceWidth :: Length -> Element
+-- space with given height
+spaceHeight :: Length -> Element
+-- fill horizontal space
+horizontalSpace :: Element
+-- fill vertical space
+verticalSpace :: Element
+
+-- example
+import Iced.Widget
+
+-- use in view
+spaceHeight (Fixed 600)
 ```
 
 
@@ -372,4 +437,43 @@ text :: [Attribute] -> String -> Element
 
 -- example
 text [size 50] "Welcome"
+```
+
+
+## TextEditor
+
+```haskell
+textEditor :: [Attribute message] -> Content -> Element
+
+-- textEditor requires Content
+-- create empty Content
+newContent :: IO Content
+-- create Content from given String
+contentWithText :: String -> IO Content
+-- perform editor Action on Content
+perform :: Content -> Action -> IO ()
+
+-- example
+import Iced.Widget
+import Iced.Widget.TextEditor qualified as TextEditor
+
+data Message = EditorAction TextEditor.Action
+
+data Model = Model { content :: TextEditor.Content }
+
+-- perform editor Action in update function
+update :: Message -> Model -> IO Model
+update (EditorAction action) model = do
+  TextEditor.perform model.content action
+  pure model
+
+-- use in view
+textEditor [height (Fixed 300), onAction EditorAction] model.content
+
+-- create content
+main :: IO ()
+main = do
+  content <- TextEditor.newContent
+  let model = Model { content = content }
+  Iced.run [] "TextEditor" model update view
 ```
