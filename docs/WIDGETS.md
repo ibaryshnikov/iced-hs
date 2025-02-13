@@ -60,7 +60,7 @@ Detailed [canvas api](./CANVAS.md)
 ```haskell
 -- canvas requires State, which is a draw cache
 newState :: IO State
--- you need to clear the cache when you want a redraw
+-- clear the cache when you want a redraw
 clearCache :: State -> IO ()
 canvas :: [Attribute] -> [FrameAction] -> State -> Element
 
@@ -231,6 +231,7 @@ newState :: String -> IO State
 markdown :: State -> Theme -> OnUrlClick message -> Element
 
 -- example
+import Iced.Theme
 import Iced.Widget
 import Iced.Widget.Markdown qualified as Markdown
 
@@ -247,6 +248,120 @@ state <- Markdown.newState pageContents
 
 -- then use it in view
 markdown model.state Oxocarbon Click
+```
+
+
+## PickList
+
+```haskell
+-- attributes options selected onSelect
+pickList :: (Show option, Read option)
+         => [Attribute]
+         -> [option]
+         -> Maybe option
+         -> OnSelect option message
+         -> Element
+
+-- example
+import Iced.Widget
+
+-- prepare options
+data Language = Haskell | Rust deriving (Show, Read)
+
+data Message = Selected Language
+
+data Model = Model { selected :: Maybe Language }
+
+options :: [Language]
+options = [Haskell, Rust]
+
+-- use widget in view
+pickList [placeholder "Type a language..."] options model.selected Selected
+```
+
+
+## ProgressBar
+
+```haskell
+-- attributes rangeFrom rangeTo value
+progressBar :: [Attribute] -> Float -> Float -> Float -> Element
+
+-- example
+import Iced.Widget
+import Iced.Widget.ProgressBar qualified as ProgressBar
+
+-- use in view
+progressBar [width $ Fixed 300, height $ Fixed 30, style ProgressBar.Primary] 0 100 model.value,
+```
+
+
+## Radio
+
+```haskell
+-- attributes label value selected onClick
+radio :: Enum option
+      => [Attribute]
+      -> String
+      -> option
+      -> Maybe option
+      -> OnClick option message
+      -> Element
+
+-- example
+import Iced.Widget
+
+data Option = First | Second deriving Enum
+
+data Message = Selected Option
+
+data Model = Model { selected :: Maybe Option }
+
+-- use in view
+row [] [
+  radio [] "First" First model.selected Selected,
+  radio [] "Second" Second model.selected Selected
+]
+```
+
+
+## Responsive
+
+Complete [example](../examples/responsive)
+
+```haskell
+data Size = Size { width :: Float, height :: Float }
+type View = Size -> Element
+
+responsive :: View -> Element
+
+-- example
+import Iced.Size
+import Iced.Widget
+
+-- Define a function which accepts Size and returns a widget
+label :: Size -> Element
+label s = column [] $ if s.width < 200 then [] else [
+  text [] "Responsive widget size",
+  text [] $ "width   " ++ show s.width,
+  text [] $ "height  " ++ show s.height
+]
+
+-- then use it in view
+responsive label
+```
+
+
+## Row
+
+```haskell
+row :: [Attribute] -> [Element] -> Element
+
+-- example
+row [alignY Center, spacing 10] [
+  button [onPress Inc] "Increment",
+  text [size 50] $ show value,
+  button [onPress Dec] "Decrement"
+]
 ```
 
 
