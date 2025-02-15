@@ -1,0 +1,66 @@
+name: CI
+
+# Trigger the workflow on push or pull request, but only for the master branch
+on:
+  pull_request:
+  push:
+    branches: ["master"]
+
+jobs:
+  generate-matrix:
+    name: "Generate matrix from cabal"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.7.0
+        with:
+          cabal-file: iced-hs.cabal
+          ubuntu-version: "latest"
+          macos: "macos-13"
+          version: 0.1.7.0
+  tests:
+    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v4
+
+      - name: Set up Haskell
+        id: setup-haskell
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 'latest'
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Freeze
+        run: cabal freeze --project-file=cabal.ci.project
+
+      - name: Cache
+        uses: actions/cache@v4.2.0
+        with:
+          path: ${{ steps.setup-haskell.outputs.cabal-store }}
+          key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-cabal-${{ hashFiles('**/plan.json') }}
+          restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
+
+      - name: Build
+        run: cabal build --project-file=cabal.ci.project
+
+      - name: Test
+        run: cabal test --project-file=cabal.ci.project all
+
+      - name: API Golden tests
+        uses: kleidukos/diff-package-api@v0.1.0.1
+        with:
+          package-name: iced-hs
+          expected-interface: test/package-api-${{ matrix.ghc }}.txt
+          ghc: ${{ matrix.ghc }}
+          version: 0.1.0.1
