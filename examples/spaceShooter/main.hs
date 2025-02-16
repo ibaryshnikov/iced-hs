@@ -21,29 +21,19 @@ import Iced.Widget.Canvas.FrameAction
 
 data Screen = Start | Game | Win
 
-data Moving = Moving {
-  left :: Bool,
-  right :: Bool
-}
+data Moving = Moving { left :: Bool, right :: Bool }
 
-data Position = Position {
-  x :: Float,
-  y :: Float
-}
-
-data Bullet = Bullet {
-  position :: Position
-}
-
-data Enemy = Enemy {
-  position :: Position
-}
+data Position = Position { x :: Float, y :: Float }
+data Bullet = Bullet { position :: Position }
+data Enemy = Enemy { position :: Position }
 
 initialEnemies :: Integer -> [Enemy]
 initialEnemies 0 = []
-initialEnemies n = [enemy] ++ (initialEnemies $ n - 1)
-  where enemy = Enemy { position = Position { .. } }
-        x = (fromIntegral n) * 50 + 25
+initialEnemies n = map newEnemy [1..n]
+
+newEnemy :: Integer -> Enemy
+newEnemy n = Enemy { position = Position { .. } }
+  where x = (fromIntegral n) * 50 + 25
         y = 60
 
 data Model = Model {
@@ -97,21 +87,11 @@ newGame model = model {
   }
 
 handleKey :: KeyCode -> Bool -> Model -> Model
-handleKey code isPressed = case code of
-  KeyA -> handleMove $ Left isPressed
-  KeyD -> handleMove $ Right isPressed
-  Space -> switchShooting isPressed
-  _ -> id
-
-handleMove :: Either Bool Bool -> Model -> Model
-handleMove direction model = model { moving = moving }
-  where
-    moving = case direction of
-      Left  isPressed -> model.moving { left  = isPressed }
-      Right isPressed -> model.moving { right = isPressed }
-
-switchShooting :: Bool -> Model -> Model
-switchShooting shooting model = model { shooting = shooting }
+handleKey code isPressed model = case code of
+  KeyA -> model { moving = model.moving { left  = isPressed } }
+  KeyD -> model { moving = model.moving { right = isPressed } }
+  Space -> model { shooting = isPressed }
+  _ -> model
 
 handleTick :: Integer -> Model -> IO Model
 handleTick micros oldModel = do
@@ -214,23 +194,23 @@ fillRectangle x y width_ height_ color_ = fill [
   ] color_
 
 shapes :: Model -> [FrameAction]
-shapes model = [
-    fillRectangle 0 0 640 480 (rgb8 0 0 0), -- draw field
-    drawShip model.position
-  ]
-  ++ drawBullets model.bullets
-  ++ drawEnemies model.enemies
+shapes model = [drawField, drawShip model.position]
+  ++ map drawBullet model.bullets
+  ++ map drawEnemy model.enemies
+
+drawField :: FrameAction
+drawField = fillRectangle 0 0 640 480 (rgb8 0 0 0)
 
 drawShip :: Position -> FrameAction
 drawShip Position { .. } = fillRectangle (x - 50) y 100 30 (rgb8 180 180 180)
 
-drawBullets :: [Bullet] -> [FrameAction]
-drawBullets = map (\item -> drawOne item.position)
-  where drawOne Position { .. } = fillRectangle x y 4 20 $ rgb8 180 180 180
+drawBullet :: Bullet -> FrameAction
+drawBullet bullet = fillRectangle x y 4 20 $ rgb8 180 180 180
+  where Position { .. } = bullet.position
 
-drawEnemies :: [Enemy] -> [FrameAction]
-drawEnemies = map (\item -> drawOne item.position)
-  where drawOne Position { .. } = fillRectangle x y 40 40 $ rgb8 180 180 180
+drawEnemy :: Enemy -> FrameAction
+drawEnemy enemy = fillRectangle x y 40 40 $ rgb8 180 180 180
+  where Position { .. } = enemy.position
 
 subscriptionFn :: Model -> IO (Subscription Message)
 subscriptionFn model = case model.screen of
