@@ -78,21 +78,43 @@ data Message
   | Tick Integer
 
 update :: Message -> Model -> IO Model
-update StartGame model = case model.screen of
-  Game -> pure model
-  Start -> startGame model
-  Win   -> startGame model
-update (Pressed code) model = pure $ case code of
-  KeyA -> handleMove model $ Left True
-  KeyD -> handleMove model $ Right True
-  Space -> model { shooting = True }
-  _ -> model
-update (Released code) model = pure $ case code of
-  KeyA -> handleMove model $ Left False
-  KeyD -> handleMove model $ Right False
-  Space -> model { shooting = False }
-  _ -> model
-update (Tick micros) oldModel = do
+update StartGame = pure . startGame
+update (Pressed code) = pure . handleKey code True
+update (Released code) = pure . handleKey code False
+update (Tick micros) = handleTick micros
+
+startGame :: Model -> Model
+startGame model = case model.screen of
+  Game -> model
+  Start -> newGame model
+  Win   -> newGame model
+
+newGame :: Model -> Model
+newGame model = model {
+    screen = Game,
+    enemies = initialEnemies 10,
+    position = Position { x = 320, y = 400 }
+  }
+
+handleKey :: KeyCode -> Bool -> Model -> Model
+handleKey code isPressed = case code of
+  KeyA -> handleMove $ Left isPressed
+  KeyD -> handleMove $ Right isPressed
+  Space -> switchShooting isPressed
+  _ -> id
+
+handleMove :: Either Bool Bool -> Model -> Model
+handleMove direction model = model { moving = moving }
+  where
+    moving = case direction of
+      Left  isPressed -> model.moving { left  = isPressed }
+      Right isPressed -> model.moving { right = isPressed }
+
+switchShooting :: Bool -> Model -> Model
+switchShooting shooting model = model { shooting = shooting }
+
+handleTick :: Integer -> Model -> IO Model
+handleTick micros oldModel = do
   model <- shoot oldModel
   Canvas.clearCache model.state
   let diff = (fromIntegral (micros - model.lastTick)) / 10_000
@@ -107,20 +129,6 @@ update (Tick micros) oldModel = do
     enemies = enemies,
     screen = screen
   }
-
-startGame :: Model -> IO Model
-startGame model = pure model {
-    screen = Game,
-    enemies = initialEnemies 10,
-    position = Position { x = 320, y = 400 }
-  }
-
-handleMove :: Model -> Either Bool Bool -> Model
-handleMove model direction = model { moving = moving }
-  where
-    moving = case direction of
-      Left  isPressed -> model.moving { left  = isPressed }
-      Right isPressed -> model.moving { right = isPressed }
 
 shoot :: Model -> IO Model
 shoot model = case model.shooting of
