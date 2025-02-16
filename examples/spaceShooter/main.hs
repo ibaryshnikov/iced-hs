@@ -55,7 +55,7 @@ newModel = do
   let moving = Moving { left = False, right = False }
   let position = Position { x = 320, y = 400 }
   let bullets = []
-  let enemies = initialEnemies 10
+  let enemies = []
   let lastShot = 0
   let shooting = False
   let screen = Start
@@ -83,6 +83,8 @@ newGame :: Model -> Model
 newGame model = model {
     screen = Game,
     enemies = initialEnemies 10,
+    bullets = [],
+    shooting = False,
     position = Position { x = 320, y = 400 }
   }
 
