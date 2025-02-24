@@ -8,14 +8,6 @@ clean: ## Remove the rust & haskell build artifacts
 	@cargo clean
 	@cabal clean
 
-repl: ## Start a cabal REPL
-	@cabal repl iced-hs
-
-ghci: repl ## Start a cabal REPL (alias for `make repl`)
-
-watch: ## Load the main library and reload on file change
-	@ghcid --target iced-hs-server -l
-
 style-hs: ## Format Haskell sources
 	@cabal-gild --mode=format --io=iced-hs.cabal
 	@fourmolu -q --mode inplace src
