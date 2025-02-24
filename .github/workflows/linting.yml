@@ -1,0 +1,27 @@
+name: Linting & Styling
+
+on:
+  pull_request:
+  push:
+    branches: ["master"]
+
+jobs:
+  fourmolu:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: haskell-actions/run-fourmolu@v11
+      with:
+        version: "0.18.0.0"
+        pattern: |
+          src/**/*.hs
+  rustfmt:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: dtolnay/rust-toolchain@stable
+          with:
+              components: rustfmt
+        - name: Run rustfmt
+          run: cargo fmt -- --check
