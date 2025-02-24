@@ -5,10 +5,6 @@
 -- This is necessary because the Haskell library depends on
 -- `libiced_hs.a` quite early during the build process,
 -- due to the `extra-libraries` stanza.
---
--- WARNING: We must not use `extra-bundled-libraries`, as it breaks
--- in a nasty and incomprehensible way when mixed with Template Haskell
--- – which is notably used to embed font packs in programs.
 
 module Main where
 
@@ -34,33 +30,30 @@ import System.Process
 -- point to a temporary directory when iced-hs is used as a third party library, this is likely okay and
 -- won't cause any issues
 --
--- there are three iced-hs-<version>[-inplace].conf files we need to think about
--- two in dist-newstyle, they are used for local development and another in
---  ~/.cabal/store/ when other packages depend on us either via their build-depends or source-repository-package
+-- There are three iced-hs-<version>[-inplace].conf files we need to think about:
+-- * Two in dist-newstyle, they are used for local development;
+-- * One in `~/.cabal/store/` when other packages depend on us either via their build-depends or source-repository-package.
+--
 -- Let's first see how the .conf files in dist-newstyle affect us
--- we need a relative extra-lib-dirs in
---     dist-newstyle/build/x86_64-linux/ghc-9.10.1/iced-hs-0.0.3.0/package.conf.inplace/iced-hs-0.0.3.0-inplace.conf
+-- we need a relative extra-lib-dirs in:
+--     `dist-newstyle/build/x86_64-linux/ghc-9.10.1/iced-hs-0.0.3.0/package.conf.inplace/iced-hs-0.0.3.0-inplace.conf`
 -- ^ this file is generated in buildHook and extra-lib-dirs is needed here because cabal won't search for
--- extra-library in the libraries own build directory, the other files are in
---     dist-newstyle/packagedb/ghc-9.10.1/iced-hs-0.0.3.0-inplace.conf &
---     ~/.cabal/store/ghc-9.10.1[-inplace]/packagedb/iced-hs-<version>-<unitid>.conf
+-- extra-library in the libraries own build directory, the other files are in:
+-- * `dist-newstyle/packagedb/ghc-9.10.1/iced-hs-0.0.3.0-inplace.conf`;
+-- * `~/.cabal/store/ghc-9.10.1[-inplace]/packagedb/iced-hs-<version>-<unitid>.conf`
 -- ^ these are generated in regHook, we don't need extra-lib-dirs here because the bundled library is in
 -- the same directory as the haskell library so the paths are already in search path (and added to rpath in dynamic
 -- case)
 --
 -- Why can't we use `${pkgroot}` variable so ghc-pkg resolves it?
--- because the structure is different in local build `${pkgroot}/../build/libiced_hs.so` vs when it's installed which
+-- Because the structure is different in local build `${pkgroot}/../build/libiced_hs.so` vs when it's installed which
 -- would be `${pkgroot}/../lib/libiced_hs.so`
 --
--- the warning from Wmissed-extra-shared-lib is most likely a ghc bug, because it tries to open `libCiced_hs.so` but
--- extra-bundled-libraries can only support .so files in the format `libiced_hs.so`, so then why does it try to open
+-- NOTE: The warning from Wmissed-extra-shared-lib is most likely a ghc bug, because it tries to open `libCiced_hs.so` but
+-- extra-libraries can only support .so files in the format `libiced_hs.so`, so then why does it try to open
 -- `libCiced_hs.so`? unsure
---
 -- Why don't we fix the above warning by naming the libraries same? that leads to bizarre behaviour because ghc sometimes
 -- strips `Ciced_hs` to `iced_hs` and then linker looks for `iced_hs.so` which doesn't exist
-
---
---
 
 main :: IO ()
 main =

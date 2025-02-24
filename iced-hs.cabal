@@ -120,7 +120,6 @@ library
   import: common
   hs-source-dirs: src
   extra-bundled-libraries: Ciced_hs
-  -- extra-libraries: Ciced_hs
   -- cabal-gild: discover src
   exposed-modules:
     Iced
