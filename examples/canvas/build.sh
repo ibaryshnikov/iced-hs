@@ -7,6 +7,6 @@ fi
 ghc -Wall -i../.. \
   -odir ../../build \
   -hidir ../../build \
-  ../../libiced_hs.a \
+  ../../target/debug/libiced_hs.a \
   ${USE_LINKER+-optl -fuse-ld="$USE_LINKER"} \
-  main.hs
+  Main.hs

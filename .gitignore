@@ -5,5 +5,8 @@ Cargo.lock
 **/*.hi
 **/*.o
 **/*_stub.h
-**/main
+**/Main
 libiced_hs.a
+dist-newstyle
+tags
+tags.mtime

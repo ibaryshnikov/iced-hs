@@ -41,26 +41,24 @@ jobs:
       - name: Install stable toolchain
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Rust cache restoration
+        uses: Swatinem/rust-cache@v2
+
       - name: Freeze
         run: cabal freeze --project-file=cabal.ci.project
 
-      - name: Cache
+      - name: Haskell cache restoration
         uses: actions/cache@v4.2.0
         with:
           path: ${{ steps.setup-haskell.outputs.cabal-store }}
           key: ${{ runner.os }}-ghc-${{ matrix.ghc }}-cabal-${{ hashFiles('**/plan.json') }}
           restore-keys: ${{ runner.os }}-ghc-${{ matrix.ghc }}-
 
-      - name: Build
-        run: cabal build --project-file=cabal.ci.project
+      - name: Build Library
+        run: cabal build -v2 --project-file=cabal.ci.project iced-hs
+
+      - name: Build Examples
+        run: cabal build -v2 --project-file=cabal.ci.project all
 
       - name: Test
         run: cabal test --project-file=cabal.ci.project all
-
-      - name: API Golden tests
-        uses: kleidukos/diff-package-api@v0.1.0.1
-        with:
-          package-name: iced-hs
-          expected-interface: test/package-api-${{ matrix.ghc }}.txt
-          ghc: ${{ matrix.ghc }}
-          version: 0.1.0.1

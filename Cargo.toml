@@ -5,7 +5,9 @@ authors = ["ibaryshnikov"]
 edition = "2021"
 
 [lib]
-crate-type = ["staticlib"]
+path = "rust-bits/lib.rs"
+crate-type = ["staticlib", "cdylib"]
+name = "iced_hs"
 
 [dependencies.iced]
 # version = "0.13"

@@ -1,0 +1,479 @@
+cabal-version: 3.8
+version: 0.0.3.0
+name: iced-hs
+synopsis: Haskell bindings to the iced cross-platform GUI library
+category: gui
+homepage: https://github.com/ibaryshnikov/iced-hs
+maintainer: Ilya Baryshnikov <baryshnikov.il@gmail.com>
+bug-reports:
+  https://github.com/ibaryshnikov/iced-hs/issues
+
+license: MIT
+build-type: Custom
+tested-with:
+  ghc ==9.6.6 || ==9.8.4 || ==9.10.1
+
+-- Files tracked by `cabal build`; changes in these files cause (partial) rebuilds.
+-- cabal-gild: discover rust-bits/ utils/ Cargo.toml
+extra-source-files:
+  Cargo.toml
+  rust-bits/alignment.rs
+  rust-bits/color.rs
+  rust-bits/command.rs
+  rust-bits/future.rs
+  rust-bits/keyboard/key.rs
+  rust-bits/keyboard/mod.rs
+  rust-bits/keyboard/physical.rs
+  rust-bits/length.rs
+  rust-bits/lib.rs
+  rust-bits/line_height.rs
+  rust-bits/padding.rs
+  rust-bits/settings.rs
+  rust-bits/subscription.rs
+  rust-bits/theme.rs
+  rust-bits/time.rs
+  rust-bits/widget/button.rs
+  rust-bits/widget/canvas/fill.rs
+  rust-bits/widget/canvas/frame.rs
+  rust-bits/widget/canvas/gradient.rs
+  rust-bits/widget/canvas/mod.rs
+  rust-bits/widget/canvas/path.rs
+  rust-bits/widget/canvas/path_builder.rs
+  rust-bits/widget/canvas/stroke.rs
+  rust-bits/widget/canvas/style.rs
+  rust-bits/widget/checkbox.rs
+  rust-bits/widget/column.rs
+  rust-bits/widget/combo_box.rs
+  rust-bits/widget/container.rs
+  rust-bits/widget/image.rs
+  rust-bits/widget/markdown.rs
+  rust-bits/widget/mod.rs
+  rust-bits/widget/pick_list.rs
+  rust-bits/widget/progress_bar.rs
+  rust-bits/widget/radio.rs
+  rust-bits/widget/responsive.rs
+  rust-bits/widget/row.rs
+  rust-bits/widget/scrollable.rs
+  rust-bits/widget/slider.rs
+  rust-bits/widget/space.rs
+  rust-bits/widget/text.rs
+  rust-bits/widget/text_editor.rs
+  rust-bits/widget/text_input.rs
+  rust-bits/widget/toggler.rs
+  rust-bits/widget/tooltip.rs
+  rust-bits/widget/vertical_slider.rs
+  utils/change.rs
+
+-- cabal-gild: discover LICENSE README.md docs/
+extra-doc-files:
+  LICENSE
+  README.md
+  docs/CANVAS.md
+  docs/README.md
+  docs/THEMES.md
+  docs/VISION.txt
+  docs/WIDGETS.md
+
+flag examples
+  description: Build examples
+  manual: True
+  default: False
+
+source-repository head
+  type: git
+  location: https://github.com/ibaryshnikov/iced-hs
+
+custom-setup
+  setup-depends:
+    Cabal >=3.14,
+    base >=4.18 && <5,
+    directory >=1.3,
+    process ^>=1.6,
+
+common common
+  build-depends:
+    base >=4.14 && <5,
+    bytestring,
+    template-haskell,
+
+  default-extensions:
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Widentities
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wpartial-fields
+    -Wredundant-constraints
+    -fhide-source-paths
+    -Wno-unused-do-bind
+
+  default-language: GHC2021
+
+common common-rts-options
+  ghc-options:
+    -rtsopts
+    -threaded
+    -with-rtsopts=-N
+
+library
+  import: common
+  hs-source-dirs: src
+  extra-bundled-libraries: Ciced_hs
+  -- cabal-gild: discover src
+  exposed-modules:
+    Iced
+    Iced.Application
+    Iced.Attribute
+    Iced.Attribute.Alignment
+    Iced.Attribute.AlignmentFFI
+    Iced.Attribute.Color
+    Iced.Attribute.Icon
+    Iced.Attribute.Internal
+    Iced.Attribute.Length
+    Iced.Attribute.LengthFFI
+    Iced.Attribute.LineHeight
+    Iced.Attribute.LineHeightFFI
+    Iced.Attribute.OnInput
+    Iced.Attribute.Padding
+    Iced.Attribute.PaddingFFI
+    Iced.Attribute.Placeholder
+    Iced.Attribute.Size
+    Iced.Attribute.SliderCommon
+    Iced.Attribute.Spacing
+    Iced.Attribute.Status
+    Iced.Attribute.Style
+    Iced.Attribute.Text
+    Iced.Attribute.TextFFI
+    Iced.Color
+    Iced.ColorFFI
+    Iced.Command
+    Iced.Element
+    Iced.Font
+    Iced.Future
+    Iced.Future.Internal
+    Iced.Future.Runtime
+    Iced.Internal
+    Iced.Internal.Command
+    Iced.Keyboard
+    Iced.Keyboard.Key
+    Iced.Keyboard.LogicalKey
+    Iced.Keyboard.PhysicalKey
+    Iced.Settings
+    Iced.Size
+    Iced.Style
+    Iced.Style.Container
+    Iced.Style.Internal
+    Iced.Subscription
+    Iced.Theme
+    Iced.Time
+    Iced.Time.Duration
+    Iced.Widget
+    Iced.Widget.Button
+    Iced.Widget.Canvas
+    Iced.Widget.Canvas.Fill
+    Iced.Widget.Canvas.Frame
+    Iced.Widget.Canvas.FrameAction
+    Iced.Widget.Canvas.FramePtr
+    Iced.Widget.Canvas.Path
+    Iced.Widget.Canvas.PathBuilder
+    Iced.Widget.Canvas.Shape
+    Iced.Widget.Canvas.Stroke
+    Iced.Widget.Canvas.Style
+    Iced.Widget.Center
+    Iced.Widget.Checkbox
+    Iced.Widget.Column
+    Iced.Widget.ComboBox
+    Iced.Widget.Container
+    Iced.Widget.Image
+    Iced.Widget.Markdown
+    Iced.Widget.PickList
+    Iced.Widget.ProgressBar
+    Iced.Widget.Radio
+    Iced.Widget.Responsive
+    Iced.Widget.Row
+    Iced.Widget.Scrollable
+    Iced.Widget.Slider
+    Iced.Widget.Space
+    Iced.Widget.Text
+    Iced.Widget.TextEditor
+    Iced.Widget.TextInput
+    Iced.Widget.Toggler
+    Iced.Widget.Tooltip
+    Iced.Widget.VerticalSlider
+
+executable buttonStyles
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: buttonStyles/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable canvas
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: canvas/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable checkbox
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: checkbox/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable comboBox
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: comboBox/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable counter
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: counter/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable image
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: image/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable keyboard
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: keyboard/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable markdown
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: markdown/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable performAsync
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: performAsync/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable pickList
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: pickList/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable progressBar
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: progressBar/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable radio
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: radio/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable readFile
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: readFile/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable responsive
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: responsive/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable slider
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: slider/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable spaceShooter
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: spaceShooter/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable stopwatch
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: stopwatch/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable textEditor
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: textEditor/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable textInput
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: textInput/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable themes
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: themes/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable title
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: title/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable toggler
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: toggler/Main.hs
+  build-depends:
+    base,
+    iced-hs,
+
+executable tooltip
+  import: common
+  import: common-rts-options
+
+  if !flag(examples)
+    buildable: False
+  hs-source-dirs: examples
+  main-is: tooltip/Main.hs
+  build-depends:
+    base,
+    iced-hs,

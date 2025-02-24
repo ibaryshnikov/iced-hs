@@ -40,5 +40,5 @@ view model =
 
 main :: IO ()
 main = Iced.run [addFont bytes, theme SolarizedDark] "Checkbox" model update view
-  where bytes = $(includeBytes "fonts/icons.ttf")
+  where bytes = $(includeBytes "examples/checkbox/fonts/icons.ttf")
         model = Model { def = False, styled = False, custom = False }
