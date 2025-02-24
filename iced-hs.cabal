@@ -14,55 +14,54 @@ tested-with:
   ghc ==9.6.6 || ==9.8.4 || ==9.10.1
 
 -- Files tracked by `cabal build`; changes in these files cause (partial) rebuilds.
--- cabal-gild: discover rust-bits/ utils/ Cargo.toml
+-- cabal-gild: discover rust-src/ Cargo.toml
 extra-source-files:
   Cargo.toml
-  rust-bits/alignment.rs
-  rust-bits/color.rs
-  rust-bits/command.rs
-  rust-bits/future.rs
-  rust-bits/keyboard/key.rs
-  rust-bits/keyboard/mod.rs
-  rust-bits/keyboard/physical.rs
-  rust-bits/length.rs
-  rust-bits/lib.rs
-  rust-bits/line_height.rs
-  rust-bits/padding.rs
-  rust-bits/settings.rs
-  rust-bits/subscription.rs
-  rust-bits/theme.rs
-  rust-bits/time.rs
-  rust-bits/widget/button.rs
-  rust-bits/widget/canvas/fill.rs
-  rust-bits/widget/canvas/frame.rs
-  rust-bits/widget/canvas/gradient.rs
-  rust-bits/widget/canvas/mod.rs
-  rust-bits/widget/canvas/path.rs
-  rust-bits/widget/canvas/path_builder.rs
-  rust-bits/widget/canvas/stroke.rs
-  rust-bits/widget/canvas/style.rs
-  rust-bits/widget/checkbox.rs
-  rust-bits/widget/column.rs
-  rust-bits/widget/combo_box.rs
-  rust-bits/widget/container.rs
-  rust-bits/widget/image.rs
-  rust-bits/widget/markdown.rs
-  rust-bits/widget/mod.rs
-  rust-bits/widget/pick_list.rs
-  rust-bits/widget/progress_bar.rs
-  rust-bits/widget/radio.rs
-  rust-bits/widget/responsive.rs
-  rust-bits/widget/row.rs
-  rust-bits/widget/scrollable.rs
-  rust-bits/widget/slider.rs
-  rust-bits/widget/space.rs
-  rust-bits/widget/text.rs
-  rust-bits/widget/text_editor.rs
-  rust-bits/widget/text_input.rs
-  rust-bits/widget/toggler.rs
-  rust-bits/widget/tooltip.rs
-  rust-bits/widget/vertical_slider.rs
-  utils/change.rs
+  rust-src/alignment.rs
+  rust-src/color.rs
+  rust-src/command.rs
+  rust-src/future.rs
+  rust-src/keyboard/key.rs
+  rust-src/keyboard/mod.rs
+  rust-src/keyboard/physical.rs
+  rust-src/length.rs
+  rust-src/lib.rs
+  rust-src/line_height.rs
+  rust-src/padding.rs
+  rust-src/settings.rs
+  rust-src/subscription.rs
+  rust-src/theme.rs
+  rust-src/time.rs
+  rust-src/widget/button.rs
+  rust-src/widget/canvas/fill.rs
+  rust-src/widget/canvas/frame.rs
+  rust-src/widget/canvas/gradient.rs
+  rust-src/widget/canvas/mod.rs
+  rust-src/widget/canvas/path.rs
+  rust-src/widget/canvas/path_builder.rs
+  rust-src/widget/canvas/stroke.rs
+  rust-src/widget/canvas/style.rs
+  rust-src/widget/checkbox.rs
+  rust-src/widget/column.rs
+  rust-src/widget/combo_box.rs
+  rust-src/widget/container.rs
+  rust-src/widget/image.rs
+  rust-src/widget/markdown.rs
+  rust-src/widget/mod.rs
+  rust-src/widget/pick_list.rs
+  rust-src/widget/progress_bar.rs
+  rust-src/widget/radio.rs
+  rust-src/widget/responsive.rs
+  rust-src/widget/row.rs
+  rust-src/widget/scrollable.rs
+  rust-src/widget/slider.rs
+  rust-src/widget/space.rs
+  rust-src/widget/text.rs
+  rust-src/widget/text_editor.rs
+  rust-src/widget/text_input.rs
+  rust-src/widget/toggler.rs
+  rust-src/widget/tooltip.rs
+  rust-src/widget/vertical_slider.rs
 
 -- cabal-gild: discover LICENSE README.md docs/
 extra-doc-files:
