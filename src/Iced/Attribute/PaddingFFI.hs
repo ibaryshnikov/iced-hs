@@ -21,4 +21,4 @@ foreign import ccall "padding_new"
   padding_new :: CFloat -> CFloat -> CFloat -> CFloat -> IO PaddingPtr
 
 instance ValueToNativeIO Padding PaddingPtr where
-  valueToNativeIO Padding { .. } = padding_new (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)
+  valueToNativeIO Padding{..} = padding_new (CFloat top) (CFloat right) (CFloat bottom) (CFloat left)

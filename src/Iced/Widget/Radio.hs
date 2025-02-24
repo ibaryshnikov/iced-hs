@@ -1,11 +1,11 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Radio (
   radio,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
 ) where
 
@@ -28,7 +28,9 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
+
+-- \| BgGradient Gradient
 
 data StyleAttribute
   = Background Background
@@ -73,7 +75,6 @@ foreign import ccall "radio_style_set_border_color"
 foreign import ccall "radio_style_set_text_color"
   set_text_color :: Style -> ColorPtr -> IO ()
 
-
 type NativeOnClick message = CUInt -> IO (StablePtr message)
 foreign import ccall "wrapper"
   makeCallback :: NativeOnClick message -> IO (FunPtr (NativeOnClick message))
@@ -84,18 +85,20 @@ wrapOnClick callback = newStablePtr . callback . optionFromInt . fromIntegral
 type OnClick option message = option -> message
 
 data Radio option message where
-  Radio :: Enum option => {
-    label :: String,
-    value :: option,
-    selected :: Maybe option,
-    onClick :: OnClick option message
-  } -> Radio option message
+  Radio
+    :: Enum option
+    => { label :: String
+       , value :: option
+       , selected :: Maybe option
+       , onClick :: OnClick option message
+       }
+    -> Radio option message
 
 -- convert to 1-indexed, reserve 0 for Nothing
 optionToInt :: Enum option => option -> Int
 optionToInt option = 1 + fromEnum option
 
- -- convert back to 0-indexed
+-- convert back to 0-indexed
 optionFromInt :: Enum option => Int -> option
 optionFromInt input = toEnum $ input - 1 -- will be a runtime error in case of mistake
 
@@ -125,14 +128,15 @@ instance IntoStyle value => UseStyle value Attribute where
 instance UseWidth Length Attribute where
   width = Width
 
-radio :: Enum option
-      => [Attribute]
-      -> String
-      -> option
-      -> Maybe option
-      -> OnClick option message
-      -> Element
-radio attributes label value selected onClick = pack Radio { .. } attributes
+radio
+  :: Enum option
+  => [Attribute]
+  -> String
+  -> option
+  -> Maybe option
+  -> OnClick option message
+  -> Element
+radio attributes label value selected onClick = pack Radio{..} attributes
 
 -- style theme status is_selected
 type NativeStyleCallback = Style -> CUChar -> CUChar -> CBool -> IO ()
@@ -188,8 +192,9 @@ instance UseStyleAttribute Style StyleAttribute where
     TextColor color -> useFnIO set_text_color color
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = radio_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  radio_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

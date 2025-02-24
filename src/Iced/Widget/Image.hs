@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Image (
   image,
@@ -62,7 +62,7 @@ foreign import ccall "image_height"
 foreign import ccall "image_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Image = Image { handle :: IO Handle }
+data Image = Image {handle :: IO Handle}
 
 instance Builder Self where
   build = into_element
@@ -73,7 +73,7 @@ instance IntoNative Image Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFnIO image_width  len
+    Width len -> useFnIO image_width len
     Height len -> useFnIO image_height len
 
 instance UseWidth Length Attribute where
@@ -90,12 +90,15 @@ instance IntoHandle String where
 
 instance IntoHandle ByteString.ByteString where
   intoHandle byteString = withForeignPtr ptr $ handle_from_bytes (fromIntegral len)
-    where (ptr, len) = ByteStringInternal.toForeignPtr0 byteString
+   where
+    (ptr, len) = ByteStringInternal.toForeignPtr0 byteString
 
 image :: IntoHandle a => [Attribute] -> a -> Element
-image attributes input = pack Image { .. } attributes
-  where handle = intoHandle input
+image attributes input = pack Image{..} attributes
+ where
+  handle = intoHandle input
 
 fromRgba :: [Attribute] -> Int -> Int -> [Word8] -> Element
-fromRgba attributes w h pixels = pack Image { .. } attributes
-  where handle = handleFromRgba w h pixels
+fromRgba attributes w h pixels = pack Image{..} attributes
+ where
+  handle = handleFromRgba w h pixels

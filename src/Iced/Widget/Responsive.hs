@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Responsive (
   responsive,
@@ -21,11 +21,11 @@ foreign import ccall "wrapper"
 type NativeView = CFloat -> CFloat -> IO ElementPtr
 
 wrapView :: View -> NativeView
-wrapView view (CFloat width) (CFloat height) = elementToNative $ view Size { .. }
+wrapView view (CFloat width) (CFloat height) = elementToNative $ view Size{..}
 
 type View = Size -> Element
 
-data Responsive = Responsive { view :: View }
+data Responsive = Responsive {view :: View}
 
 instance IntoNative Responsive ElementPtr where
   toNative details =
@@ -33,4 +33,4 @@ instance IntoNative Responsive ElementPtr where
       >>= responsive_new
 
 responsive :: View -> Element
-responsive view = packSimple Responsive { .. }
+responsive view = packSimple Responsive{..}

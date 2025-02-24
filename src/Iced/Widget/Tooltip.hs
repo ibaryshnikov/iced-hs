@@ -1,12 +1,12 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Tooltip (
   tooltip,
   gap,
   snapWithViewport,
-  Position(..),
+  Position (..),
 ) where
 
 import Foreign
@@ -24,7 +24,9 @@ data NativeStyle
 type StylePtr = Ptr NativeStyle
 data Position = FollowCursor | Top | Bottom | Left | Right
 
-data Attribute = Gap Float | AddPadding Float | SnapWithViewport Bool -- | Style Style
+data Attribute = Gap Float | AddPadding Float | SnapWithViewport Bool
+
+-- \| Style Style
 
 -- content tooltip position
 foreign import ccall "tooltip_new"
@@ -50,11 +52,11 @@ foreign import ccall "tooltip_style"
 foreign import ccall "tooltip_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Tooltip = Tooltip {
-  content :: Element,
-  tooltipElement :: Element,
-  position :: Position
-}
+data Tooltip = Tooltip
+  { content :: Element
+  , tooltipElement :: Element
+  , position :: Position
+  }
 
 positionToNative :: Position -> CUChar
 positionToNative position = CUChar $
@@ -85,7 +87,7 @@ instance UsePadding Attribute where
   padding = AddPadding
 
 tooltip :: [Attribute] -> Element -> Element -> Position -> Element
-tooltip attributes content tooltipElement position = pack Tooltip { .. } attributes
+tooltip attributes content tooltipElement position = pack Tooltip{..} attributes
 
 gap :: Float -> Attribute
 gap = Gap

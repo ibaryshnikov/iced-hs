@@ -11,9 +11,9 @@ import Foreign
 import Foreign.C.String
 import Foreign.C.Types
 
-import Iced.Internal.Command
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Future.Internal
+import Iced.Internal.Command
 import Iced.Settings
 import Iced.Subscription
 import Iced.Theme
@@ -54,20 +54,24 @@ type NativeTitle model = StablePtr model -> IO CString
 foreign import ccall "wrapper"
   makeTitleCallback :: NativeTitle model -> IO (FunPtr (NativeTitle model))
 
-wrapTitle :: IntoTitle title model
-          => Title title
-          -> NativeTitle model
+wrapTitle
+  :: IntoTitle title model
+  => Title title
+  -> NativeTitle model
 wrapTitle title modelPtr = do
   model <- deRefStablePtr modelPtr
   newCString $ intoTitle title model
 
-type NativeUpdate model message = StablePtr model -> StablePtr message -> IO UpdateResultPtr
+type NativeUpdate model message =
+  StablePtr model -> StablePtr message -> IO UpdateResultPtr
 foreign import ccall "wrapper"
-  makeUpdateCallback :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
+  makeUpdateCallback
+    :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
-wrapUpdate :: IntoCommand message model result
-           => Update message model result
-           -> NativeUpdate model message
+wrapUpdate
+  :: IntoCommand message model result
+  => Update message model result
+  -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
   -- modelPtr is freed by Rust when it changes
   model <- deRefStablePtr modelPtr
@@ -106,11 +110,13 @@ foreign import ccall "update_result_add_command_future"
 
 -- update_result callback
 foreign import ccall "update_result_add_command_io"
-  update_result_add_command_io :: UpdateResultPtr-> FunPtr (NativeCommandPerform message) -> IO ()
+  update_result_add_command_io
+    :: UpdateResultPtr -> FunPtr (NativeCommandPerform message) -> IO ()
 
 type NativeCommandPerform message = IO (StablePtr message)
 foreign import ccall "wrapper"
-  makeCommandPerformCallback :: NativeCommandPerform message -> IO (FunPtr (NativeCommandPerform message))
+  makeCommandPerformCallback
+    :: NativeCommandPerform message -> IO (FunPtr (NativeCommandPerform message))
 
 wrapCommandPerform :: IO message -> NativeCommandPerform message
 wrapCommandPerform callback = do
@@ -128,9 +134,10 @@ wrapView view modelPtr = do
 
 type NativeSubscriptionFn model message = StablePtr model -> IO (Subscription message)
 
-foreign import ccall "wrapper" makeSubscriptionCallback
-  :: NativeSubscriptionFn model message
-  -> IO (FunPtr (NativeSubscriptionFn model message))
+foreign import ccall "wrapper"
+  makeSubscriptionCallback
+    :: NativeSubscriptionFn model message
+    -> IO (FunPtr (NativeSubscriptionFn model message))
 
 wrapSubscriptionFn :: SubscriptionFn model message -> NativeSubscriptionFn model message
 wrapSubscriptionFn callback = callback <=< deRefStablePtr
@@ -154,9 +161,10 @@ useAttribute flagsPtr settingsPtr attribute = do
       makeThemeCallback (wrapThemeFn themeFn)
         >>= app_flags_set_theme flagsPtr
 
-applyAttributes :: Flags model message -> SettingsPtr -> [Attribute model message] -> IO ()
+applyAttributes
+  :: Flags model message -> SettingsPtr -> [Attribute model message] -> IO ()
 applyAttributes _flagsPtr _settingsPtr [] = pure ()
-applyAttributes flagsPtr settingsPtr (attribute:remaining) = do
+applyAttributes flagsPtr settingsPtr (attribute : remaining) = do
   useAttribute flagsPtr settingsPtr attribute
   applyAttributes flagsPtr settingsPtr remaining
 
@@ -173,13 +181,14 @@ type View model = model -> Element
 -- update :: Message -> Model -> IO (Model, Command)
 --
 class IntoCommand message model result where
-  intoCommand :: (message -> model -> result) -> message -> model -> IO (model, Command message)
+  intoCommand
+    :: (message -> model -> result) -> message -> model -> IO (model, Command message)
 
 instance IntoCommand message model model where
   intoCommand update message model = pure (update message model, None)
 
 instance IntoCommand message model (IO model) where
-  intoCommand update = (fmap (, None) .) . update
+  intoCommand update = (fmap (,None) .) . update
 
 instance IntoCommand message model (model, Command message) where
   intoCommand update = (pure .) . update
@@ -202,14 +211,14 @@ instance IntoTitle String model where
 instance IntoTitle (model -> String) model where
   intoTitle title = title
 
-run :: (IntoCommand message model result, IntoTitle title model)
-    => [Attribute model message]
-    -> Title title
-    -> model
-    -> Update message model result
-    -> View model
-    -> IO ()
-
+run
+  :: (IntoCommand message model result, IntoTitle title model)
+  => [Attribute model message]
+  -> Title title
+  -> model
+  -> Update message model result
+  -> View model
+  -> IO ()
 run attributes title model update view = do
   titlePtr <- makeTitleCallback $ wrapTitle title
   modelPtr <- newStablePtr model
@@ -248,6 +257,7 @@ instance IntoTheme Theme model where
 instance IntoTheme (model -> Theme) model where
   intoTheme themeFn = themeFn
 
-theme :: IntoTheme theme model
-      => theme -> Attribute model message
+theme
+  :: IntoTheme theme model
+  => theme -> Attribute model message
 theme = AddTheme . intoTheme

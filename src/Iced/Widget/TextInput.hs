@@ -1,13 +1,13 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.TextInput (
   textInput,
   onInput,
   onSubmit,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
 ) where
 
@@ -33,13 +33,15 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
   = Background Background
@@ -109,10 +111,10 @@ wrapOnInput callback = newStablePtr . callback <=< peekCString
 
 type OnInput message = String -> message
 
-data TextInput = TextInput {
-  placeholder :: String,
-  value :: String
-}
+data TextInput = TextInput
+  { placeholder :: String
+  , value :: String
+  }
 
 instance Builder Self where
   build = into_element
@@ -129,7 +131,7 @@ instance UseAttribute Self (Attribute message) where
     AddOnSubmit message -> useOnSubmit message
     AddPadding value -> useFnIO text_input_padding value
     CustomStyle value -> useCustomStyle value
-    Width  len -> useFnIO text_input_width  len
+    Width len -> useFnIO text_input_width len
 
 instance UseOnInput (OnInput message) (Attribute message) where
   onInput = AddOnInput
@@ -141,7 +143,7 @@ instance UsePadding2 (Attribute message) where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 (Attribute message) where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance IntoStyle value => UseStyle value (Attribute message) where
   style = intoStyle
@@ -150,7 +152,7 @@ instance UseWidth Length (Attribute message) where
   width = Width
 
 textInput :: [Attribute message] -> String -> String -> Element
-textInput attributes placeholder value = pack TextInput { .. } attributes
+textInput attributes placeholder value = pack TextInput{..} attributes
 
 useOnInput :: OnInput message -> AttributeFn
 useOnInput callback self =
@@ -162,8 +164,8 @@ onSubmit = AddOnSubmit
 
 useOnSubmit :: message -> AttributeFn
 useOnSubmit message self =
-    newStablePtr message
-      >>= text_input_on_submit self
+  newStablePtr message
+    >>= text_input_on_submit self
 
 -- style theme status
 type NativeStyleCallback = Style -> CUChar -> CUChar -> IO ()
@@ -213,13 +215,14 @@ instance UseStyleAttribute Style StyleAttribute where
     Selection color -> useFnIO set_selection color
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = text_input_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  text_input_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

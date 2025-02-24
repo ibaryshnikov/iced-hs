@@ -1,11 +1,11 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.PickList (
   pickList,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
 ) where
 
@@ -31,13 +31,15 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
   = Background Background
@@ -102,15 +104,17 @@ wrapOnSelect callback = newStablePtr . callback . read <=< peekCString
 type OnSelect option message = option -> message
 
 data PickList option message where
-  PickList :: (Show option, Read option) => {
-    options :: [option],
-    selected :: Maybe option,
-    onSelect :: OnSelect option message
-  } -> PickList option message
+  PickList
+    :: (Read option, Show option)
+    => { options :: [option]
+       , selected :: Maybe option
+       , onSelect :: OnSelect option message
+       }
+    -> PickList option message
 
 packOptions :: Show option => [option] -> [CString] -> IO ([CString])
 packOptions [] strings = pure strings
-packOptions (option:remaining) strings = do
+packOptions (option : remaining) strings = do
   packed <- newCString $ show option
   packOptions remaining (strings ++ [packed])
 
@@ -121,7 +125,7 @@ selectedToString Nothing = "" -- treat empty string as None in Rust
 instance Builder Self where
   build = into_element
 
-instance (Show option, Read option) => IntoNative (PickList option message) Self where
+instance (Read option, Show option) => IntoNative (PickList option message) Self where
   toNative details = do
     strings <- packOptions details.options []
     let len = fromIntegral $ length strings
@@ -146,7 +150,7 @@ instance UsePadding2 Attribute where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 Attribute where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance UsePlaceholder Attribute where
   placeholder = Placeholder
@@ -157,13 +161,14 @@ instance IntoStyle value => UseStyle value Attribute where
 instance UseWidth Length Attribute where
   width = Width
 
-pickList :: (Show option, Read option)
-         => [Attribute]
-         -> [option]
-         -> Maybe option
-         -> OnSelect option message
-         -> Element
-pickList attributes options selected onSelect = pack PickList { .. } attributes
+pickList
+  :: (Read option, Show option)
+  => [Attribute]
+  -> [option]
+  -> Maybe option
+  -> OnSelect option message
+  -> Element
+pickList attributes options selected onSelect = pack PickList{..} attributes
 
 usePlaceholder :: String -> AttributeFn
 usePlaceholder value self = pick_list_placeholder self =<< newCString value
@@ -215,13 +220,14 @@ instance UseStyleAttribute Style StyleAttribute where
     Handle color -> useFnIO set_handle_color color
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = pick_list_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  pick_list_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

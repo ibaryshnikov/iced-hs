@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Column (
   column,
@@ -28,7 +28,7 @@ data Attribute
   | Height Length
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall "new_column"
+-- foreign import ccall "new_column"
 --  new_column :: IO Self
 
 foreign import ccall "column_align_x"
@@ -46,7 +46,7 @@ foreign import ccall "column_with_children"
   column_with_children :: CUInt -> Ptr ElementPtr -> IO Self
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall "column_extend"
+-- foreign import ccall "column_extend"
 --  column_extend :: Self -> CUInt -> Ptr ElementPtr -> IO Self
 
 foreign import ccall "column_width"
@@ -58,7 +58,7 @@ foreign import ccall "column_height"
 foreign import ccall "column_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Column = Column { children :: [Element] }
+data Column = Column {children :: [Element]}
 
 instance Builder Self where
   build = into_element
@@ -77,7 +77,7 @@ instance UseAttribute Self Attribute where
     Spacing value -> useFn column_spacing value
     AddPadding value -> useFnIO column_padding value
     AlignX value -> useFnIO column_align_x value
-    Width  len -> useFnIO column_width  len
+    Width len -> useFnIO column_width len
     Height len -> useFnIO column_height len
 
 instance UseAlignX Attribute where
@@ -93,8 +93,7 @@ instance UsePadding2 Attribute where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 Attribute where
-  padding4 top right bottom left = AddPadding Padding { .. }
-
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance UseWidth Length Attribute where
   width = Width
@@ -103,4 +102,4 @@ instance UseHeight Length Attribute where
   height = Height
 
 column :: [Attribute] -> [Element] -> Element
-column attributes children = pack Column { .. } attributes
+column attributes children = pack Column{..} attributes

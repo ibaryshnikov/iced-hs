@@ -23,4 +23,4 @@ foreign import ccall "color_new"
   color_new :: CFloat -> CFloat -> CFloat -> CFloat -> IO ColorPtr
 
 instance ValueToNativeIO Color ColorPtr where
-  valueToNativeIO Color { .. } = color_new (CFloat r) (CFloat g) (CFloat b) (CFloat a)
+  valueToNativeIO Color{..} = color_new (CFloat r) (CFloat g) (CFloat b) (CFloat a)

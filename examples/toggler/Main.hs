@@ -12,7 +12,7 @@ update (Toggle value) _oldValue = value
 view :: Bool -> Element
 view value =
   center [] $
-  toggler [width Shrink] (lights value) value Toggle
+    toggler [width Shrink] (lights value) value Toggle
 
 lights :: Bool -> String
 lights True = "Lights on"

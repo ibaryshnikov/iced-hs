@@ -1,5 +1,5 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Main where
 
@@ -10,65 +10,71 @@ import Iced.Subscription qualified as Subscription
 import Iced.Time
 import Iced.Widget
 
-data Model = Model {
-  timePassed :: Integer,
-  lastTick :: Integer,
-  running :: Bool
-}
+data Model = Model
+  { timePassed :: Integer
+  , lastTick :: Integer
+  , running :: Bool
+  }
 
 data Message = Toggle | Tick Integer
 
 update :: Message -> Model -> IO Model
 update Toggle model = do
   lastTick <- microsSinceStart
-  pure model { running = not model.running, lastTick = lastTick }
+  pure model{running = not model.running, lastTick = lastTick}
 update (Tick micros) model =
   -- after we click the button subscription stops producing new events,
   -- but old events are still be delivered
   if model.running
-  then do
-    let diff = micros - model.lastTick
-    pure model {
-      timePassed = model.timePassed + diff,
-      lastTick = micros
-    }
-  else
-    pure model
+    then do
+      let diff = micros - model.lastTick
+      pure
+        model
+          { timePassed = model.timePassed + diff
+          , lastTick = micros
+          }
+    else
+      pure model
 
 view :: Model -> Element
 view model =
   center [] $
-  column [spacing 25, alignX Center] [
-    label model.timePassed,
-    button [onPress Toggle] (if model.running then "Stop" else "Start")
-  ]
+    column
+      [spacing 25, alignX Center]
+      [ label model.timePassed
+      , button [onPress Toggle] (if model.running then "Stop" else "Start")
+      ]
 
 label :: Integer -> Element
 label micros = text [size 30] $ formatTime millis
-  where (millis, _) = divMod micros 1000
+ where
+  (millis, _) = divMod micros 1000
 
 formatTime :: Integer -> String
 formatTime micros =
-  (showLeading minutes) ++ ":" ++
-  (showLeading seconds) ++ "," ++
-  (showLeading millis)
-  where
-    (s, ms) = divMod micros 1000
-    (millis, _) = divMod ms 10
-    (minutes, seconds) = divMod s 60
+  (showLeading minutes)
+    ++ ":"
+    ++ (showLeading seconds)
+    ++ ","
+    ++ (showLeading millis)
+ where
+  (s, ms) = divMod micros 1000
+  (millis, _) = divMod ms 10
+  (minutes, seconds) = divMod s 60
 
 showLeading :: Integer -> String
 showLeading n =
   if n < 10
-  then "0" ++ show n
-  else show n
+    then "0" ++ show n
+    else show n
 
 subscriptionFn :: Model -> IO (Subscription Message)
 subscriptionFn model = do
   if model.running
-  then everyMillis 10 Tick
-  else Subscription.none
+    then everyMillis 10 Tick
+    else Subscription.none
 
 main :: IO ()
 main = Iced.run [subscription subscriptionFn] "Stopwatch" model update view
-  where model = Model { timePassed = 0, lastTick = 0, running = False }
+ where
+  model = Model{timePassed = 0, lastTick = 0, running = False}

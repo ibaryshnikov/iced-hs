@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.VerticalSlider (
   verticalSlider,
@@ -28,11 +28,12 @@ data Attribute message
 
 -- range_from range_to value on_change
 foreign import ccall "vertical_slider_new"
-  vertical_slider_new :: CInt
-                      -> CInt
-                      -> CInt
-                      -> FunPtr (NativeOnChange a)
-                      -> IO Self
+  vertical_slider_new
+    :: CInt
+    -> CInt
+    -> CInt
+    -> FunPtr (NativeOnChange a)
+    -> IO Self
 
 foreign import ccall "vertical_slider_default"
   vertical_slider_default :: Self -> CInt -> IO Self
@@ -64,12 +65,12 @@ wrapOnChange callback = newStablePtr . callback . fromIntegral
 
 type OnChange message = Int -> message
 
-data VerticalSlider message = VerticalSlider {
-  rangeFrom :: Int,
-  rangeTo :: Int,
-  value :: Int,
-  onChange :: OnChange message
-}
+data VerticalSlider message = VerticalSlider
+  { rangeFrom :: Int
+  , rangeTo :: Int
+  , value :: Int
+  , onChange :: OnChange message
+  }
 
 instance Builder Self where
   build = into_element
@@ -88,7 +89,7 @@ instance UseAttribute Self (Attribute message) where
     OnRelease message -> useOnRelease message
     AddStep value -> useFn vertical_slider_step value
     AddShiftStep value -> useFn vertical_slider_shift_step value
-    Width  len -> useFn   vertical_slider_width  len
+    Width len -> useFn vertical_slider_width len
     Height len -> useFnIO vertical_slider_height len
 
 instance SliderCommon (Attribute message) where
@@ -105,14 +106,15 @@ instance UseWidth Float (Attribute message) where
 instance UseHeight Length (Attribute message) where
   height = Height
 
-verticalSlider :: [Attribute message]
-               -> Int
-               -> Int
-               -> Int
-               -> OnChange message
-               -> Element
+verticalSlider
+  :: [Attribute message]
+  -> Int
+  -> Int
+  -> Int
+  -> OnChange message
+  -> Element
 verticalSlider attributes rangeFrom rangeTo value onChange =
-  pack VerticalSlider { .. } attributes
+  pack VerticalSlider{..} attributes
 
 useOnRelease :: message -> AttributeFn
 useOnRelease message self =

@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Slider (
   slider,
@@ -60,12 +60,12 @@ wrapOnChange callback = newStablePtr . callback . fromIntegral
 
 type OnChange message = Int -> message
 
-data Slider message = Slider {
-  rangeFrom :: Int,
-  rangeTo :: Int,
-  value :: Int,
-  onChange :: OnChange message
-}
+data Slider message = Slider
+  { rangeFrom :: Int
+  , rangeTo :: Int
+  , value :: Int
+  , onChange :: OnChange message
+  }
 
 instance Builder Self where
   build = into_element
@@ -84,8 +84,8 @@ instance UseAttribute Self (Attribute message) where
     OnRelease message -> useOnRelease message
     AddStep value -> useFn slider_step value
     AddShiftStep value -> useFn slider_shift_step value
-    Width  len -> useFnIO slider_width  len
-    Height len -> useFn   slider_height len
+    Width len -> useFnIO slider_width len
+    Height len -> useFn slider_height len
 
 instance SliderCommon (Attribute message) where
   addDefault = AddDefault
@@ -102,7 +102,7 @@ instance UseHeight Float (Attribute message) where
   height = Height
 
 slider :: [Attribute message] -> Int -> Int -> Int -> OnChange message -> Element
-slider attributes rangeFrom rangeTo value onChange = pack Slider { .. } attributes
+slider attributes rangeFrom rangeTo value onChange = pack Slider{..} attributes
 
 useOnRelease :: message -> AttributeFn
 useOnRelease message self =

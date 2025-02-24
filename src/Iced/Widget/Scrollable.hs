@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Scrollable (
   scrollable,
@@ -29,7 +29,7 @@ foreign import ccall "scrollable_height"
 foreign import ccall "scrollable_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Scrollable = Scrollable { content :: Element }
+data Scrollable = Scrollable {content :: Element}
 
 instance Builder Self where
   build = into_element
@@ -41,7 +41,7 @@ instance IntoNative Scrollable Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFnIO scrollable_width  len
+    Width len -> useFnIO scrollable_width len
     Height len -> useFnIO scrollable_height len
 
 instance UseWidth Length Attribute where
@@ -51,4 +51,4 @@ instance UseHeight Length Attribute where
   height = Height
 
 scrollable :: [Attribute] -> Element -> Element
-scrollable attributes content = pack Scrollable { .. } attributes
+scrollable attributes content = pack Scrollable{..} attributes

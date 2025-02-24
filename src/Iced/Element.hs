@@ -34,13 +34,16 @@ class IntoNative widget native | widget -> native where
   toNative :: widget -> IO native
 
 data Element where
-  Simple :: IntoNative widget ElementPtr
-         => widget -> Element
-  Custom :: (IntoNative widget native, UseAttribute native attribute, Builder native)
-         => widget -> [attribute] -> Element
+  Simple
+    :: IntoNative widget ElementPtr
+    => widget -> Element
+  Custom
+    :: (Builder native, IntoNative widget native, UseAttribute native attribute)
+    => widget -> [attribute] -> Element
 
-pack :: (IntoNative widget native, UseAttribute native attribute, Builder native)
-     => widget -> [attribute] -> Element
+pack
+  :: (Builder native, IntoNative widget native, UseAttribute native attribute)
+  => widget -> [attribute] -> Element
 pack = Custom
 
 packSimple :: IntoNative widget ElementPtr => widget -> Element
@@ -55,11 +58,11 @@ elementToNative (Custom widget attributes) =
 
 buildElements :: [Element] -> [ElementPtr] -> IO [ElementPtr]
 buildElements [] elements = pure elements
-buildElements (first:remaining) elements = do
+buildElements (first : remaining) elements = do
   native <- elementToNative first
   buildElements remaining (elements ++ [native])
 
 applyAttributes :: UseAttribute widget attribute => [attribute] -> widget -> IO widget
 applyAttributes [] = pure
-applyAttributes (attribute:remaining) =
+applyAttributes (attribute : remaining) =
   useAttribute attribute >=> applyAttributes remaining

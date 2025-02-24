@@ -1,6 +1,6 @@
 {-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Main where
 
@@ -18,14 +18,15 @@ data Language
   | Italian
   | Portuguese
   | Spanish
-  | Other deriving (Show, Read)
+  | Other
+  deriving (Read, Show)
 
-data Model = Model {
-  languages :: ComboBox.State,
-  selected :: Maybe Language,
-  input :: String,
-  text :: String
-}
+data Model = Model
+  { languages :: ComboBox.State
+  , selected :: Maybe Language
+  , input :: String
+  , text :: String
+  }
 
 data Message
   = Selected Language
@@ -35,13 +36,15 @@ data Message
 
 update :: Message -> Model -> Model
 update message model = case message of
-  Selected language -> model {
-    selected = Just language,
-    text = hello language
-  }
-  Input value -> model { input = value }
-  OptionHovered language -> model { text = hello language }
-  Closed -> model { text = string } where
+  Selected language ->
+    model
+      { selected = Just language
+      , text = hello language
+      }
+  Input value -> model{input = value}
+  OptionHovered language -> model{text = hello language}
+  Closed -> model{text = string}
+   where
     string = case model.selected of
       Just language -> hello language
       Nothing -> ""
@@ -49,19 +52,26 @@ update message model = case message of
 view :: Model -> Element
 view model =
   center [] $
-  column [width Fill, alignX Center, spacing 10] [
-    text [] $ "Input value: " ++ model.input,
-    text [] model.text,
-    text [] "What is your language?",
-    widget,
-    spaceHeight (Fixed 150)
-  ] where
-    widget = comboBox [
-        width (Fixed 250),
-        onInput Input,
-        onOptionHovered OptionHovered,
-        onClose Closed
-      ] model.languages "Type a language..." model.selected Selected
+    column
+      [width Fill, alignX Center, spacing 10]
+      [ text [] $ "Input value: " ++ model.input
+      , text [] model.text
+      , text [] "What is your language?"
+      , widget
+      , spaceHeight (Fixed 150)
+      ]
+ where
+  widget =
+    comboBox
+      [ width (Fixed 250)
+      , onInput Input
+      , onOptionHovered OptionHovered
+      , onClose Closed
+      ]
+      model.languages
+      "Type a language..."
+      model.selected
+      Selected
 
 hello :: Language -> String
 hello language = case language of
@@ -80,5 +90,5 @@ options = [Danish, English, French, German, Italian, Portuguese, Spanish, Other]
 main :: IO ()
 main = do
   state <- ComboBox.newState options
-  let model = Model { languages = state, selected = Nothing, input = "", text = "" }
+  let model = Model{languages = state, selected = Nothing, input = "", text = ""}
   Iced.run [] "ComboBox" model update view

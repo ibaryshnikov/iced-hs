@@ -19,4 +19,4 @@ foreign import ccall "canvas_style_solid"
   style_solid :: CFloat -> CFloat -> CFloat -> CFloat -> IO Style
 
 solid :: Color -> IO Style
-solid Color { .. } = style_solid (CFloat r) (CFloat g) (CFloat b) (CFloat a)
+solid Color{..} = style_solid (CFloat r) (CFloat g) (CFloat b) (CFloat a)

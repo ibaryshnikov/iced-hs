@@ -15,16 +15,17 @@ tick = Command.perform $ do
   pure Tick
 
 update :: Message -> Int -> (Int, Command Message)
-update StartTimer = (, tick)
-update Tick = (, Command.none) . (+ 1)
+update StartTimer = (,tick)
+update Tick = (,Command.none) . (+ 1)
 
 view :: Int -> Element
 view value =
   center [] $
-  column [alignX Center, spacing 10] [
-    text [size 50] $ show value,
-    button [onPress StartTimer] "Start timer"
-  ]
+    column
+      [alignX Center, spacing 10]
+      [ text [size 50] $ show value
+      , button [onPress StartTimer] "Start timer"
+      ]
 
 main :: IO ()
 main = Iced.run [] "Perform Async" 0 update view

@@ -17,11 +17,12 @@ update Dec = pred
 view :: Int -> Element
 view _value =
   center [] $
-  column [alignX Center, spacing 10] [
-    button [onPress Inc] "Increment",
-    text [size 20] "The value is in title",
-    button [onPress Dec] "Decrement"
-  ]
+    column
+      [alignX Center, spacing 10]
+      [ button [onPress Inc] "Increment"
+      , text [size 20] "The value is in title"
+      , button [onPress Dec] "Decrement"
+      ]
 
 main :: IO ()
 main = Iced.run [] title 0 update view

@@ -1,15 +1,15 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Button (
   button,
   onPress,
   onPressIf,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
-  BasicStyle(..),
+  BasicStyle (..),
 ) where
 
 import Data.List
@@ -32,26 +32,29 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
 
---data Shadow = Shadow {
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
+
+-- data Shadow = Shadow {
 --  color :: Color,
 --  offset :: (Float, Float),
 --  blurRadius :: Float
---}
+-- }
 
 data StyleAttribute
   = Background Background
   | TextColor Color
   | BorderStyle Border
-  -- | AddShadow Shadow
-  -- | ShadowOffset Float Float
+
+-- \| AddShadow Shadow
+-- \| ShadowOffset Float Float
 
 data Status = Active | Hovered | Pressed | Disabled deriving (Enum, Eq)
 
@@ -102,9 +105,9 @@ foreign import ccall "button_style_set_border"
 foreign import ccall "button_style_set_text_color"
   set_text_color :: Style -> ColorPtr -> IO ()
 
-data Button = Button {
-  label :: String
-}
+data Button = Button
+  { label :: String
+  }
 
 instance Builder Self where
   build = into_element
@@ -120,7 +123,7 @@ instance UseAttribute Self (Attribute message) where
     AddPadding value -> useFnIO button_padding value
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
-    Width  len -> useFnIO button_width  len
+    Width len -> useFnIO button_width len
     Height len -> useFnIO button_height len
     None -> pure
 
@@ -131,7 +134,7 @@ instance UsePadding2 (Attribute message) where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 (Attribute message) where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance IntoStyle value => UseStyle value (Attribute message) where
   style = intoStyle
@@ -143,7 +146,7 @@ instance UseHeight Length (Attribute message) where
   height = Height
 
 button :: [Attribute message] -> String -> Element
-button attributes label = pack Button { .. } attributes
+button attributes label = pack Button{..} attributes
 
 onPress :: message -> Attribute message
 onPress = OnPress
@@ -202,10 +205,11 @@ instance UseStyleAttribute Style StyleAttribute where
     Background (BgColor color) -> useFnIO set_background color
     BorderStyle value -> useBorder value
     TextColor color -> useFnIO set_text_color color
-    -- AddShadow _shadow -> pure ()
+
+-- AddShadow _shadow -> pure ()
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
@@ -213,8 +217,9 @@ useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = button_style_basic self $ fromIntegral $ fromEnum value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = button_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  button_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

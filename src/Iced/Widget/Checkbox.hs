@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Checkbox (
   checkbox,
@@ -10,9 +10,9 @@ module Iced.Widget.Checkbox (
   textShaping,
   textSize,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
-  BasicStyle(..),
+  BasicStyle (..),
 ) where
 
 import Data.List
@@ -41,19 +41,21 @@ type Style = Ptr NativeStyle
 data NativeIcon
 type IconPtr = Ptr NativeIcon
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
- = Background Background
- | IconColor Color
- | BorderStyle Border
- | TextColor Color
+  = Background Background
+  | IconColor Color
+  | BorderStyle Border
+  | TextColor Color
 
 data Status = Active | Hovered | Disabled deriving (Enum, Eq)
 
@@ -140,10 +142,10 @@ wrapOnToggle callback = newStablePtr . callback . toBool
 
 type OnToggle message = Bool -> message
 
-data Checkbox = Checkbox {
-  label :: String,
-  value :: Bool
-}
+data Checkbox = Checkbox
+  { label :: String
+  , value :: Bool
+  }
 
 instance Builder Self where
   build = into_element
@@ -163,8 +165,8 @@ instance UseAttribute Self (Attribute message) where
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
     TextLineHeight value -> useFnIO checkbox_text_line_height value
-    TextShaping    value -> useFn checkbox_text_shaping     value
-    TextSize       value -> useFn checkbox_text_size        value
+    TextShaping value -> useFn checkbox_text_shaping value
+    TextSize value -> useFn checkbox_text_size value
     Width len -> useFnIO checkbox_width len
     None -> pure
 
@@ -184,7 +186,7 @@ instance UseWidth Length (Attribute message) where
   width = Width
 
 checkbox :: [Attribute message] -> String -> Bool -> Element
-checkbox attributes label value = pack Checkbox { .. } attributes
+checkbox attributes label value = pack Checkbox{..} attributes
 
 onToggle :: OnToggle message -> Attribute message
 onToggle = AddOnToggle
@@ -264,13 +266,14 @@ instance UseStyleAttribute Style StyleAttribute where
     TextColor color -> useFnIO set_text_color color
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = checkbox_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  checkbox_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = checkbox_style_basic self $ fromIntegral $ fromEnum value

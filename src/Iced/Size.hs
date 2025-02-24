@@ -2,4 +2,4 @@
 
 module Iced.Size where
 
-data Size = Size { width :: Float, height :: Float }
+data Size = Size {width :: Float, height :: Float}

@@ -2,23 +2,24 @@
 
 module Iced.Attribute.Padding where
 
-data Padding = Padding {
-  top :: Float,
-  right :: Float,
-  bottom :: Float,
-  left :: Float
-}
+data Padding = Padding
+  { top :: Float
+  , right :: Float
+  , bottom :: Float
+  , left :: Float
+  }
 
 paddingFromOne :: Float -> Padding
 paddingFromOne v = Padding v v v v
 
 paddingFromTwo :: Float -> Float -> Padding
-paddingFromTwo a b = Padding {
-    top = a,
-    right = b,
-    bottom = a,
-    left = b
-  }
+paddingFromTwo a b =
+  Padding
+    { top = a
+    , right = b
+    , bottom = a
+    , left = b
+    }
 
 class UsePadding a where
   padding :: Float -> a

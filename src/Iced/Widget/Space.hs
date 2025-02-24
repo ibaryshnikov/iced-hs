@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Space (
   space,
@@ -51,10 +51,10 @@ instance IntoNative Space ElementPtr where
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of
   Space w h -> do
-    widthPtr  <- valueToNativeIO w
+    widthPtr <- valueToNativeIO w
     heightPtr <- valueToNativeIO h
     space_new widthPtr heightPtr
-  Width  value -> space_with_width  =<< valueToNativeIO value
+  Width value -> space_with_width =<< valueToNativeIO value
   Height value -> space_with_height =<< valueToNativeIO value
   Horizontal -> horizontal_space_new
   Vertical -> vertical_space_new
@@ -64,13 +64,13 @@ makeSpace kind = case kind of
 -- spaceWidth :: IntoLength a => a -> Element
 -- spaceWidth value = pack $ Width (intoLength value)
 --
---class IntoLength a where
+-- class IntoLength a where
 --  intoLength :: a -> Length
 --
---instance IntoLength Float where
+-- instance IntoLength Float where
 --  intoLength a = Fixed a
 --
---instance IntoLength Length where
+-- instance IntoLength Length where
 --  intoLength a = a
 
 space :: Length -> Length -> Element

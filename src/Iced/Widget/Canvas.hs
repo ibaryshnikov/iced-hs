@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Canvas (
   canvas,
@@ -66,14 +66,14 @@ type NativeDraw = FramePtr -> IO ()
 foreign import ccall "wrapper"
   makeDrawCallback :: NativeDraw -> IO (FunPtr (NativeDraw))
 
-data Canvas = Canvas {
-  actions :: [FrameAction],
-  cache :: State
-}
+data Canvas = Canvas
+  { actions :: [FrameAction]
+  , cache :: State
+  }
 
 drawActions :: [FrameAction] -> FramePtr -> IO ()
 drawActions [] _framePtr = pure ()
-drawActions (action:remaining) framePtr = do
+drawActions (action : remaining) framePtr = do
   case action of
     FrameFill shapes color -> frameFill framePtr shapes color
     FrameStroke shapes color width -> frameStroke framePtr shapes color width
@@ -93,7 +93,7 @@ instance IntoNative Canvas Self where
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
-    Width  len -> useFnIO canvas_width  len
+    Width len -> useFnIO canvas_width len
     Height len -> useFnIO canvas_height len
 
 instance UseWidth Length Attribute where
@@ -103,4 +103,4 @@ instance UseHeight Length Attribute where
   height = Height
 
 canvas :: [Attribute] -> [FrameAction] -> State -> Element
-canvas attributes actions cache = pack Canvas { .. } attributes
+canvas attributes actions cache = pack Canvas{..} attributes

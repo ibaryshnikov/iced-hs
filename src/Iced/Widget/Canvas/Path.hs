@@ -18,7 +18,7 @@ foreign import ccall "wrapper"
 
 shapesToPath :: [Shape] -> PathBuilderPtr -> IO ()
 shapesToPath [] _builder = pure ()
-shapesToPath (shape:remaining) builder = do
+shapesToPath (shape : remaining) builder = do
   addToPath shape builder
   shapesToPath remaining builder
 

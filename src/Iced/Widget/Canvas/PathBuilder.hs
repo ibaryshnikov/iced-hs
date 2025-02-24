@@ -1,9 +1,9 @@
 module Iced.Widget.Canvas.PathBuilder (
-    PathBuilderPtr,
-    circle,
-    lineTo,
-    moveTo,
-    rectangle,
+  PathBuilderPtr,
+  circle,
+  lineTo,
+  moveTo,
+  rectangle,
 ) where
 
 import Foreign
@@ -41,4 +41,9 @@ foreign import ccall "path_builder_rectangle"
 
 rectangle :: Self -> Float -> Float -> Float -> Float -> IO ()
 rectangle builder top_left_x top_left_y width height =
-  path_builder_rectangle builder (CFloat top_left_x) (CFloat top_left_y) (CFloat width) (CFloat height)
+  path_builder_rectangle
+    builder
+    (CFloat top_left_x)
+    (CFloat top_left_y)
+    (CFloat width)
+    (CFloat height)

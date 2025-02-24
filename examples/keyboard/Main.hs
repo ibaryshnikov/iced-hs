@@ -1,5 +1,5 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Main where
 
@@ -10,16 +10,18 @@ import Iced.Keyboard.PhysicalKey (KeyCode)
 import Iced.Subscription qualified as Subscription
 import Iced.Widget
 
-data Model = Model { message :: Maybe Message }
+data Model = Model {message :: Maybe Message}
 
 data Message = Pressed KeyCode | Released KeyCode
 
 update :: Message -> Model -> Model
-update message model = model { message = Just message }
+update message model = model{message = Just message}
 
 view :: Model -> Element
-view model = center [] $
-  text [size 20] $ label model.message
+view model =
+  center [] $
+    text [size 20] $
+      label model.message
 
 label :: Maybe Message -> String
 label (Just message) = "Last action: " ++ showAction message
@@ -30,11 +32,13 @@ showAction (Pressed key) = "pressed " ++ show key
 showAction (Released key) = "released " ++ show key
 
 subscriptionFn :: Model -> IO (Subscription Message)
-subscriptionFn _model = Subscription.batch [
-    onKeyPress Pressed,
-    onKeyRelease Released
-  ]
+subscriptionFn _model =
+  Subscription.batch
+    [ onKeyPress Pressed
+    , onKeyRelease Released
+    ]
 
 main :: IO ()
 main = Iced.run [subscription subscriptionFn] "Keyboard" model update view
-  where model = Model { message = Nothing }
+ where
+  model = Model{message = Nothing}

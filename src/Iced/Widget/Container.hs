@@ -1,13 +1,13 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Container (
   container,
   centerX,
   centerY,
   StyleAttribute,
-  BasicStyle(..),
+  BasicStyle (..),
 ) where
 
 import Foreign
@@ -27,19 +27,22 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
   = TextColor Color
   | Background Background
   | BorderStyle Border
-  -- | AddShadow Shadow
+
+-- \| AddShadow Shadow
 
 data BasicStyle = BorderedBox | RoundedBox | Transparent deriving Enum
 
@@ -94,7 +97,7 @@ foreign import ccall "container_style_set_border"
 foreign import ccall "container_style_set_text_color"
   set_text_color :: Style -> ColorPtr -> IO ()
 
-data Container = Container { content :: Element }
+data Container = Container {content :: Element}
 
 instance Builder Self where
   build = into_element
@@ -111,7 +114,7 @@ instance UseAttribute Self Attribute where
     CenterY len -> useFnIO container_center_y len
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
-    Width  len -> useFnIO container_width  len
+    Width len -> useFnIO container_width len
     Height len -> useFnIO container_height len
 
 instance UsePadding Attribute where
@@ -121,7 +124,7 @@ instance UsePadding2 Attribute where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 Attribute where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance IntoStyle value => UseStyle value Attribute where
   style = intoStyle
@@ -133,7 +136,7 @@ instance UseHeight Length Attribute where
   height = Height
 
 container :: [Attribute] -> Element -> Element
-container attributes content = pack Container { .. } attributes
+container attributes content = pack Container{..} attributes
 
 centerX :: Length -> Attribute
 centerX = CenterX
@@ -174,7 +177,7 @@ instance UseStyleAttribute Style StyleAttribute where
     TextColor color -> useFnIO set_text_color color
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
@@ -182,8 +185,9 @@ useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = container_style_basic self $ fromIntegral $ fromEnum value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = container_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  container_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

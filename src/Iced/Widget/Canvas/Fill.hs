@@ -1,6 +1,6 @@
 module Iced.Widget.Canvas.Fill (
   FillPtr,
-  Rule(..),
+  Rule (..),
   newCanvasFill,
 ) where
 

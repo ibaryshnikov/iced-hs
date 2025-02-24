@@ -1,11 +1,11 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.ProgressBar (
   progressBar,
   StyleAttribute,
-  BasicStyle(..),
+  BasicStyle (..),
 ) where
 
 import Foreign
@@ -24,13 +24,15 @@ type AttributeFn = Self -> IO Self
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
   = Background Background
@@ -74,27 +76,27 @@ foreign import ccall "progress_bar_style_set_bar"
 foreign import ccall "progress_bar_style_set_border"
   set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
 
-data ProgressBar = ProgressBar {
-  rangeFrom :: Float,
-  rangeTo :: Float,
-  value :: Float
-}
+data ProgressBar = ProgressBar
+  { rangeFrom :: Float
+  , rangeTo :: Float
+  , value :: Float
+  }
 
 instance Builder Self where
   build = into_element
 
 instance IntoNative ProgressBar Self where
   toNative details = progress_bar_new rangeFrom rangeTo value
-    where
-      rangeFrom = CFloat details.rangeFrom
-      rangeTo = CFloat details.rangeTo
-      value = CFloat details.value
+   where
+    rangeFrom = CFloat details.rangeFrom
+    rangeTo = CFloat details.rangeTo
+    value = CFloat details.value
 
 instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
-    Width  len -> useFnIO progress_bar_width  len
+    Width len -> useFnIO progress_bar_width len
     Height len -> useFnIO progress_bar_height len
 
 instance IntoStyle value => UseStyle value Attribute where
@@ -107,7 +109,7 @@ instance UseHeight Length Attribute where
   height = Height
 
 progressBar :: [Attribute] -> Float -> Float -> Float -> Element
-progressBar attributes rangeFrom rangeTo value = pack ProgressBar { .. } attributes
+progressBar attributes rangeFrom rangeTo value = pack ProgressBar{..} attributes
 
 -- style theme
 type NativeStyleCallback = Style -> CUChar -> IO ()
@@ -142,7 +144,7 @@ instance UseStyleAttribute Style StyleAttribute where
     BorderStyle value -> useBorder value
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
@@ -150,8 +152,9 @@ useBasicStyle :: BasicStyle -> AttributeFn
 useBasicStyle value self = progress_bar_style_basic self $ fromIntegral $ fromEnum value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = progress_bar_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  progress_bar_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

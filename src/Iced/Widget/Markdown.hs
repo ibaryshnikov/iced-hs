@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Markdown (
   markdown,
@@ -42,11 +42,11 @@ wrapOnUrlClick callback = newStablePtr . callback <=< peekCString
 
 type OnUrlClick message = String -> message
 
-data Markdown message = Markdown {
-  state :: State,
-  theme :: Theme,
-  onUrlClick :: OnUrlClick message
-}
+data Markdown message = Markdown
+  { state :: State
+  , theme :: Theme
+  , onUrlClick :: OnUrlClick message
+  }
 
 instance IntoNative (Markdown message) ElementPtr where
   toNative details = do
@@ -56,4 +56,4 @@ instance IntoNative (Markdown message) ElementPtr where
       markdown_view state theme onUrlClick
 
 markdown :: State -> Theme -> OnUrlClick message -> Element
-markdown state theme onUrlClick = packSimple Markdown { .. }
+markdown state theme onUrlClick = packSimple Markdown{..}

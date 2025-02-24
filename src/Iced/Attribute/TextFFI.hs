@@ -11,5 +11,5 @@ import Iced.Attribute.Text
 
 instance ValueToNative Shaping CUChar where
   valueToNative shaping = case shaping of
-    Basic    -> 0
+    Basic -> 0
     Advanced -> 1

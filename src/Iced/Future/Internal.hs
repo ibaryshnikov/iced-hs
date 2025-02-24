@@ -102,7 +102,7 @@ foreign import ccall "future_race"
 
 type NativeEither a ma = StablePtr a -> IO (StablePtr ma)
 
-foreign export ccall "future_left"  left  :: NativeEither a (Either a b)
+foreign export ccall "future_left" left :: NativeEither a (Either a b)
 foreign export ccall "future_right" right :: NativeEither b (Either a b)
 
 left :: NativeEither a (Either a b)

@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Center (
   center,
@@ -29,7 +29,7 @@ foreign import ccall "container_padding"
 foreign import ccall "container_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Center = Center { content :: Element }
+data Center = Center {content :: Element}
 
 instance Builder Self where
   build = into_element
@@ -50,7 +50,7 @@ instance UsePadding2 Attribute where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 Attribute where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 center :: [Attribute] -> Element -> Element
-center attributes content = pack Center { .. } attributes
+center attributes content = pack Center{..} attributes

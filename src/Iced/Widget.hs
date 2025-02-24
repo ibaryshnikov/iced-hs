@@ -29,27 +29,27 @@ module Iced.Widget (
 --
 
 import Iced.Widget.Button (
-    button,
-    onPress,
-    onPressIf,
-  )
+  button,
+  onPress,
+  onPressIf,
+ )
 import Iced.Widget.Canvas (canvas)
 import Iced.Widget.Center
 import Iced.Widget.Checkbox (
-    checkbox,
-    onToggle,
-    onToggleIf,
-    textLineHeight,
-    textShaping,
-    textSize,
-  )
+  checkbox,
+  onToggle,
+  onToggleIf,
+  textLineHeight,
+  textShaping,
+  textSize,
+ )
 import Iced.Widget.Column
 import Iced.Widget.ComboBox hiding (State, newState)
 import Iced.Widget.Container (
-    container,
-    centerX,
-    centerY,
-  )
+  centerX,
+  centerY,
+  container,
+ )
 import Iced.Widget.Image (image)
 import Iced.Widget.Markdown (markdown)
 import Iced.Widget.PickList (pickList)
@@ -62,14 +62,14 @@ import Iced.Widget.Slider
 import Iced.Widget.Space
 import Iced.Widget.Text (text)
 import Iced.Widget.TextEditor (
-    textEditor,
-    onAction,
-  )
+  onAction,
+  textEditor,
+ )
 import Iced.Widget.TextInput (
-    textInput,
-    onInput,
-    onSubmit,
-  )
+  onInput,
+  onSubmit,
+  textInput,
+ )
 import Iced.Widget.Toggler
-import Iced.Widget.Tooltip hiding (Position(..))
+import Iced.Widget.Tooltip hiding (Position (..))
 import Iced.Widget.VerticalSlider

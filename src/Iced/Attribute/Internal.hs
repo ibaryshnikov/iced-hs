@@ -8,9 +8,10 @@ class UseAttribute widget attribute where
 class UseStyleAttribute appearance attribute where
   useStyleAttribute :: attribute -> appearance -> IO ()
 
-applyStyles :: UseStyleAttribute appearance attribute => [attribute] -> appearance -> IO ()
+applyStyles
+  :: UseStyleAttribute appearance attribute => [attribute] -> appearance -> IO ()
 applyStyles [] _ = pure ()
-applyStyles (attribute:remaining) appearance = do
+applyStyles (attribute : remaining) appearance = do
   useStyleAttribute attribute appearance
   applyStyles remaining appearance
 
@@ -23,19 +24,21 @@ instance ValueToNative Int CInt where
 instance ValueToNative Float CFloat where
   valueToNative = CFloat
 
-useFn :: ValueToNative value native
-      => (self -> native -> IO result)
-      -> value
-      -> self
-      -> IO result
+useFn
+  :: ValueToNative value native
+  => (self -> native -> IO result)
+  -> value
+  -> self
+  -> IO result
 useFn fn value self = fn self $ valueToNative value
 
 class ValueToNativeIO value native where
   valueToNativeIO :: value -> IO native
 
-useFnIO :: ValueToNativeIO value native
-        => (self -> native -> IO result)
-        -> value
-        -> self
-        -> IO result
+useFnIO
+  :: ValueToNativeIO value native
+  => (self -> native -> IO result)
+  -> value
+  -> self
+  -> IO result
 useFnIO fn value self = fn self =<< valueToNativeIO value

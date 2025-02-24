@@ -5,7 +5,7 @@ module Iced (
   module Iced.Subscription,
 ) where
 
-import Iced.Application (run, addFont, subscription, theme)
+import Iced.Application (addFont, run, subscription, theme)
 import Iced.Command (Command)
 import Iced.Element (Element)
 import Iced.Internal ()

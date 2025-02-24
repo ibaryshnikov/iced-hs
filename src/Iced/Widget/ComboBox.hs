@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.ComboBox (
   comboBox,
@@ -56,7 +56,8 @@ foreign import ccall "&combo_box_state_free"
 
 -- state placeholder selected on_select
 foreign import ccall "combo_box_new"
-  combo_box_new :: Ptr NativeState -> CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
+  combo_box_new
+    :: Ptr NativeState -> CString -> CString -> FunPtr (NativeOnSelect a) -> IO Self
 
 foreign import ccall "combo_box_on_input"
   combo_box_on_input :: Self -> FunPtr (NativeOnInput a) -> IO Self
@@ -109,16 +110,18 @@ type OnInput message = String -> message
 type OnOptionHovered option message = option -> message
 
 data ComboBox option message where
-  ComboBox :: (Show option, Read option) => {
-    state :: State,
-    placeholder :: String,
-    selected :: Maybe option,
-    onSelect :: OnSelect option message
-  } -> ComboBox option message
+  ComboBox
+    :: (Read option, Show option)
+    => { state :: State
+       , placeholder :: String
+       , selected :: Maybe option
+       , onSelect :: OnSelect option message
+       }
+    -> ComboBox option message
 
 packOptions :: Show option => [option] -> [CString] -> IO ([CString])
 packOptions [] strings = pure strings
-packOptions (option:remaining) strings = do
+packOptions (option : remaining) strings = do
   packed <- newCString $ show option
   packOptions remaining (strings ++ [packed])
 
@@ -129,7 +132,7 @@ selectedToString Nothing = "" -- treat empty string as None in Rust
 instance Builder Self where
   build = into_element
 
-instance (Show option, Read option) => IntoNative (ComboBox option message) Self where
+instance (Read option, Show option) => IntoNative (ComboBox option message) Self where
   toNative details = do
     placeholder <- newCString details.placeholder
     selected <- newCString $ selectedToString details.selected
@@ -160,7 +163,7 @@ instance UsePadding2 (Attribute option message) where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 (Attribute option message) where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance UseSize (Attribute option message) where
   size = Size
@@ -168,14 +171,15 @@ instance UseSize (Attribute option message) where
 instance UseWidth Length (Attribute option message) where
   width = Width
 
-comboBox :: (Show option, Read option)
-         => [Attribute option message]
-         -> State
-         -> String
-         -> Maybe option
-         -> OnSelect option message
-         -> Element
-comboBox attributes state placeholder selected onSelect = pack ComboBox { .. } attributes
+comboBox
+  :: (Read option, Show option)
+  => [Attribute option message]
+  -> State
+  -> String
+  -> Maybe option
+  -> OnSelect option message
+  -> Element
+comboBox attributes state placeholder selected onSelect = pack ComboBox{..} attributes
 
 onClose :: message -> Attribute option message
 onClose = OnClose

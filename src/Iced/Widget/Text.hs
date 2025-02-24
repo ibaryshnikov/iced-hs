@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Text (
   text,
@@ -61,7 +61,7 @@ foreign import ccall "text_into_element"
 foreign import ccall "text_style_set_color"
   set_color :: Style -> ColorPtr -> IO ()
 
-data Text = Text { value :: String }
+data Text = Text {value :: String}
 
 instance Builder Self where
   build = into_element
@@ -76,7 +76,7 @@ instance UseAttribute Self Attribute where
     AddColor value -> useFnIO text_color value
     CustomStyle value -> useCustomStyle value
     Size value -> useFn text_size value
-    Width  len -> useFnIO text_width  len
+    Width len -> useFnIO text_width len
     Height len -> useFnIO text_height len
 
 instance UseColor Attribute where
@@ -95,7 +95,7 @@ instance UseHeight Length Attribute where
   height = Height
 
 text :: [Attribute] -> String -> Element
-text attributes value = pack Text { .. } attributes
+text attributes value = pack Text{..} attributes
 
 -- style theme
 type NativeStyleCallback = Style -> CUChar -> IO ()
@@ -125,8 +125,9 @@ instance UseStyleAttribute Style StyleAttribute where
     TextColor value -> useFnIO set_color value
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = text_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  text_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseColor StyleAttribute where
   color = TextColor

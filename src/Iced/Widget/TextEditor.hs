@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.TextEditor (
   textEditor,
@@ -11,7 +11,7 @@ module Iced.Widget.TextEditor (
   Content,
   onAction,
   StyleAttribute,
-  Status(..),
+  Status (..),
   StatusAttribute,
 ) where
 
@@ -40,13 +40,15 @@ type Action = Ptr NativeAction
 data NativeStyle
 type Style = Ptr NativeStyle
 
-data Background = BgColor Color -- | BgGradient Gradient
+data Background = BgColor Color
 
-data Border = Border {
-  color :: Color,
-  width :: Float,
-  radius :: Float
-}
+-- \| BgGradient Gradient
+
+data Border = Border
+  { color :: Color
+  , width :: Float
+  , radius :: Float
+  }
 
 data StyleAttribute
   = Background Background
@@ -138,9 +140,9 @@ wrapOnAction callback = newStablePtr . callback
 
 type OnAction message = Action -> message
 
-data TextEditor message = TextEditor {
-  content :: Content
-}
+data TextEditor message = TextEditor
+  { content :: Content
+  }
 
 instance Builder Self where
   build = into_element
@@ -163,7 +165,7 @@ instance UsePadding2 (Attribute message) where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 (Attribute message) where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance IntoStyle value => UseStyle value (Attribute message) where
   style = intoStyle
@@ -172,7 +174,7 @@ instance UseHeight Length (Attribute message) where
   height = Height
 
 textEditor :: [Attribute message] -> Content -> Element
-textEditor attributes content = pack TextEditor { .. } attributes
+textEditor attributes content = pack TextEditor{..} attributes
 
 onAction :: OnAction message -> Attribute message
 onAction = AddOnAction
@@ -230,13 +232,14 @@ instance UseStyleAttribute Style StyleAttribute where
     Selection color -> useFnIO set_selection color
 
 useBorder :: Border -> Style -> IO ()
-useBorder Border { color, width = w, radius } appearance = do
+useBorder Border{color, width = w, radius} appearance = do
   colorPtr <- valueToNativeIO color
   set_border appearance colorPtr (CFloat w) (CFloat radius)
 
 useCustomStyle :: StyleCallback -> AttributeFn
-useCustomStyle callback self = text_editor_style_custom self
-  =<< makeStyleCallback (wrapStyleCallback callback)
+useCustomStyle callback self =
+  text_editor_style_custom self
+    =<< makeStyleCallback (wrapStyleCallback callback)
 
 instance UseBackground StyleAttribute where
   background = Background . BgColor

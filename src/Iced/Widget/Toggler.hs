@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Toggler (
   toggler,
@@ -46,11 +46,11 @@ wrapOnToggle callback = newStablePtr . callback . toBool
 
 type OnToggle message = Bool -> message
 
-data Toggler message = Toggler {
-  label :: String,
-  isToggled :: Bool,
-  onToggle :: OnToggle message
-}
+data Toggler message = Toggler
+  { label :: String
+  , isToggled :: Bool
+  , onToggle :: OnToggle message
+  }
 
 instance Builder Self where
   build = into_element
@@ -78,4 +78,4 @@ instance UseWidth Length Attribute where
   width = Width
 
 toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element
-toggler attributes label isToggled onToggle = pack Toggler { .. } attributes
+toggler attributes label isToggled onToggle = pack Toggler{..} attributes

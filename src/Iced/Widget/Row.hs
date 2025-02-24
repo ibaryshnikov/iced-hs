@@ -1,6 +1,6 @@
-{-# LANGUAGE NoFieldSelectors #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE NoFieldSelectors #-}
 
 module Iced.Widget.Row (
   row,
@@ -13,8 +13,8 @@ import Iced.Attribute.Alignment
 import Iced.Attribute.AlignmentFFI
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
-import Iced.Attribute.Spacing
 import Iced.Attribute.PaddingFFI
+import Iced.Attribute.Spacing
 import Iced.Element
 
 data NativeRow
@@ -28,7 +28,7 @@ data Attribute
   | Height Length
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall "new_row"
+-- foreign import ccall "new_row"
 --  new_row :: IO Self
 
 foreign import ccall "row_align_y"
@@ -46,7 +46,7 @@ foreign import ccall "row_with_children"
   row_with_children :: CUInt -> Ptr ElementPtr -> IO Self
 
 -- this function is for future use, commented to hide warnings
---foreign import ccall "row_extend"
+-- foreign import ccall "row_extend"
 --  row_extend :: Self -> CUInt -> Ptr ElementPtr -> IO Self
 
 foreign import ccall "row_width"
@@ -58,7 +58,7 @@ foreign import ccall "row_height"
 foreign import ccall "row_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Row = Row { children :: [Element] }
+data Row = Row {children :: [Element]}
 
 instance Builder Self where
   build = into_element
@@ -77,7 +77,7 @@ instance UseAttribute Self Attribute where
     Spacing value -> useFn row_spacing value
     AddPadding value -> useFnIO row_padding value
     AlignY value -> useFnIO row_align_y value
-    Width  len -> useFnIO row_width  len
+    Width len -> useFnIO row_width len
     Height len -> useFnIO row_height len
 
 instance UseAlignY Attribute where
@@ -90,7 +90,7 @@ instance UsePadding2 Attribute where
   padding2 a b = AddPadding $ paddingFromTwo a b
 
 instance UsePadding4 Attribute where
-  padding4 top right bottom left = AddPadding Padding { .. }
+  padding4 top right bottom left = AddPadding Padding{..}
 
 instance UseSpacing Attribute where
   spacing = Spacing
@@ -102,4 +102,4 @@ instance UseHeight Length Attribute where
   height = Height
 
 row :: [Attribute] -> [Element] -> Element
-row attributes children = pack Row { .. } attributes
+row attributes children = pack Row{..} attributes
