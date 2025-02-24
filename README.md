@@ -7,10 +7,10 @@ Very experimental, check [Roadmap](#roadmap) to see progress. There is some
 
 ## Platform support
 
-Desktop - Windows, macOS, Linux. Supported targets are the same
-as for iced except the web target, since it's tricky to link
-wasm produced by different compilers. With some effort it
-may be possible, just not out of the box.
+Desktops - tested on Linux, and macOS should work too.
+Build for Windows currently doesn't work, see related
+[issue](https://github.com/ibaryshnikov/iced-hs/issues/19)
+for more details.
 
 
 ## Example
@@ -46,24 +46,35 @@ main = Iced.run [theme GruvboxLight] "Counter" 0 update view
 ![Counter preview](examples/counter/counter.png)
 
 
-## Preview
-
-From [themes](examples/themes) example:
+## Themes example
 
 ![Themes preview](examples/themes/themes.png)
+
+Beautiful `Ferra` theme was built by [Halloy](https://github.com/squidowl/halloy) team.
+Check the complete example here - [themes](examples/themes).
+
+
+## Required build tools
+
+Rust toolchain is 1.84 or above. Haskell build uses cabal and supported versions
+are specified in `iced-hs.cabal` file. It's also possible to build with GHC alone.
+Use provided bash scripts as an example. Tested with GHC 9.4.8 and above.
 
 
 ## Usage
 
-First, build rust crate to produce `libiced_hs.a`
+Run the examples with cabal:
 
 ```bash
-./build_rust.sh
+cabal run counter
 ```
 
-then pass it to ghc
+Or use bash scripts:
 
 ```bash
+# build `libiced_hs.a`
+./build_rust.sh
+# then pass it to ghc
 ghc -ipath/to/this/repo path/to/libiced_hs.a main.hs
 ```
 
