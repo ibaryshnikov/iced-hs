@@ -19,6 +19,9 @@ import Iced.Widget
 ```haskell
 button :: [Attribute message] -> String -> Element
 
+-- example
+button [onPress Click] "Click me"
+
 -- attributes
 
 -- emit the message when the button is clicked
@@ -47,9 +50,6 @@ width :: Length -> Attribute message
 
 -- set the height of the button
 height :: Length -> Attribute message
-
--- example
-button [onPress Click] "Click me"
 ```
 
 
@@ -436,6 +436,8 @@ spaceHeight (Fixed 600)
 text :: [Attribute] -> String -> Element
 
 -- example
+import Iced.Widget
+
 text [size 50] "Welcome"
 ```
 
@@ -477,3 +479,64 @@ main = do
   let model = Model { content = content }
   Iced.run [] "TextEditor" model update view
 ```
+
+
+## TextInput
+
+```haskell
+-- attributes placeholder value
+textInput :: [Attribute message] -> String -> String -> Element
+
+-- example
+import Iced.Widget
+
+data Message = Input String
+
+data Model = Model { input :: String }
+
+update :: Message -> Model -> IO Model
+update (Input value) model = model { input = value }
+
+-- use in view
+textInput [onInput Input] "Placeholder" model.input
+```
+
+
+## Toggler
+
+```haskell
+-- attributes label isToggled onToggle
+toggler :: [Attribute] -> String -> Bool -> OnToggle message -> Element
+
+-- example
+import Iced.Widget
+
+data Message = Toggle Bool
+
+update :: Message -> Bool -> Bool
+update (Toggle value) _oldValue = value
+
+-- use in view
+toggler [width Shrink] (show value) value Toggle
+```
+
+
+## Tooltip
+
+Shows tooltip when element is hovered.
+Check the complete [example](examples/tooltip)
+
+```haskell
+-- attributes content element position
+tooltip :: [Attribute] -> Element -> Element -> Position -> Element
+
+-- example
+import Iced.Widget
+import Iced.Widget.Tooltip qualified as Tooltip
+
+-- use in view
+view _model =
+  tooltip [] content element Tooltip.FollowCursor
+  where
+    element = text [] "Hover to show tooltip"
+    content = text [] "Tooltip content"
