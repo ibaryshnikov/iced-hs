@@ -438,6 +438,7 @@ text :: [Attribute] -> String -> Element
 -- example
 import Iced.Widget
 
+-- use in view
 text [size 50] "Welcome"
 ```
 
@@ -538,5 +539,5 @@ import Iced.Widget.Tooltip qualified as Tooltip
 view _model =
   tooltip [] content element Tooltip.FollowCursor
   where
-    element = text [] "Hover to show tooltip"
     content = text [] "Tooltip content"
+    element = text [] "Hover to show tooltip"
