@@ -43,7 +43,7 @@ update Tick = updateOnTick
 
 view :: Model -> Element
 view model =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [alignX Center, spacing 50]
       [ progressBar

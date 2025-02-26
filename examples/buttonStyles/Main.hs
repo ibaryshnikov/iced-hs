@@ -55,7 +55,7 @@ styleFn status =
 
 view :: () -> Element
 view _value =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [spacing 10, alignX Start]
       [ text [] "Default for current theme:"

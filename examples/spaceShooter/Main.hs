@@ -186,7 +186,7 @@ updateScreen Game [] = Win
 updateScreen screen _enemies = screen
 
 view :: Model -> Element
-view model = center [] $
+view model = container [centerX Fill, centerY Fill] $
   case model.screen of
     Start -> button [onPress StartGame] "Start"
     Game -> canvas [width (Fixed 640), height (Fixed 480)] (shapes model) model.state

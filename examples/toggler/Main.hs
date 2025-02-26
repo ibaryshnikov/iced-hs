@@ -11,7 +11,7 @@ update (Toggle value) _oldValue = value
 
 view :: Bool -> Element
 view value =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     toggler [width Shrink] (lights value) value Toggle
 
 lights :: Bool -> String
