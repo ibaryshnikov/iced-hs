@@ -35,4 +35,7 @@ make style-rs # For Rust
 
 ## Pull Requests
 
+* Make sure to open an issue and discuss the proposed changes
+  before opening a PR. If the change is trivial you can omit this step
+  (but explain in the PR why you think it does not warrant an issue).
 * Add a changelog entry when submitting a PR.

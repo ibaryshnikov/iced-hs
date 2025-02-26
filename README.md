@@ -33,11 +33,11 @@ update Dec = pred
 view :: Int -> Element
 view value =
   container [centerX Fill, centerY Fill] $
-  column [alignX Center, spacing 10] [
-    button [onPress Inc] "Increment",
-    text [size 50] $ show value,
-    button [onPress Dec] "Decrement"
-  ]
+    column [alignX Center, spacing 10] [
+      button [onPress Inc] "Increment",
+      text [size 50] $ show value,
+      button [onPress Dec] "Decrement"
+    ]
 
 main :: IO ()
 main = Iced.run [theme GruvboxLight] "Counter" 0 update view
