@@ -40,7 +40,7 @@ delayNanos = delay . fromNanos
 foreign import ccall "iced_time_every"
   time_every :: Duration -> FunPtr (NativeOnEvery message) -> IO (Subscription message)
 
-type NativeOnEvery message = CULong -> IO (StablePtr message)
+type NativeOnEvery message = CULLong -> IO (StablePtr message)
 
 foreign import ccall "wrapper"
   makeOnEveryCallback :: NativeOnEvery message -> IO (FunPtr (NativeOnEvery message))
@@ -71,7 +71,7 @@ everyNanos :: Word64 -> OnEvery message -> IO (Subscription message)
 everyNanos n = every (fromNanos n)
 
 foreign import ccall "time_micros_since_start"
-  micros_since_start :: IO CULong
+  micros_since_start :: IO CULLong
 
 -- Number of microseconds since STARTED_AT static variable in Rust
 -- STARTED_AT is initialised when first accessed
