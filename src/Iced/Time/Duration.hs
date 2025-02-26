@@ -15,25 +15,25 @@ data NativeDuration
 type Duration = Ptr NativeDuration
 
 foreign import ccall "duration_from_secs"
-  from_secs :: CULong -> IO Duration
+  from_secs :: CULLong -> IO Duration
 
 fromSecs :: Word64 -> IO Duration
-fromSecs = from_secs . CULong
+fromSecs = from_secs . CULLong
 
 foreign import ccall "duration_from_millis"
-  from_millis :: CULong -> IO Duration
+  from_millis :: CULLong -> IO Duration
 
 fromMillis :: Word64 -> IO Duration
-fromMillis = from_millis . CULong
+fromMillis = from_millis . CULLong
 
 foreign import ccall "duration_from_micros"
-  from_micros :: CULong -> IO Duration
+  from_micros :: CULLong -> IO Duration
 
 fromMicros :: Word64 -> IO Duration
-fromMicros = from_micros . CULong
+fromMicros = from_micros . CULLong
 
 foreign import ccall "duration_from_nanos"
-  from_nanos :: CULong -> IO Duration
+  from_nanos :: CULLong -> IO Duration
 
 fromNanos :: Word64 -> IO Duration
-fromNanos = from_nanos . CULong
+fromNanos = from_nanos . CULLong
