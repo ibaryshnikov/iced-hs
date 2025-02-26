@@ -38,7 +38,7 @@ update (Tick micros) model =
 
 view :: Model -> Element
 view model =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [spacing 25, alignX Center]
       [ label model.timePassed

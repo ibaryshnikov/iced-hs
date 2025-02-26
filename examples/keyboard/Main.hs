@@ -19,7 +19,7 @@ update message model = model{message = Just message}
 
 view :: Model -> Element
 view model =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     text [size 20] $
       label model.message
 

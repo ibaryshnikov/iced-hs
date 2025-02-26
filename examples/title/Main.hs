@@ -16,7 +16,7 @@ update Dec = pred
 
 view :: Int -> Element
 view _value =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [alignX Center, spacing 10]
       [ button [onPress Inc] "Increment"

@@ -27,7 +27,7 @@ update message model = case message of
 
 view :: Model -> Element
 view model =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     tooltip [gap 10] content (toText model.position) model.position
  where
   content = button [onPress ChangePosition] "Press to change position"

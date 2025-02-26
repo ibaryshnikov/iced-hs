@@ -1,7 +1,6 @@
 module Iced.Widget (
   module Iced.Widget.Button,
   module Iced.Widget.Canvas,
-  module Iced.Widget.Center,
   module Iced.Widget.Checkbox,
   module Iced.Widget.Column,
   module Iced.Widget.ComboBox,
@@ -34,7 +33,6 @@ import Iced.Widget.Button (
   onPressIf,
  )
 import Iced.Widget.Canvas (canvas)
-import Iced.Widget.Center
 import Iced.Widget.Checkbox (
   checkbox,
   onToggle,

@@ -20,7 +20,7 @@ update Tick = (,Command.none) . (+ 1)
 
 view :: Int -> Element
 view value =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [alignX Center, spacing 10]
       [ text [size 50] $ show value

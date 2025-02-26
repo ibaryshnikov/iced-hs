@@ -27,7 +27,7 @@ update message model = case message of
 
 view :: Model -> Element
 view model =
-  center [] $
+  container [centerX Fill, centerY Fill] $
     column
       [spacing 20]
       [ checkbox [onToggle Default] "Default" model.def

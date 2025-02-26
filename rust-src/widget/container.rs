@@ -1,7 +1,7 @@
 use std::ffi::{c_float, c_uchar};
 
 use container::Style;
-use iced::widget::{center, container, Container};
+use iced::widget::{container, Container};
 use iced::{Background, Border, Color, Length, Padding};
 
 use super::{ElementPtr, IcedMessage};
@@ -33,12 +33,6 @@ impl BasicStyle {
 extern "C" fn container_new(content_ptr: ElementPtr) -> SelfPtr {
     let content = unsafe { *Box::from_raw(content_ptr) };
     Box::into_raw(Box::new(container(content)))
-}
-
-#[no_mangle]
-extern "C" fn container_new_centered(content_ptr: ElementPtr) -> SelfPtr {
-    let content = unsafe { *Box::from_raw(content_ptr) };
-    Box::into_raw(Box::new(center(content)))
 }
 
 #[no_mangle]
