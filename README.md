@@ -51,14 +51,14 @@ main = Iced.run [theme GruvboxLight] "Counter" 0 update view
 ![Themes preview](examples/themes/themes.png)
 
 Beautiful `Ferra` theme was built by [Halloy](https://github.com/squidowl/halloy) team.
-Check the complete example here - [themes](examples/themes).
+Check the complete [example](examples/themes).
 
 
 ## Required build tools
 
 Rust toolchain is 1.84 or above. Haskell build uses cabal and supported versions
 are specified in `iced-hs.cabal` file. It's also possible to build with GHC alone.
-Use provided bash scripts as an example. Tested with GHC 9.4.8 and above.
+Use provided bash scripts as an example.
 
 
 ## Usage
