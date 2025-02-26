@@ -5,8 +5,9 @@ Cargo.lock
 **/*.hi
 **/*.o
 **/*_stub.h
-**/Main
+**/main
 libiced_hs.a
+iced_hs.lib
 dist-newstyle
 tags
 tags.mtime
