@@ -1,4 +1,4 @@
-use std::ffi::c_ulong;
+use std::ffi::c_ulonglong;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -11,28 +11,28 @@ use crate::{free_haskell_fun_ptr, IcedMessage, Message};
 
 static STARTED_AT: OnceLock<Instant> = OnceLock::new();
 
-type OnEvery = extern "C" fn(micros: c_ulong) -> Message;
+type OnEvery = extern "C" fn(micros: c_ulonglong) -> Message;
 
 #[no_mangle]
-extern "C" fn duration_from_secs(value: c_ulong) -> *mut Duration {
+extern "C" fn duration_from_secs(value: c_ulonglong) -> *mut Duration {
     let duration = Duration::from_secs(value);
     Box::into_raw(Box::new(duration))
 }
 
 #[no_mangle]
-extern "C" fn duration_from_millis(value: c_ulong) -> *mut Duration {
+extern "C" fn duration_from_millis(value: c_ulonglong) -> *mut Duration {
     let duration = Duration::from_millis(value);
     Box::into_raw(Box::new(duration))
 }
 
 #[no_mangle]
-extern "C" fn duration_from_micros(value: c_ulong) -> *mut Duration {
+extern "C" fn duration_from_micros(value: c_ulonglong) -> *mut Duration {
     let duration = Duration::from_micros(value);
     Box::into_raw(Box::new(duration))
 }
 
 #[no_mangle]
-extern "C" fn duration_from_nanos(value: c_ulong) -> *mut Duration {
+extern "C" fn duration_from_nanos(value: c_ulonglong) -> *mut Duration {
     let duration = Duration::from_nanos(value);
     Box::into_raw(Box::new(duration))
 }
@@ -98,6 +98,6 @@ extern "C" fn iced_time_every(
 }
 
 #[no_mangle]
-extern "C" fn time_micros_since_start() -> c_ulong {
+extern "C" fn time_micros_since_start() -> c_ulonglong {
     time_passed_micros(Instant::now())
 }
