@@ -35,8 +35,8 @@ extern "C" fn future_run(callback: MainCallback) {
     let runtime = Runtime::new().expect("Should build a runtime");
     runtime.block_on(async move {
         let future_ptr = callback();
-        free_fun_ptr!(callback);
         let future = unsafe { Box::from_raw(future_ptr) };
+        free_fun_ptr!(callback);
         future.await;
     });
 }
@@ -58,8 +58,8 @@ extern "C" fn future_compose(
     let future = async move {
         let a = future_a.await;
         let future_ptr_b = fab(a.ptr);
-        free_fun_ptr!(fab);
         let future_b = unsafe { Box::from_raw(future_ptr_b) };
+        free_fun_ptr!(fab);
         future_b.await
     };
     let pinned = Box::pin(future);
