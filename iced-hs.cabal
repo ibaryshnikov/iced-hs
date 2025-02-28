@@ -190,6 +190,7 @@ library
     Iced.Widget.Radio
     Iced.Widget.Responsive
     Iced.Widget.Row
+    Iced.Widget.SVG
     Iced.Widget.Scrollable
     Iced.Widget.Slider
     Iced.Widget.Space
