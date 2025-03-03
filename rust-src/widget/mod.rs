@@ -1,5 +1,7 @@
 use std::ffi::{c_char, c_uchar, CString};
 
+use iced::widget::text::Shaping;
+
 mod button;
 mod canvas;
 mod checkbox;
@@ -90,5 +92,13 @@ fn wrap_callback_with_bool(callback: CallbackForCBool) -> impl Fn(bool) -> IcedM
     move |input| {
         let message_ptr = callback(input.into());
         IcedMessage::ptr(message_ptr)
+    }
+}
+
+fn read_shaping(input: c_uchar) -> Shaping {
+    match input {
+        0 => Shaping::Basic,
+        1 => Shaping::Advanced,
+        other => panic!("Unexpected Shaping value: {other}"),
     }
 }

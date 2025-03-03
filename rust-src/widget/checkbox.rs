@@ -5,7 +5,7 @@ use iced::widget::{checkbox, text, Checkbox};
 use iced::{Background, Border, Color, Font, Length};
 use text::{LineHeight, Shaping};
 
-use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
+use super::{read_c_bool, read_c_string, read_shaping, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
@@ -113,11 +113,7 @@ extern "C" fn checkbox_text_line_height(
 
 #[no_mangle]
 extern "C" fn checkbox_text_shaping(self_ptr: SelfPtr, shaping_raw: c_uchar) -> SelfPtr {
-    let shaping = match shaping_raw {
-        0 => Shaping::Basic,
-        1 => Shaping::Advanced,
-        other => panic!("Unexpected Shaping value: {other}"),
-    };
+    let shaping = read_shaping(shaping_raw);
     let checkbox = unsafe { Box::from_raw(self_ptr) };
     Box::into_raw(Box::new(checkbox.text_shaping(shaping)))
 }

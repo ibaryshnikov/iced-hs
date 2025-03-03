@@ -1,5 +1,6 @@
 use std::ffi::c_float;
 
+use iced::widget::canvas::Text;
 use iced::widget::canvas::{Fill, Frame, Path, Stroke};
 use iced::{Point, Size};
 
@@ -23,6 +24,32 @@ extern "C" fn canvas_frame_fill_rectangle(
     let size = Size::new(size_width, size_height);
     let fill = unsafe { *Box::from_raw(fill_ptr) };
     frame.fill_rectangle(top_left, size, fill);
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_fill_text(frame: &mut Frame, text_ptr: *mut Text) {
+    let text = unsafe { *Box::from_raw(text_ptr) };
+    frame.fill_text(text);
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_pop_transform(frame: &mut Frame) {
+    frame.pop_transform();
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_push_transform(frame: &mut Frame) {
+    frame.push_transform();
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_rotate(frame: &mut Frame, angle: c_float) {
+    frame.rotate(angle);
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_scale(frame: &mut Frame, value: c_float) {
+    frame.scale(value);
 }
 
 #[no_mangle]

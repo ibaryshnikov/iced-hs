@@ -76,6 +76,11 @@ drawActions [] _framePtr = pure ()
 drawActions (action : remaining) framePtr = do
   case action of
     FrameFill shapes color -> frameFill framePtr shapes color
+    FrameFillText text -> frameFillText framePtr text
+    FramePushTransform -> framePushTransform framePtr
+    FramePopTransform -> framePopTransform framePtr
+    FrameRotate angle -> frameRotate framePtr angle
+    FrameScale value -> frameScale framePtr value
     FrameStroke shapes color width -> frameStroke framePtr shapes color width
   drawActions remaining framePtr
 
