@@ -46,6 +46,7 @@ extra-source-files:
   rust-src/widget/combo_box.rs
   rust-src/widget/container.rs
   rust-src/widget/image.rs
+  rust-src/widget/svg.rs
   rust-src/widget/markdown.rs
   rust-src/widget/mod.rs
   rust-src/widget/pick_list.rs
@@ -190,6 +191,7 @@ library
     Iced.Widget.Radio
     Iced.Widget.Responsive
     Iced.Widget.Row
+    Iced.Widget.SVG
     Iced.Widget.Scrollable
     Iced.Widget.Slider
     Iced.Widget.Space

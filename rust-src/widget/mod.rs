@@ -16,6 +16,7 @@ mod row;
 mod scrollable;
 mod slider;
 mod space;
+mod svg;
 mod text;
 mod text_editor;
 mod text_input;
