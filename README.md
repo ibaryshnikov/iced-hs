@@ -142,6 +142,11 @@ option if you need a simple way to build some ui.
  - [ ] Canvas api
    - [x] canvas widget
    - [x] fill path
+   - [x] fillText
+   - [x] pushTransform
+   - [x] popTransform
+   - [x] rotate
+   - [x] scale
    - [x] stroke path
    - [x] path methods - circle, lineTo, moveTo, rectangle
    - [ ] more path methods

@@ -1,8 +1,8 @@
 module Iced.Widget.Canvas.Frame where
 
+import Control.Monad
 import Foreign.C.Types
 
-import Iced.Attribute.Text
 import Iced.Color
 import Iced.Widget.Canvas.Fill
 import Iced.Widget.Canvas.FramePtr
@@ -10,6 +10,7 @@ import Iced.Widget.Canvas.Path
 import Iced.Widget.Canvas.Shape
 import Iced.Widget.Canvas.Stroke
 import Iced.Widget.Canvas.Style
+import Iced.Widget.Canvas.TextFFI
 
 foreign import ccall "canvas_frame_fill"
   canvas_frame_fill :: FramePtr -> PathPtr -> FillPtr -> IO ()
@@ -24,31 +25,23 @@ foreign import ccall "canvas_frame_fill_rectangle"
     -> FillPtr
     -> IO ()
 
+foreign import ccall "canvas_frame_fill_text"
+  canvas_frame_fill_text :: FramePtr -> TextPtr -> IO ()
+
+foreign import ccall "canvas_frame_pop_transform"
+  canvas_frame_pop_transform :: FramePtr -> IO ()
+
+foreign import ccall "canvas_frame_push_transform"
+  canvas_frame_push_transform :: FramePtr -> IO ()
+
+foreign import ccall "canvas_frame_rotate"
+  canvas_frame_rotate :: FramePtr -> CFloat -> IO ()
+
+foreign import ccall "canvas_frame_scale"
+  canvas_frame_scale :: FramePtr -> CFloat -> IO ()
+
 foreign import ccall "canvas_frame_stroke"
   canvas_frame_stroke :: FramePtr -> PathPtr -> StrokePtr -> IO ()
-
--- data FrameAction
---  = FrameFill Path Fill
--- \| FrameFillRectangle { topLeft :: Point, size :: Size, fill :: Fill }
--- \| FrameStroke Path Stroke
--- \| FrameFillText Text
-
-data Text = Text
-  { content :: String
-  , -- position :: Point,
-    color :: Color
-  , size :: Float
-  , lineHeight :: LineHeight
-  , -- font :: Font
-    horizontalAlignment :: Horizontal
-  , verticalAlignment :: Vertical
-  , shaping :: Shaping
-  }
-
-data LineHeight = Relative Float | Absolute Float
-
-data Horizontal = Left | HCenter | Right
-data Vertical = Top | VCenter | Bottom
 
 frameFill :: FramePtr -> [Shape] -> Color -> IO ()
 frameFill framePtr shapes color = do
@@ -56,6 +49,21 @@ frameFill framePtr shapes color = do
   style <- solid color
   fill <- newCanvasFill style NonZero
   canvas_frame_fill framePtr path fill
+
+frameFillText :: FramePtr -> Text -> IO ()
+frameFillText framePtr = canvas_frame_fill_text framePtr <=< newCanvasText
+
+framePopTransform :: FramePtr -> IO ()
+framePopTransform = canvas_frame_pop_transform
+
+framePushTransform :: FramePtr -> IO ()
+framePushTransform = canvas_frame_push_transform
+
+frameRotate :: FramePtr -> Float -> IO ()
+frameRotate framePtr = canvas_frame_rotate framePtr . CFloat
+
+frameScale :: FramePtr -> Float -> IO ()
+frameScale framePtr = canvas_frame_scale framePtr . CFloat
 
 frameStroke :: FramePtr -> [Shape] -> Color -> Float -> IO ()
 frameStroke framePtr shapes color width = do

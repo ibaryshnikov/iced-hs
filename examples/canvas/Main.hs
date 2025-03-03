@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE NoFieldSelectors #-}
 
@@ -5,11 +6,14 @@ module Main where
 
 import Iced
 import Iced.Attribute
+import Iced.Attribute.Alignment
+import Iced.Attribute.Text
 import Iced.Color
 import Iced.Widget
 import Iced.Widget.Canvas qualified as Canvas
 import Iced.Widget.Canvas.FrameAction
 import Iced.Widget.Canvas.Shape
+import Iced.Widget.Canvas.Text
 
 data Model = Model {state :: Canvas.State}
 
@@ -41,6 +45,14 @@ shapes =
       [ circle 700 700 50
       ]
       $ rgb8 150 200 50
+  , pushTransform
+  , fillText $ label "One" 540 180
+  , rotate (-pi / 2)
+  , fillText $ label "Two" (-250) 475
+  , rotate (pi)
+  , scale 1.5
+  , fillText $ label "Three" 165 (-422)
+  , popTransform
   , stroke
       [ circle 300 500 70
       ]
@@ -51,6 +63,19 @@ shapes =
       ]
       $ rgba8 255 0 0 0.4
   ]
+
+label :: String -> Float -> Float -> Text
+label content x y = Text {
+    content = content,
+    x = x,
+    y = y,
+    color = rgb8 150 200 50,
+    size = 30,
+    lineHeight = Absolute 30,
+    horizontal = Center,
+    vertical = Center,
+    shaping = Advanced
+  }
 
 main :: IO ()
 main = do

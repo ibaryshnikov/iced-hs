@@ -41,6 +41,7 @@ extra-source-files:
   rust-src/widget/canvas/path_builder.rs
   rust-src/widget/canvas/stroke.rs
   rust-src/widget/canvas/style.rs
+  rust-src/widget/canvas/text.rs
   rust-src/widget/checkbox.rs
   rust-src/widget/column.rs
   rust-src/widget/combo_box.rs
@@ -143,7 +144,6 @@ library
     Iced.Attribute.Status
     Iced.Attribute.Style
     Iced.Attribute.Text
-    Iced.Attribute.TextFFI
     Iced.Color
     Iced.ColorFFI
     Iced.Command
@@ -179,6 +179,8 @@ library
     Iced.Widget.Canvas.Shape
     Iced.Widget.Canvas.Stroke
     Iced.Widget.Canvas.Style
+    Iced.Widget.Canvas.Text
+    Iced.Widget.Canvas.TextFFI
     Iced.Widget.Checkbox
     Iced.Widget.Column
     Iced.Widget.ComboBox

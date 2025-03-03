@@ -11,6 +11,7 @@ mod path;
 mod path_builder;
 mod stroke;
 mod style;
+mod text;
 
 type SelfPtr = *mut Canvas<&'static CanvasState, IcedMessage>;
 type Draw = extern "C" fn(frame: *mut Frame);
