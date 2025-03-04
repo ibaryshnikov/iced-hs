@@ -94,7 +94,6 @@ common common
   build-depends:
     base >=4.14 && <5,
     bytestring,
-    template-haskell,
 
   default-extensions:
   ghc-options:
@@ -148,7 +147,6 @@ library
     Iced.ColorFFI
     Iced.Command
     Iced.Element
-    Iced.Font
     Iced.Future
     Iced.Future.Internal
     Iced.Future.Runtime
@@ -236,6 +234,8 @@ executable checkbox
   main-is: checkbox/Main.hs
   build-depends:
     base,
+    bytestring,
+    directory,
     iced-hs,
 
 executable comboBox
@@ -356,6 +356,7 @@ executable readFile
   main-is: readFile/Main.hs
   build-depends:
     base,
+    directory,
     iced-hs,
 
 executable responsive

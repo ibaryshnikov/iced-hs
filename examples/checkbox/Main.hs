@@ -4,9 +4,11 @@
 
 module Main where
 
+import Data.ByteString qualified as ByteString
+import System.Directory (doesFileExist)
+
 import Iced
 import Iced.Attribute
-import Iced.Font
 import Iced.Theme
 import Iced.Widget
 import Iced.Widget.Checkbox (BasicStyle (..))
@@ -41,8 +43,16 @@ view model =
    where
     attributes = [style value, onToggleIf model.def Styled]
 
+getFontPath :: IO String
+getFontPath = do
+  exists <- doesFileExist "fonts/icons.ttf"
+  pure $
+    if exists
+      then "fonts/icons.ttf"
+      else "examples/checkbox/fonts/icons.ttf"
+
 main :: IO ()
-main = Iced.run [addFont bytes, theme SolarizedDark] "Checkbox" model update view
- where
-  bytes = $(includeBytes "examples/checkbox/fonts/icons.ttf")
-  model = Model{def = False, styled = False, custom = False}
+main = do
+  bytes <- fmap ByteString.unpack $ ByteString.readFile =<< getFontPath
+  let model = Model{def = False, styled = False, custom = False}
+  Iced.run [addFont bytes, theme SolarizedDark] "Checkbox" model update view
