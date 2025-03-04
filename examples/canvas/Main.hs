@@ -65,17 +65,18 @@ shapes =
   ]
 
 label :: String -> Float -> Float -> Text
-label content x y = Text {
-    content = content,
-    x = x,
-    y = y,
-    color = rgb8 150 200 50,
-    size = 30,
-    lineHeight = Absolute 30,
-    horizontal = Center,
-    vertical = Center,
-    shaping = Advanced
-  }
+label content x y =
+  Text
+    { content = content
+    , x = x
+    , y = y
+    , color = rgb8 150 200 50
+    , size = 30
+    , lineHeight = Absolute 30
+    , horizontal = Center
+    , vertical = Center
+    , shaping = Advanced
+    }
 
 main :: IO ()
 main = do

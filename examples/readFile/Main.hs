@@ -3,6 +3,8 @@
 
 module Main where
 
+import System.Directory (doesFileExist)
+
 import Iced
 import Iced.Attribute
 import Iced.Command qualified as Command
@@ -16,9 +18,17 @@ data Message
   | ReadFile
   | FileContents TextEditor.Content
 
+getFilePath :: IO String
+getFilePath = do
+  exists <- doesFileExist "Main.hs"
+  pure $
+    if exists
+      then "Main.hs"
+      else "examples/readFile/Main.hs"
+
 commandFn :: IO Message
 commandFn = do
-  string <- readFile "main.hs"
+  string <- readFile =<< getFilePath
   content <- TextEditor.contentWithText string
   return $ FileContents content
 

@@ -1,7 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Iced.Font (includeBytes) where
+-- example of embedding data from files at compile time
 
+module IncludeBytes (includeBytes) where
+
+import Control.Monad
 import Data.ByteString qualified as ByteString
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
