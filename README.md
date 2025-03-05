@@ -175,7 +175,7 @@ option if you need a simple way to build some ui.
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles for widgets
    - [x] button
-   - [x] checkobx
+   - [x] checkbox
    - [x] container
    - [x] pickList
    - [x] progressBar

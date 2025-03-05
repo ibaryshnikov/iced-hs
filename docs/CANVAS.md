@@ -24,6 +24,16 @@ shapes = [
 -- shapes color
 fill :: [Shape] -> Color -> FrameAction
 
+fillText :: Text -> FrameAction
+
+pushTransform :: FrameAction
+
+popTransform :: FrameAction
+
+rotate :: Float -> FrameAction
+
+scale :: Float -> FrameAction
+
 -- shapes color width
 stroke :: [Shape] -> Color -> Float -> FrameAction
 ```
