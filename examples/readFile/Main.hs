@@ -7,7 +7,7 @@ import System.Directory (doesFileExist)
 
 import Iced
 import Iced.Attribute
-import Iced.Command qualified as Command
+import Iced.Task qualified as Task
 import Iced.Widget
 import Iced.Widget.TextEditor qualified as TextEditor
 
@@ -32,13 +32,13 @@ commandFn = do
   content <- TextEditor.contentWithText string
   return $ FileContents content
 
-update :: Message -> Model -> IO (Model, Command Message)
+update :: Message -> Model -> IO (Model, Task Message)
 update message model = case message of
   EditorAction action -> do
     TextEditor.perform model.content action
-    pure (model, Command.none)
-  FileContents content -> pure (model{content = content}, Command.none)
-  ReadFile -> pure (model, Command.performBlocking commandFn)
+    pure (model, Task.none)
+  FileContents content -> pure (model{content = content}, Task.none)
+  ReadFile -> pure (model, Task.performBlocking commandFn)
 
 view :: Model -> Element
 view model =

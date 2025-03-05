@@ -19,7 +19,7 @@ extra-source-files:
   Cargo.toml
   rust-src/alignment.rs
   rust-src/color.rs
-  rust-src/command.rs
+  rust-src/task.rs
   rust-src/future.rs
   rust-src/keyboard/key.rs
   rust-src/keyboard/mod.rs
@@ -145,13 +145,13 @@ library
     Iced.Attribute.Text
     Iced.Color
     Iced.ColorFFI
-    Iced.Command
+    Iced.Task
     Iced.Element
     Iced.Future
     Iced.Future.Internal
     Iced.Future.Runtime
     Iced.Internal
-    Iced.Internal.Command
+    Iced.Internal.Task
     Iced.Keyboard
     Iced.Keyboard.Key
     Iced.Keyboard.LogicalKey

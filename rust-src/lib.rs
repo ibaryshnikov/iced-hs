@@ -7,7 +7,6 @@ use iced_winit::Program;
 
 mod alignment;
 mod color;
-mod command;
 mod future;
 mod keyboard;
 mod length;
@@ -15,12 +14,13 @@ mod line_height;
 mod padding;
 mod settings;
 mod subscription;
+mod task;
 mod theme;
 mod time;
 mod widget;
 
-use command::UpdateResult;
 use subscription::SubscriptionFn;
+use task::UpdateResult;
 use theme::{theme_from_raw, ThemeFn};
 use widget::read_c_string;
 
@@ -127,7 +127,7 @@ impl App {
             self.model = result.model;
             unsafe { free_stable_ptr(old_ptr) }
         }
-        result.command.perform()
+        result.task.perform()
     }
 }
 
