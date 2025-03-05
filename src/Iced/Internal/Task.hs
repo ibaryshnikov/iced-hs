@@ -1,8 +1,8 @@
-module Iced.Internal.Command where
+module Iced.Internal.Task where
 
 import Iced.Future
 
-data Command message
+data Task message
   = Perform (Future message)
   | PerformBlocking (IO message)
   | None

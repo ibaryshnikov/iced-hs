@@ -13,7 +13,7 @@ import Foreign.C.Types
 
 import Iced.Element (Element, ElementPtr, elementToNative)
 import Iced.Future.Internal
-import Iced.Internal.Command
+import Iced.Internal.Task
 import Iced.Settings
 import Iced.Subscription
 import Iced.Theme
@@ -69,7 +69,7 @@ foreign import ccall "wrapper"
     :: NativeUpdate model message -> IO (FunPtr (NativeUpdate model message))
 
 wrapUpdate
-  :: IntoCommand message model result
+  :: IntoTask message model result
   => Update message model result
   -> NativeUpdate model message
 wrapUpdate update modelPtr messagePtr = do
@@ -79,23 +79,23 @@ wrapUpdate update modelPtr messagePtr = do
   -- the message is no longer in use.
   -- still need to take care of closures like Input String
   message <- deRefStablePtr messagePtr
-  (newModel, command) <- intoCommand update message model
-  packResult newModel command
+  (newModel, task) <- intoTask update message model
+  packResult newModel task
 
-packResult :: model -> Command message -> IO UpdateResultPtr
-packResult model command = do
+packResult :: model -> Task message -> IO UpdateResultPtr
+packResult model task = do
   modelPtr <- newStablePtr model
   resultPtr <- update_result_new modelPtr
-  packCommand resultPtr command
+  packTask resultPtr task
 
-packCommand :: UpdateResultPtr -> Command message -> IO UpdateResultPtr
-packCommand resultPtr None = pure resultPtr
-packCommand resultPtr (PerformBlocking callback) = do
-  callbackPtr <- makeCommandPerformCallback $ wrapCommandPerform callback
-  update_result_add_command_io resultPtr callbackPtr
+packTask :: UpdateResultPtr -> Task message -> IO UpdateResultPtr
+packTask resultPtr None = pure resultPtr
+packTask resultPtr (PerformBlocking callback) = do
+  callbackPtr <- makeTaskPerformCallback $ wrapTaskPerform callback
+  update_result_add_task_io resultPtr callbackPtr
   return resultPtr
-packCommand resultPtr (Perform (Future ma)) = do
-  update_result_add_command_future resultPtr =<< ma
+packTask resultPtr (Perform (Future ma)) = do
+  update_result_add_task_future resultPtr =<< ma
   return resultPtr
 
 data NativeUpdateResult
@@ -105,21 +105,21 @@ foreign import ccall "update_result_new"
   update_result_new :: StablePtr model -> IO UpdateResultPtr
 
 -- update_result future
-foreign import ccall "update_result_add_command_future"
-  update_result_add_command_future :: UpdateResultPtr -> FuturePtr message -> IO ()
+foreign import ccall "update_result_add_task_future"
+  update_result_add_task_future :: UpdateResultPtr -> FuturePtr message -> IO ()
 
 -- update_result callback
-foreign import ccall "update_result_add_command_io"
-  update_result_add_command_io
-    :: UpdateResultPtr -> FunPtr (NativeCommandPerform message) -> IO ()
+foreign import ccall "update_result_add_task_io"
+  update_result_add_task_io
+    :: UpdateResultPtr -> FunPtr (NativeTaskPerform message) -> IO ()
 
-type NativeCommandPerform message = IO (StablePtr message)
+type NativeTaskPerform message = IO (StablePtr message)
 foreign import ccall "wrapper"
-  makeCommandPerformCallback
-    :: NativeCommandPerform message -> IO (FunPtr (NativeCommandPerform message))
+  makeTaskPerformCallback
+    :: NativeTaskPerform message -> IO (FunPtr (NativeTaskPerform message))
 
-wrapCommandPerform :: IO message -> NativeCommandPerform message
-wrapCommandPerform callback = do
+wrapTaskPerform :: IO message -> NativeTaskPerform message
+wrapTaskPerform callback = do
   message <- callback
   newStablePtr message
 
@@ -177,24 +177,24 @@ type View model = model -> Element
 --
 -- update :: Message -> Model -> Model
 -- update :: Message -> Model -> IO Model
--- update :: Message -> Model -> (Model, Command)
--- update :: Message -> Model -> IO (Model, Command)
+-- update :: Message -> Model -> (Model, Task)
+-- update :: Message -> Model -> IO (Model, Task)
 --
-class IntoCommand message model result where
-  intoCommand
-    :: (message -> model -> result) -> message -> model -> IO (model, Command message)
+class IntoTask message model result where
+  intoTask
+    :: (message -> model -> result) -> message -> model -> IO (model, Task message)
 
-instance IntoCommand message model model where
-  intoCommand update message model = pure (update message model, None)
+instance IntoTask message model model where
+  intoTask update message model = pure (update message model, None)
 
-instance IntoCommand message model (IO model) where
-  intoCommand update = (fmap (,None) .) . update
+instance IntoTask message model (IO model) where
+  intoTask update = (fmap (,None) .) . update
 
-instance IntoCommand message model (model, Command message) where
-  intoCommand update = (pure .) . update
+instance IntoTask message model (model, Task message) where
+  intoTask update = (pure .) . update
 
-instance IntoCommand message model (IO (model, Command message)) where
-  intoCommand update = update
+instance IntoTask message model (IO (model, Task message)) where
+  intoTask update = update
 
 --
 -- Provides the following signatures:
@@ -212,7 +212,7 @@ instance IntoTitle (model -> String) model where
   intoTitle title = title
 
 run
-  :: (IntoCommand message model result, IntoTitle title model)
+  :: (IntoTask message model result, IntoTitle title model)
   => [Attribute model message]
   -> Title title
   -> model

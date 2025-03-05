@@ -6,7 +6,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
-import Iced.Command qualified as Command
+import Iced.Task qualified as Task
 import Iced.Theme
 import Iced.Time
 import Iced.Widget
@@ -20,24 +20,24 @@ data Model = Model
 
 data Message = StartTimer | Tick
 
-tick :: Command Message
-tick = Command.perform $ do
+tick :: Task Message
+tick = Task.perform $ do
   delayMillis 15
   pure Tick
 
-startTimer :: Model -> (Model, Command Message)
+startTimer :: Model -> (Model, Task Message)
 startTimer model =
   if model.running
-    then (model, Command.none)
+    then (model, Task.none)
     else (model{running = True, value = 0}, tick)
 
-updateOnTick :: Model -> (Model, Command Message)
+updateOnTick :: Model -> (Model, Task Message)
 updateOnTick model =
   if model.value > 100
-    then (model{running = False}, Command.none)
+    then (model{running = False}, Task.none)
     else (model{value = model.value + 0.5}, tick)
 
-update :: Message -> Model -> (Model, Command Message)
+update :: Message -> Model -> (Model, Task Message)
 update StartTimer = startTimer
 update Tick = updateOnTick
 

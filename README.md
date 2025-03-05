@@ -169,9 +169,9 @@ option if you need a simple way to build some ui.
        - [ ] Character
    - [ ] custom subscriptions
    - [ ] other events
- - [x] Command api
-   - [x] `Command.perform` for Rust `Future`
-   - [x] `Command.performBlocking` for blocking tasks
+ - [x] Task api
+   - [x] `Task.perform` for Rust `Future`
+   - [x] `Task.performBlocking` for blocking tasks
  - [ ] Add all attributes from iced for each widget
  - [ ] Styles for widgets
    - [x] button
