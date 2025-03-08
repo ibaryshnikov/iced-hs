@@ -116,7 +116,7 @@ option if you need a simple way to build some ui.
    - [x] image
    - [ ] keyedColumn
    - [x] markdown
-   - [ ] mouseArea
+   - [x] mouseArea
    - [ ] paneGrid
    - [x] progressBar
    - [x] pickList

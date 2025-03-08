@@ -19,6 +19,7 @@ extra-source-files:
   Cargo.toml
   rust-src/alignment.rs
   rust-src/color.rs
+  rust-src/ffi.rs
   rust-src/task.rs
   rust-src/future.rs
   rust-src/keyboard/key.rs
@@ -48,6 +49,7 @@ extra-source-files:
   rust-src/widget/container.rs
   rust-src/widget/image.rs
   rust-src/widget/markdown.rs
+  rust-src/widget/mouse_area.rs
   rust-src/widget/mod.rs
   rust-src/widget/pick_list.rs
   rust-src/widget/progress_bar.rs
@@ -115,6 +117,14 @@ common common-rts-options
     -threaded
     -with-rtsopts=-N
 
+common examples-common
+  import: common
+  import: common-rts-options
+
+  hs-source-dirs: examples
+  build-depends:
+    iced-hs,
+
 library
   import: common
   hs-source-dirs: src
@@ -134,6 +144,8 @@ library
     Iced.Attribute.LineHeight
     Iced.Attribute.LineHeightFFI
     Iced.Attribute.OnInput
+    Iced.Attribute.OnPress
+    Iced.Attribute.OnRelease
     Iced.Attribute.Padding
     Iced.Attribute.PaddingFFI
     Iced.Attribute.Placeholder
@@ -185,6 +197,7 @@ library
     Iced.Widget.Container
     Iced.Widget.Image
     Iced.Widget.Markdown
+    Iced.Widget.MouseArea
     Iced.Widget.PickList
     Iced.Widget.ProgressBar
     Iced.Widget.Radio
@@ -297,6 +310,12 @@ executable markdown
   build-depends:
     base,
     iced-hs,
+
+executable mouseArea
+  import: examples-common
+  main-is: mouseArea/Main.hs
+  if !flag(examples)
+    buildable: False
 
 executable performAsync
   import: common

@@ -4,6 +4,8 @@ module Iced.Attribute (
   module Iced.Attribute.Icon,
   module Iced.Attribute.Length,
   module Iced.Attribute.LineHeight,
+  module Iced.Attribute.OnPress,
+  module Iced.Attribute.OnRelease,
   module Iced.Attribute.Padding,
   module Iced.Attribute.Placeholder,
   module Iced.Attribute.Size,
@@ -18,6 +20,8 @@ import Iced.Attribute.Color
 import Iced.Attribute.Icon
 import Iced.Attribute.Length
 import Iced.Attribute.LineHeight
+import Iced.Attribute.OnPress (onPress)
+import Iced.Attribute.OnRelease (onRelease)
 import Iced.Attribute.Padding (padding, padding2, padding4)
 import Iced.Attribute.Placeholder
 import Iced.Attribute.Size

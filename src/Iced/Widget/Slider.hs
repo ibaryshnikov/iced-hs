@@ -11,6 +11,7 @@ import Foreign.C.Types
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.OnRelease
 import Iced.Attribute.SliderCommon
 import Iced.Element
 
@@ -92,7 +93,7 @@ instance SliderCommon (Attribute message) where
   step = AddStep
   shiftStep = AddShiftStep
 
-instance SliderCommonOnRelease message (Attribute message) where
+instance UseOnRelease message (Attribute message) where
   onRelease = OnRelease
 
 instance UseWidth Length (Attribute message) where

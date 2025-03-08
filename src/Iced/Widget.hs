@@ -7,6 +7,7 @@ module Iced.Widget (
   module Iced.Widget.Container,
   module Iced.Widget.Image,
   module Iced.Widget.Markdown,
+  module Iced.Widget.MouseArea,
   module Iced.Widget.PickList,
   module Iced.Widget.ProgressBar,
   module Iced.Widget.Radio,
@@ -29,7 +30,6 @@ module Iced.Widget (
 
 import Iced.Widget.Button (
   button,
-  onPress,
   onPressIf,
  )
 import Iced.Widget.Canvas (canvas)
@@ -50,6 +50,18 @@ import Iced.Widget.Container (
  )
 import Iced.Widget.Image (image)
 import Iced.Widget.Markdown (markdown)
+import Iced.Widget.MouseArea (
+  mouseArea,
+  onDoubleClick,
+  onEnter,
+  onExit,
+  onMiddlePress,
+  onMiddleRelease,
+  onMove,
+  onRelease,
+  onRightPress,
+  onRightRelease,
+ )
 import Iced.Widget.PickList (pickList)
 import Iced.Widget.ProgressBar (progressBar)
 import Iced.Widget.Radio (radio)

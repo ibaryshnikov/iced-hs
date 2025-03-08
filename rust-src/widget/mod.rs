@@ -10,6 +10,7 @@ mod combo_box;
 mod container;
 mod image;
 mod markdown;
+mod mouse_area;
 mod pick_list;
 mod progress_bar;
 mod radio;
