@@ -1,12 +1,14 @@
 use std::ffi::c_char;
 use std::sync::Arc;
 
+use graphics::compositor;
 use iced::{window, Element, Renderer, Settings, Subscription, Task, Theme};
 use iced_widget::graphics;
 use iced_winit::Program;
 
 mod alignment;
 mod color;
+mod ffi;
 mod future;
 mod keyboard;
 mod length;
@@ -19,6 +21,7 @@ mod theme;
 mod time;
 mod widget;
 
+use ffi::{from_raw, into_raw};
 use subscription::SubscriptionFn;
 use task::UpdateResult;
 use theme::{theme_from_raw, ThemeFn};
@@ -119,7 +122,7 @@ impl Program for App {
 impl App {
     fn process_update(&mut self, message: Arc<HaskellMessage>) -> Task<IcedMessage> {
         let result_ptr = (self.update_hs)(self.model, message.ptr);
-        let result = unsafe { Box::from_raw(result_ptr) };
+        let result = from_raw(result_ptr);
         // when pointer changes, free the old one
         // in fact, it almost always changes
         if self.model != result.model {
@@ -141,7 +144,7 @@ extern "C" fn app_new(title_hs: Title, model: Model, update_hs: Update, view_hs:
         subscription_hs: None,
         theme_hs: None,
     };
-    Box::into_raw(Box::new(app))
+    into_raw(app)
 }
 
 #[no_mangle]
@@ -156,10 +159,10 @@ extern "C" fn app_set_theme(app: &mut App, theme: ThemeFn) {
 
 #[no_mangle]
 extern "C" fn app_run(app_ptr: *mut App, settings_ptr: *mut Settings) {
-    let app = unsafe { *Box::from_raw(app_ptr) };
-    let settings = unsafe { *Box::from_raw(settings_ptr) };
+    let app = from_raw(app_ptr);
+    let settings = from_raw(settings_ptr);
 
-    let renderer_settings = iced_widget::graphics::Settings {
+    let renderer_settings = graphics::Settings {
         default_font: settings.default_font,
         default_text_size: settings.default_text_size,
         antialiasing: if settings.antialiasing {
@@ -171,7 +174,7 @@ extern "C" fn app_run(app_ptr: *mut App, settings_ptr: *mut Settings) {
 
     let window_settings = Some(window::Settings::default());
 
-    iced_winit::program::run::<App, <Renderer as graphics::compositor::Default>::Compositor>(
+    iced_winit::program::run::<App, <Renderer as compositor::Default>::Compositor>(
         settings.into(),
         renderer_settings,
         window_settings,

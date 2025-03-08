@@ -4,7 +4,6 @@
 
 module Iced.Widget.Button (
   button,
-  onPress,
   onPressIf,
   StyleAttribute,
   Status (..),
@@ -19,6 +18,7 @@ import Foreign.C.Types
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
+import Iced.Attribute.OnPress
 import Iced.Attribute.PaddingFFI
 import Iced.Attribute.Status
 import Iced.Attribute.Style
@@ -127,6 +127,9 @@ instance UseAttribute Self (Attribute message) where
     Height len -> useFnIO button_height len
     None -> pure
 
+instance UseOnPress message (Attribute message) where
+  onPress = OnPress
+
 instance UsePadding (Attribute message) where
   padding = AddPadding . paddingFromOne
 
@@ -147,9 +150,6 @@ instance UseHeight Length (Attribute message) where
 
 button :: [Attribute message] -> String -> Element
 button attributes label = pack Button{..} attributes
-
-onPress :: message -> Attribute message
-onPress = OnPress
 
 onPressIf :: Bool -> message -> Attribute message
 onPressIf True message = onPress message

@@ -8,7 +8,7 @@ import Iced.Widget
 
 [button](#button) [canvas](#canvas) [checkbox](#checkbox) [column](#column)
 [comboBox](#combobox) [container](#container) [image](#image) [markdown](#markdown)
-[pickList](#picklist) [progressBar](#progressbar) [radio](#radio)
+[mouseArea](#mouseArea) [pickList](#picklist) [progressBar](#progressbar) [radio](#radio)
 [responsive](#responsive) [row](#row) [scrollable](#scrollable) [slider](#slider)
 [space](#space) [text](#text) [textEditor](#texteditor) [textInput](#textinput)
 [toggler](#toggler) [tooltip](#tooltip)
@@ -248,6 +248,22 @@ state <- Markdown.newState pageContents
 
 -- then use it in view
 markdown model.state Oxocarbon Click
+```
+
+
+## MouseArea
+
+```haskell
+mouseArea :: [Attribute message] -> Element -> Element
+
+-- example
+import Iced.Attribute
+import Iced.Widget
+
+data Message = Press | Release
+
+-- use in view
+mouseArea [onPress Press, onRelease Release] $ text [] "Label"
 ```
 
 
