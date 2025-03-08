@@ -4,6 +4,7 @@ import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
 import Iced.Color
+import Iced.Style
 import Iced.Theme
 import Iced.Widget
 import Iced.Widget.Button qualified as Button

@@ -152,7 +152,6 @@ library
     Iced.Attribute.Size
     Iced.Attribute.SliderCommon
     Iced.Attribute.Spacing
-    Iced.Attribute.Status
     Iced.Attribute.Style
     Iced.Attribute.Text
     Iced.Color
@@ -171,8 +170,8 @@ library
     Iced.Settings
     Iced.Size
     Iced.Style
-    Iced.Style.Container
     Iced.Style.Internal
+    Iced.Style.Status
     Iced.Subscription
     Iced.Theme
     Iced.Time
