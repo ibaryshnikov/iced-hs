@@ -3,7 +3,7 @@
 
 module Main where
 
-import Data.List
+import Data.List (intercalate)
 
 import Iced
 import Iced.Attribute

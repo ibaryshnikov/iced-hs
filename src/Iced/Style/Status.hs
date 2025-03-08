@@ -1,6 +1,6 @@
 {-# LANGUAGE FunctionalDependencies #-}
 
-module Iced.Attribute.Status where
+module Iced.Style.Status where
 
 class UseActive value attribute | attribute -> value where
   active :: value -> attribute

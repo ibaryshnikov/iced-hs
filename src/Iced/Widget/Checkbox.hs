@@ -26,11 +26,12 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.LineHeightFFI
 import Iced.Attribute.Size
 import Iced.Attribute.Spacing
-import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.Attribute.Text
 import Iced.ColorFFI
 import Iced.Element
+import Iced.Style.Internal
+import Iced.Style.Status
 import Iced.Theme
 
 data NativeCheckbox

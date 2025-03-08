@@ -6,6 +6,7 @@ module Main where
 import Iced
 import Iced.Attribute
 import Iced.Color
+import Iced.Style
 import Iced.Theme
 import Iced.Widget
 import Iced.Widget.TextEditor qualified as TextEditor

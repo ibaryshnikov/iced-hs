@@ -16,6 +16,7 @@ import Iced.Attribute.LengthFFI
 import Iced.Attribute.Style
 import Iced.ColorFFI
 import Iced.Element
+import Iced.Style.Internal
 import Iced.Theme
 
 data NativeProgressBar

@@ -16,10 +16,11 @@ import Foreign.C.Types
 
 import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
-import Iced.Attribute.Status
 import Iced.Attribute.Style
 import Iced.ColorFFI
 import Iced.Element
+import Iced.Style.Internal
+import Iced.Style.Status
 import Iced.Theme
 
 data NativeRadio
