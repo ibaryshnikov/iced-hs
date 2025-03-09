@@ -5,6 +5,7 @@ module Main where
 
 import Data.ByteString qualified as ByteString
 import Data.Word
+import System.Directory (doesFileExist)
 
 import Iced
 import Iced.Attribute
@@ -17,6 +18,7 @@ data Source = File | Bytes | Pixels deriving (Read, Show)
 
 data Model = Model
   { source :: Source
+  , folderPrefix :: String
   , bytes :: ByteString.ByteString
   }
 
@@ -39,7 +41,7 @@ pixels = concat $ pixelsRow <$> [1 .. 500] <*> [1 .. 500]
 
 getImage :: Model -> Element
 getImage model = case model.source of
-  File -> image attributes "watch_3.png"
+  File -> image attributes $ model.folderPrefix ++ "watch_3.png"
   Bytes -> image attributes model.bytes
   Pixels -> Image.fromRgba attributes 500 500 pixels
  where
@@ -57,8 +59,17 @@ view model =
       , getImage model
       ]
 
+getFolderPrefix :: String -> IO String
+getFolderPrefix path = do
+  exists <- doesFileExist path
+  pure $
+    if exists
+      then ""
+      else "examples/image/"
+
 main :: IO ()
 main = do
-  bytes <- ByteString.readFile "empty.png"
-  let model = Model{source = Pixels, bytes = bytes}
+  folderPrefix <- getFolderPrefix "empty.png"
+  bytes <- ByteString.readFile $ folderPrefix ++ "empty.png"
+  let model = Model{source = Pixels, folderPrefix = folderPrefix, bytes = bytes}
   Iced.run [theme Oxocarbon] "Image" model update view

@@ -125,6 +125,9 @@ common examples-common
   build-depends:
     iced-hs,
 
+  if !flag(examples)
+    buildable: False
+
 library
   import: common
   hs-source-dirs: src
@@ -213,286 +216,104 @@ library
     Iced.Widget.VerticalSlider
 
 executable buttonStyles
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: buttonStyles/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable canvas
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: canvas/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable checkbox
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: checkbox/Main.hs
   build-depends:
-    base,
     bytestring,
     directory,
-    iced-hs,
 
 executable comboBox
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: comboBox/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable counter
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: counter/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable image
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: image/Main.hs
   build-depends:
-    base,
-    iced-hs,
+    directory,
 
 executable keyboard
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: keyboard/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable markdown
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: markdown/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable mouseArea
   import: examples-common
   main-is: mouseArea/Main.hs
-  if !flag(examples)
-    buildable: False
 
 executable performAsync
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: performAsync/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable pickList
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: pickList/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable progressBar
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: progressBar/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable radio
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: radio/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable readFile
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: readFile/Main.hs
   build-depends:
-    base,
     directory,
-    iced-hs,
 
 executable responsive
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: responsive/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable slider
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: slider/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable spaceShooter
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: spaceShooter/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable stopwatch
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: stopwatch/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable textEditor
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: textEditor/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable textInput
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: textInput/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable themes
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: themes/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable title
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: title/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable toggler
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: toggler/Main.hs
-  build-depends:
-    base,
-    iced-hs,
 
 executable tooltip
-  import: common
-  import: common-rts-options
-
-  if !flag(examples)
-    buildable: False
-  hs-source-dirs: examples
+  import: examples-common
   main-is: tooltip/Main.hs
-  build-depends:
-    base,
-    iced-hs,
