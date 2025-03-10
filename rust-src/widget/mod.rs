@@ -26,29 +26,10 @@ mod toggler;
 mod tooltip;
 mod vertical_slider;
 
+use crate::ffi::read_c_string;
 use crate::IcedMessage;
 
 pub type ElementPtr = *mut iced::Element<'static, IcedMessage>;
-
-pub fn read_c_string(input: *mut c_char) -> String {
-    let c_string = unsafe { CString::from_raw(input) };
-    c_string
-        .into_string()
-        .expect("Should convert CString to String")
-}
-
-fn read_vec(len: usize, array_ptr: *const u8) -> Vec<u8> {
-    let slice = unsafe { std::slice::from_raw_parts(array_ptr, len) };
-    slice.to_vec()
-}
-
-fn read_c_bool(input: c_uchar) -> bool {
-    match input {
-        0 => false,
-        1 => true,
-        other => panic!("Non boolean value passed as CBool: {other}"),
-    }
-}
 
 fn read_array_of_c_strings(
     len: usize,

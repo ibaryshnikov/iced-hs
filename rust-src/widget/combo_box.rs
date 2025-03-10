@@ -5,7 +5,8 @@ use iced::widget::text::LineHeight;
 use iced::widget::{combo_box, ComboBox};
 use iced::{Length, Padding};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;

@@ -3,7 +3,8 @@ use std::ffi::{c_char, c_float, c_uchar};
 use iced::widget::{toggler, Toggler};
 use iced::Length;
 
-use super::{read_c_bool, read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::{read_c_bool, read_c_string};
 
 type SelfPtr = *mut Toggler<'static, IcedMessage>;
 

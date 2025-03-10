@@ -1,8 +1,28 @@
 use std::ffi::c_float;
 
-use iced::widget::canvas::Text;
-use iced::widget::canvas::{Fill, Frame, Path, Stroke};
-use iced::{Point, Size};
+use iced::widget::canvas::{Fill, Frame, Image, Path, Stroke, Text};
+use iced::{Point, Rectangle, Size};
+
+use crate::ffi::from_raw;
+
+#[no_mangle]
+extern "C" fn canvas_frame_draw_image(
+    frame: &mut Frame,
+    x: c_float,
+    y: c_float,
+    width: c_float,
+    height: c_float,
+    image_ptr: *mut Image,
+) {
+    let bounds = Rectangle {
+        x,
+        y,
+        width,
+        height,
+    };
+    let image = from_raw(image_ptr);
+    frame.draw_image(bounds, image);
+}
 
 #[no_mangle]
 extern "C" fn canvas_frame_fill(frame: &mut Frame, path_ptr: *mut Path, fill_ptr: *mut Fill) {
@@ -22,13 +42,13 @@ extern "C" fn canvas_frame_fill_rectangle(
 ) {
     let top_left = Point::new(top_left_x, top_left_y);
     let size = Size::new(size_width, size_height);
-    let fill = unsafe { *Box::from_raw(fill_ptr) };
+    let fill = from_raw(fill_ptr);
     frame.fill_rectangle(top_left, size, fill);
 }
 
 #[no_mangle]
 extern "C" fn canvas_frame_fill_text(frame: &mut Frame, text_ptr: *mut Text) {
-    let text = unsafe { *Box::from_raw(text_ptr) };
+    let text = from_raw(text_ptr);
     frame.fill_text(text);
 }
 
@@ -54,7 +74,7 @@ extern "C" fn canvas_frame_scale(frame: &mut Frame, value: c_float) {
 
 #[no_mangle]
 extern "C" fn canvas_frame_stroke(frame: &mut Frame, path_ptr: *mut Path, stroke_ptr: *mut Stroke) {
-    let path = unsafe { Box::from_raw(path_ptr) };
-    let stroke = unsafe { *Box::from_raw(stroke_ptr) };
+    let path = from_raw(path_ptr);
+    let stroke = from_raw(stroke_ptr);
     frame.stroke(&path, stroke);
 }

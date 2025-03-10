@@ -4,7 +4,8 @@ use iced::widget::{text_input, TextInput};
 use iced::{Background, Border, Color, Length, Padding};
 use text_input::{Status, Style};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut TextInput<'static, IcedMessage>;
 

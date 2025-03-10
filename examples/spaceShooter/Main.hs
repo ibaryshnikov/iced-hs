@@ -16,7 +16,7 @@ import Iced.Theme
 import Iced.Time
 import Iced.Widget
 import Iced.Widget.Canvas qualified as Canvas
-import Iced.Widget.Canvas.FrameAction
+import Iced.Widget.Canvas.Frame
 import Iced.Widget.Canvas.Shape
 
 data Screen = Start | Game | Win
@@ -197,31 +197,31 @@ view model = container [centerX Fill, centerY Fill] $
         , button [onPress StartGame] "Start new game"
         ]
 
-fillRectangle :: Float -> Float -> Float -> Float -> Color -> FrameAction
+fillRectangle :: Float -> Float -> Float -> Float -> Color -> Action
 fillRectangle x y width_ height_ color_ =
   fill
     [ rectangle x y width_ height_
     ]
     color_
 
-shapes :: Model -> [FrameAction]
+shapes :: Model -> [Action]
 shapes model =
   [drawField, drawShip model.position]
     ++ map drawBullet model.bullets
     ++ map drawEnemy model.enemies
 
-drawField :: FrameAction
+drawField :: Action
 drawField = fillRectangle 0 0 640 480 (rgb8 0 0 0)
 
-drawShip :: Position -> FrameAction
+drawShip :: Position -> Action
 drawShip Position{..} = fillRectangle (x - 50) y 100 30 (rgb8 180 180 180)
 
-drawBullet :: Bullet -> FrameAction
+drawBullet :: Bullet -> Action
 drawBullet bullet = fillRectangle x y 4 20 $ rgb8 180 180 180
  where
   Position{..} = bullet.position
 
-drawEnemy :: Enemy -> FrameAction
+drawEnemy :: Enemy -> Action
 drawEnemy enemy = fillRectangle x y 40 40 $ rgb8 180 180 180
  where
   Position{..} = enemy.position

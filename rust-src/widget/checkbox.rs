@@ -5,7 +5,8 @@ use iced::widget::{checkbox, text, Checkbox};
 use iced::{Background, Border, Color, Font, Length};
 use text::{LineHeight, Shaping};
 
-use super::{read_c_bool, read_c_string, read_shaping, ElementPtr, IcedMessage};
+use super::{read_shaping, ElementPtr, IcedMessage};
+use crate::ffi::{read_c_bool, read_c_string};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;

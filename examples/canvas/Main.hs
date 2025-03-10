@@ -4,6 +4,8 @@
 
 module Main where
 
+import System.Directory (doesFileExist)
+
 import Iced
 import Iced.Attribute
 import Iced.Attribute.Alignment
@@ -11,11 +13,14 @@ import Iced.Attribute.Text
 import Iced.Color
 import Iced.Widget
 import Iced.Widget.Canvas qualified as Canvas
-import Iced.Widget.Canvas.FrameAction
+import Iced.Widget.Canvas.Frame
 import Iced.Widget.Canvas.Shape
 import Iced.Widget.Canvas.Text
 
-data Model = Model {state :: Canvas.State}
+data Model = Model
+  { state :: Canvas.State
+  , filePath :: String
+  }
 
 data Message
 
@@ -23,10 +28,12 @@ update :: Message -> Model -> Model
 update _message model = model
 
 view :: Model -> Element
-view model = canvas [width Fill, height Fill] shapes model.state
+view model = canvas [width Fill, height Fill] actions model.state
+ where
+  actions = shapes model.filePath
 
-shapes :: [FrameAction]
-shapes =
+shapes :: String -> [Action]
+shapes imagePath =
   [ stroke
       [ moveTo 300 300
       , lineTo 300 350
@@ -53,6 +60,7 @@ shapes =
   , scale 1.5
   , fillText $ label "Three" 165 (-422)
   , popTransform
+  , drawImage 50 250 150 150 imagePath
   , stroke
       [ circle 300 500 70
       ]
@@ -78,8 +86,17 @@ label content x y =
     , shaping = Advanced
     }
 
+getFilePath :: String -> IO String
+getFilePath path = do
+  exists <- doesFileExist path
+  pure $
+    if exists
+      then path
+      else "examples/image/watch_3.png"
+
 main :: IO ()
 main = do
+  filePath <- getFilePath "../image/watch_3.png"
   state <- Canvas.newState
-  let model = Model{state = state}
+  let model = Model{state = state, filePath = filePath}
   Iced.run [] "Canvas" model update view
