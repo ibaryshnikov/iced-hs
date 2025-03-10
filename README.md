@@ -109,6 +109,7 @@ option if you need a simple way to build some ui.
 
  - [ ] Widgets
    - [x] button
+   - [x] canvas
    - [x] checkbox
    - [x] column
    - [x] comboBox
@@ -140,16 +141,19 @@ option if you need a simple way to build some ui.
    - [ ] focusNext, focusPrevious
  - [x] Themes
  - [ ] Canvas api
-   - [x] canvas widget
-   - [x] fill path
-   - [x] fillText
-   - [x] pushTransform
-   - [x] popTransform
-   - [x] rotate
-   - [x] scale
-   - [x] stroke path
-   - [x] path methods - circle, lineTo, moveTo, rectangle
-   - [ ] more path methods
+   - [ ] Frame methods
+     - [x] drawImage
+     - [x] fill
+     - [x] fillText
+     - [x] pushTransform
+     - [x] popTransform
+     - [x] rotate
+     - [x] scale
+     - [x] stroke
+     - [ ] more frame methods
+   - [ ] Path methods
+     - [x] circle, lineTo, moveTo, rectangle
+     - [ ] more path methods
  - [ ] Shader
    - [ ] shader widget
    - [ ] attributes

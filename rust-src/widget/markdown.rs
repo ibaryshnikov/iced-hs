@@ -2,7 +2,8 @@ use std::ffi::{c_char, c_uchar};
 
 use iced::widget::markdown::{self, Item};
 
-use super::{read_c_string, ElementPtr};
+use super::ElementPtr;
+use crate::ffi::read_c_string;
 
 type StatePtr = *mut State;
 

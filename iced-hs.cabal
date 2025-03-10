@@ -17,6 +17,9 @@ tested-with:
 -- cabal-gild: discover rust-src/ Cargo.toml
 extra-source-files:
   Cargo.toml
+  rust-src/advanced/mod.rs
+  rust-src/advanced/image/mod.rs
+  rust-src/advanced/image/handle.rs
   rust-src/alignment.rs
   rust-src/color.rs
   rust-src/ffi.rs
@@ -135,6 +138,8 @@ library
   -- cabal-gild: discover src
   exposed-modules:
     Iced
+    Iced.Advanced.Image
+    Iced.Advanced.Image.Handle
     Iced.Application
     Iced.Attribute
     Iced.Attribute.Alignment
@@ -185,7 +190,7 @@ library
     Iced.Widget.Canvas.Fill
     Iced.Widget.Canvas.Frame
     Iced.Widget.Canvas.FrameAction
-    Iced.Widget.Canvas.FramePtr
+    Iced.Widget.Canvas.FrameFFI
     Iced.Widget.Canvas.Path
     Iced.Widget.Canvas.PathBuilder
     Iced.Widget.Canvas.Shape
@@ -222,12 +227,13 @@ executable buttonStyles
 executable canvas
   import: examples-common
   main-is: canvas/Main.hs
+  build-depends:
+    directory,
 
 executable checkbox
   import: examples-common
   main-is: checkbox/Main.hs
   build-depends:
-    bytestring,
     directory,
 
 executable comboBox

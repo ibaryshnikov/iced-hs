@@ -1,35 +1,18 @@
-module Iced.Widget.Canvas.FrameAction where
+module Iced.Widget.Canvas.FrameAction (
+  Action (..),
+) where
 
-import Iced.Color
-import Iced.Widget.Canvas.Shape
-import Iced.Widget.Canvas.Text
+import Iced.Advanced.Image.Handle (Handle)
+import Iced.Color (Color)
+import Iced.Widget.Canvas.Shape (Shape)
+import Iced.Widget.Canvas.Text (Text)
 
-data FrameAction
-  = FrameFill [Shape] Color
-  | FrameFillText Text
-  | FramePushTransform
-  | FramePopTransform
-  | FrameRotate Float
-  | FrameScale Float
-  | FrameStroke [Shape] Color Float
-
-fill :: [Shape] -> Color -> FrameAction
-fill shapes color = FrameFill shapes color
-
-fillText :: Text -> FrameAction
-fillText = FrameFillText
-
-pushTransform :: FrameAction
-pushTransform = FramePushTransform
-
-popTransform :: FrameAction
-popTransform = FramePopTransform
-
-rotate :: Float -> FrameAction
-rotate = FrameRotate
-
-scale :: Float -> FrameAction
-scale = FrameScale
-
-stroke :: [Shape] -> Color -> Float -> FrameAction
-stroke shapes color width = FrameStroke shapes color width
+data Action
+  = DrawImage Float Float Float Float (IO Handle)
+  | Fill [Shape] Color
+  | FillText Text
+  | PushTransform
+  | PopTransform
+  | Rotate Float
+  | Scale Float
+  | Stroke [Shape] Color Float

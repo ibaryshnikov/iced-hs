@@ -1,73 +1,48 @@
-module Iced.Widget.Canvas.Frame where
+module Iced.Widget.Canvas.Frame (
+  Action,
+  drawImage,
+  fill,
+  fillText,
+  pushTransform,
+  popTransform,
+  rotate,
+  scale,
+  stroke,
+) where
 
-import Control.Monad
-import Foreign.C.Types
-
+import Iced.Advanced.Image.Handle
 import Iced.Color
-import Iced.Widget.Canvas.Fill
-import Iced.Widget.Canvas.FramePtr
-import Iced.Widget.Canvas.Path
+import Iced.Widget.Canvas.FrameAction
 import Iced.Widget.Canvas.Shape
-import Iced.Widget.Canvas.Stroke
-import Iced.Widget.Canvas.Style
-import Iced.Widget.Canvas.TextFFI
+import Iced.Widget.Canvas.Text
 
-foreign import ccall "canvas_frame_fill"
-  canvas_frame_fill :: FramePtr -> PathPtr -> FillPtr -> IO ()
+drawImage
+  :: IntoHandle a
+  => Float -- top left x
+  -> Float -- top left y
+  -> Float -- width
+  -> Float -- height
+  -> a
+  -> Action
+drawImage x y width height input = DrawImage x y width height $ intoHandle input
 
-foreign import ccall "canvas_frame_fill_rectangle"
-  canvas_frame_fill_rectangle
-    :: FramePtr
-    -> CFloat -- top_left x
-    -> CFloat -- top_left y
-    -> CFloat -- size width
-    -> CFloat -- size height
-    -> FillPtr
-    -> IO ()
+fill :: [Shape] -> Color -> Action
+fill shapes color = Fill shapes color
 
-foreign import ccall "canvas_frame_fill_text"
-  canvas_frame_fill_text :: FramePtr -> TextPtr -> IO ()
+fillText :: Text -> Action
+fillText = FillText
 
-foreign import ccall "canvas_frame_pop_transform"
-  canvas_frame_pop_transform :: FramePtr -> IO ()
+pushTransform :: Action
+pushTransform = PushTransform
 
-foreign import ccall "canvas_frame_push_transform"
-  canvas_frame_push_transform :: FramePtr -> IO ()
+popTransform :: Action
+popTransform = PopTransform
 
-foreign import ccall "canvas_frame_rotate"
-  canvas_frame_rotate :: FramePtr -> CFloat -> IO ()
+rotate :: Float -> Action
+rotate = Rotate
 
-foreign import ccall "canvas_frame_scale"
-  canvas_frame_scale :: FramePtr -> CFloat -> IO ()
+scale :: Float -> Action
+scale = Scale
 
-foreign import ccall "canvas_frame_stroke"
-  canvas_frame_stroke :: FramePtr -> PathPtr -> StrokePtr -> IO ()
-
-frameFill :: FramePtr -> [Shape] -> Color -> IO ()
-frameFill framePtr shapes color = do
-  path <- newPath shapes
-  style <- solid color
-  fill <- newCanvasFill style NonZero
-  canvas_frame_fill framePtr path fill
-
-frameFillText :: FramePtr -> Text -> IO ()
-frameFillText framePtr = canvas_frame_fill_text framePtr <=< newCanvasText
-
-framePopTransform :: FramePtr -> IO ()
-framePopTransform = canvas_frame_pop_transform
-
-framePushTransform :: FramePtr -> IO ()
-framePushTransform = canvas_frame_push_transform
-
-frameRotate :: FramePtr -> Float -> IO ()
-frameRotate framePtr = canvas_frame_rotate framePtr . CFloat
-
-frameScale :: FramePtr -> Float -> IO ()
-frameScale framePtr = canvas_frame_scale framePtr . CFloat
-
-frameStroke :: FramePtr -> [Shape] -> Color -> Float -> IO ()
-frameStroke framePtr shapes color width = do
-  path <- newPath shapes
-  style <- solid color
-  stroke <- newCanvasStroke style width Butt Miter
-  canvas_frame_stroke framePtr path stroke
+stroke :: [Shape] -> Color -> Float -> Action
+stroke shapes color width = Stroke shapes color width

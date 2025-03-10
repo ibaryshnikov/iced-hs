@@ -15,8 +15,7 @@ import Iced.Attribute.Internal
 import Iced.Attribute.LengthFFI
 import Iced.Element
 import Iced.Widget.Canvas.Frame
-import Iced.Widget.Canvas.FrameAction
-import Iced.Widget.Canvas.FramePtr
+import Iced.Widget.Canvas.FrameFFI
 
 data NativeState
 type State = ForeignPtr NativeState
@@ -67,25 +66,12 @@ foreign import ccall "wrapper"
   makeDrawCallback :: NativeDraw -> IO (FunPtr (NativeDraw))
 
 data Canvas = Canvas
-  { actions :: [FrameAction]
+  { actions :: [Action]
   , cache :: State
   }
 
-drawActions :: [FrameAction] -> FramePtr -> IO ()
-drawActions [] _framePtr = pure ()
-drawActions (action : remaining) framePtr = do
-  case action of
-    FrameFill shapes color -> frameFill framePtr shapes color
-    FrameFillText text -> frameFillText framePtr text
-    FramePushTransform -> framePushTransform framePtr
-    FramePopTransform -> framePopTransform framePtr
-    FrameRotate angle -> frameRotate framePtr angle
-    FrameScale value -> frameScale framePtr value
-    FrameStroke shapes color width -> frameStroke framePtr shapes color width
-  drawActions remaining framePtr
-
-drawCallback :: [FrameAction] -> NativeDraw
-drawCallback actions framePtr = drawActions actions framePtr
+drawCallback :: [Action] -> NativeDraw
+drawCallback = useActions
 
 instance Builder Self where
   build = into_element
@@ -107,5 +93,5 @@ instance UseWidth Length Attribute where
 instance UseHeight Length Attribute where
   height = Height
 
-canvas :: [Attribute] -> [FrameAction] -> State -> Element
+canvas :: [Attribute] -> [Action] -> State -> Element
 canvas attributes actions cache = pack Canvas{..} attributes

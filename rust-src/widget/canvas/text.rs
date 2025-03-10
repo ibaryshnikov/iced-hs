@@ -4,7 +4,8 @@ use iced::widget::canvas::Text;
 use iced::widget::text::LineHeight;
 use iced::{Alignment, Color, Font, Point};
 
-use crate::widget::{read_c_string, read_shaping};
+use crate::ffi::read_c_string;
+use crate::widget::read_shaping;
 
 #[no_mangle]
 extern "C" fn canvas_text_new(

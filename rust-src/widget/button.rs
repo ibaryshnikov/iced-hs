@@ -4,7 +4,8 @@ use button::{Status, Style};
 use iced::widget::{button, text, Button};
 use iced::{Background, Border, Color, Length, Padding};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut Button<'static, IcedMessage>;
 

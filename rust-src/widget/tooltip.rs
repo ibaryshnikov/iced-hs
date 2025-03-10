@@ -3,7 +3,8 @@ use std::ffi::{c_float, c_uchar};
 use iced::widget::tooltip::Position;
 use iced::widget::{self, Tooltip};
 
-use super::{read_c_bool, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_bool;
 
 type SelfPtr = *mut Tooltip<'static, IcedMessage>;
 

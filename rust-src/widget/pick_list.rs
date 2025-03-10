@@ -4,7 +4,8 @@ use iced::widget::{pick_list, PickList};
 use iced::{Background, Border, Color, Length, Padding};
 use pick_list::{Status, Style};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 

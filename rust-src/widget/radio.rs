@@ -4,7 +4,8 @@ use iced::widget::{radio, Radio};
 use iced::{Background, Color, Length};
 use radio::{Status, Style};
 
-use super::{read_c_string, ElementPtr, IcedMessage};
+use super::{ElementPtr, IcedMessage};
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut Radio<'static, IcedMessage>;
 

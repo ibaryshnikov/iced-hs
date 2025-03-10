@@ -4,7 +4,8 @@ use iced::widget::{text, Text};
 use iced::{Color, Length};
 use text::Style;
 
-use super::{read_c_string, ElementPtr};
+use super::ElementPtr;
+use crate::ffi::read_c_string;
 
 type SelfPtr = *mut Text<'static>;
 

@@ -6,6 +6,7 @@ use iced::{window, Element, Renderer, Settings, Subscription, Task, Theme};
 use iced_widget::graphics;
 use iced_winit::Program;
 
+mod advanced;
 mod alignment;
 mod color;
 mod ffi;
@@ -21,11 +22,10 @@ mod theme;
 mod time;
 mod widget;
 
-use ffi::{from_raw, into_raw};
+use ffi::{from_raw, into_raw, read_c_string};
 use subscription::SubscriptionFn;
 use task::UpdateResult;
 use theme::{theme_from_raw, ThemeFn};
-use widget::read_c_string;
 
 type Model = *const u8;
 type Message = *const u8;
