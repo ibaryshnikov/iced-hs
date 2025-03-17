@@ -4,8 +4,8 @@ use std::ffi::c_float;
 use iced::widget::{mouse_area, MouseArea};
 use iced::Point;
 
-use super::{ElementPtr, IcedMessage};
-use crate::ffi::{from_raw, into_raw};
+use crate::ffi::{from_raw, into_element, into_raw};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut MouseArea<'static, IcedMessage>;
 
@@ -106,6 +106,5 @@ extern "C" fn mouse_area_on_scroll(self_ptr: SelfPtr, on_scroll_ffi: OnScrollFFI
 
 #[no_mangle]
 extern "C" fn mouse_area_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let mouse_area = from_raw(self_ptr);
-    into_raw(mouse_area.into())
+    into_element(self_ptr)
 }

@@ -3,8 +3,8 @@ use std::ffi::{c_float, c_uchar};
 use iced::widget::tooltip::Position;
 use iced::widget::{self, Tooltip};
 
-use super::{ElementPtr, IcedMessage};
-use crate::ffi::read_c_bool;
+use crate::ffi::{from_raw, into_element, into_raw, read_c_bool};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Tooltip<'static, IcedMessage>;
 
@@ -14,8 +14,8 @@ extern "C" fn tooltip_new(
     tooltip_ptr: ElementPtr,
     position_raw: c_uchar,
 ) -> SelfPtr {
-    let content = unsafe { *Box::from_raw(content_ptr) };
-    let tooltip = unsafe { *Box::from_raw(tooltip_ptr) };
+    let content = from_raw(content_ptr);
+    let tooltip = from_raw(tooltip_ptr);
     let position = match position_raw {
         1 => Position::FollowCursor,
         2 => Position::Top,
@@ -24,26 +24,26 @@ extern "C" fn tooltip_new(
         5 => Position::Right,
         other => panic!("Unexpected Position value: {other}"),
     };
-    Box::into_raw(Box::new(widget::tooltip(content, tooltip, position)))
+    into_raw(widget::tooltip(content, tooltip, position))
 }
 
 #[no_mangle]
 extern "C" fn tooltip_gap(self_ptr: SelfPtr, gap: c_float) -> SelfPtr {
-    let tooltip = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(tooltip.gap(gap)))
+    let tooltip = from_raw(self_ptr);
+    into_raw(tooltip.gap(gap))
 }
 
 #[no_mangle]
 extern "C" fn tooltip_padding(self_ptr: SelfPtr, padding: c_float) -> SelfPtr {
-    let tooltip = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(tooltip.padding(padding)))
+    let tooltip = from_raw(self_ptr);
+    into_raw(tooltip.padding(padding))
 }
 
 #[no_mangle]
 extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uchar) -> SelfPtr {
-    let tooltip = unsafe { Box::from_raw(self_ptr) };
+    let tooltip = from_raw(self_ptr);
     let snap = read_c_bool(snap_raw);
-    Box::into_raw(Box::new(tooltip.snap_within_viewport(snap)))
+    into_raw(tooltip.snap_within_viewport(snap))
 }
 
 // todo
@@ -59,6 +59,5 @@ extern "C" fn tooltip_snap_within_viewport(self_ptr: SelfPtr, snap_raw: c_uchar)
 
 #[no_mangle]
 extern "C" fn tooltip_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let tooltip = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(tooltip.into()))
+    into_element(self_ptr)
 }

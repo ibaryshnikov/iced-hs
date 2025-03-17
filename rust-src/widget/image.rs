@@ -2,8 +2,8 @@ use iced::advanced::image::Handle;
 use iced::widget::{image, Image};
 use iced::Length;
 
-use super::ElementPtr;
-use crate::ffi::{from_raw, into_raw};
+use crate::ffi::{from_raw, into_element, into_raw};
+use crate::ElementPtr;
 
 type SelfPtr = *mut Image<Handle>;
 
@@ -29,5 +29,5 @@ extern "C" fn image_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
 
 #[no_mangle]
 extern "C" fn image_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    into_raw(from_raw(self_ptr).into())
+    into_element(self_ptr)
 }

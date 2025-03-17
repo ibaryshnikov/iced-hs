@@ -29,8 +29,6 @@ mod vertical_slider;
 use crate::ffi::read_c_string;
 use crate::IcedMessage;
 
-pub type ElementPtr = *mut iced::Element<'static, IcedMessage>;
-
 fn read_array_of_c_strings(
     len: usize,
     array_ptr: *const *mut c_char, // array of CString

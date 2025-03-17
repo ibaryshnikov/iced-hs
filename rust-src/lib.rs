@@ -9,6 +9,7 @@ use iced_winit::Program;
 mod advanced;
 mod alignment;
 mod color;
+mod core;
 mod ffi;
 mod future;
 mod keyboard;
@@ -22,6 +23,7 @@ mod theme;
 mod time;
 mod widget;
 
+use core::ElementPtr;
 use ffi::{from_raw, into_raw, read_c_string};
 use subscription::SubscriptionFn;
 use task::UpdateResult;
@@ -31,7 +33,7 @@ type Model = *const u8;
 type Message = *const u8;
 type Title = extern "C" fn(model: Model) -> *mut c_char;
 type Update = extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
-type View = extern "C" fn(model: Model) -> widget::ElementPtr;
+type View = extern "C" fn(model: Model) -> ElementPtr;
 
 extern "C" {
     #[link_name = "hs_free_fun_ptr"]
