@@ -4,8 +4,8 @@ use button::{Status, Style};
 use iced::widget::{button, text, Button};
 use iced::{Background, Border, Color, Length, Padding};
 
-use super::{ElementPtr, IcedMessage};
-use crate::ffi::read_c_string;
+use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Button<'static, IcedMessage>;
 
@@ -38,26 +38,26 @@ impl BasicStyle {
 extern "C" fn button_new(input: *mut c_char) -> SelfPtr {
     let string = read_c_string(input);
     let button = button(text(string));
-    Box::into_raw(Box::new(button))
+    into_raw(button)
 }
 
 #[no_mangle]
 extern "C" fn button_on_press(self_ptr: SelfPtr, message_ptr: *const u8) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
+    let button = from_raw(self_ptr);
     let message = IcedMessage::ptr(message_ptr);
-    Box::into_raw(Box::new(button.on_press(message)))
+    into_raw(button.on_press(message))
 }
 
 #[no_mangle]
 extern "C" fn button_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
-    let padding = unsafe { *Box::from_raw(padding_ptr) };
-    Box::into_raw(Box::new(button.padding(padding)))
+    let button = from_raw(self_ptr);
+    let padding = from_raw(padding_ptr);
+    into_raw(button.padding(padding))
 }
 
 #[no_mangle]
 extern "C" fn button_style_basic(self_ptr: SelfPtr, style_raw: c_uchar) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
+    let button = from_raw(self_ptr);
     let style_fn = match BasicStyle::from_raw(style_raw) {
         Primary => button::primary,
         Secondary => button::secondary,
@@ -65,7 +65,7 @@ extern "C" fn button_style_basic(self_ptr: SelfPtr, style_raw: c_uchar) -> SelfP
         Danger => button::danger,
         Text => button::text,
     };
-    Box::into_raw(Box::new(button.style(style_fn)))
+    into_raw(button.style(style_fn))
 }
 
 fn status_to_raw(status: Status) -> c_uchar {
@@ -79,39 +79,39 @@ fn status_to_raw(status: Status) -> c_uchar {
 
 #[no_mangle]
 extern "C" fn button_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(button.style(move |theme, status| {
+    let button = from_raw(self_ptr);
+    let button = button.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let status_raw = status_to_raw(status);
         let mut style = button::primary(theme, status);
         callback(&mut style, theme_raw, status_raw);
         style
-    })))
+    });
+    into_raw(button)
 }
 
 #[no_mangle]
 extern "C" fn button_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
-    let width = unsafe { *Box::from_raw(width) };
-    Box::into_raw(Box::new(button.width(width)))
+    let button = from_raw(self_ptr);
+    let width = from_raw(width);
+    into_raw(button.width(width))
 }
 
 #[no_mangle]
 extern "C" fn button_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
-    let button = unsafe { Box::from_raw(self_ptr) };
-    let height = unsafe { *Box::from_raw(height) };
-    Box::into_raw(Box::new(button.height(height)))
+    let button = from_raw(self_ptr);
+    let height = from_raw(height);
+    into_raw(button.height(height))
 }
 
 #[no_mangle]
 extern "C" fn button_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let button = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(button.into()))
+    into_element(self_ptr)
 }
 
 #[no_mangle]
 extern "C" fn button_style_set_background(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
+    let color = from_raw(color_ptr);
     style.background = Some(Background::Color(color));
 }
 
@@ -122,9 +122,8 @@ extern "C" fn button_style_set_border(
     width: c_float,
     radius: c_float,
 ) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
     style.border = Border {
-        color,
+        color: from_raw(color_ptr),
         width,
         radius: radius.into(),
     }
@@ -132,6 +131,5 @@ extern "C" fn button_style_set_border(
 
 #[no_mangle]
 extern "C" fn button_style_set_text_color(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
-    style.text_color = color;
+    style.text_color = from_raw(color_ptr);
 }

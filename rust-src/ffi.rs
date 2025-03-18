@@ -1,11 +1,17 @@
 use std::ffi::{c_char, c_uchar, CString};
 
+use crate::core::Element;
+
 pub(crate) fn from_raw<T>(ptr: *mut T) -> T {
     unsafe { *Box::from_raw(ptr) }
 }
 
 pub(crate) fn into_raw<T>(value: T) -> *mut T {
     Box::into_raw(Box::new(value))
+}
+
+pub(crate) fn into_element<T: Into<Element>>(ptr: *mut T) -> *mut Element {
+    into_raw(from_raw(ptr).into())
 }
 
 pub(crate) fn read_c_string(input: *mut c_char) -> String {

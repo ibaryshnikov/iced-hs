@@ -5,8 +5,9 @@ use iced::widget::{checkbox, text, Checkbox};
 use iced::{Background, Border, Color, Font, Length};
 use text::{LineHeight, Shaping};
 
-use super::{read_shaping, ElementPtr, IcedMessage};
-use crate::ffi::{read_c_bool, read_c_string};
+use super::read_shaping;
+use crate::ffi::{from_raw, into_element, into_raw, read_c_bool, read_c_string};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
@@ -41,45 +42,45 @@ impl BasicStyle {
 extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
     let label = read_c_string(input);
     let is_checked = read_c_bool(is_checked_raw);
-    Box::into_raw(Box::new(checkbox(label, is_checked)))
+    into_raw(checkbox(label, is_checked))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_on_toggle(self_ptr: SelfPtr, on_toggle_ffi: OnToggleFFI) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let checkbox = from_raw(self_ptr);
     let on_toggle = super::wrap_callback_with_bool(on_toggle_ffi);
-    Box::into_raw(Box::new(checkbox.on_toggle(on_toggle)))
+    into_raw(checkbox.on_toggle(on_toggle))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_icon(self_ptr: SelfPtr, icon_ptr: IconPtr) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    let icon = unsafe { *Box::from_raw(icon_ptr) };
-    Box::into_raw(Box::new(checkbox.icon(icon)))
+    let checkbox = from_raw(self_ptr);
+    let icon = from_raw(icon_ptr);
+    into_raw(checkbox.icon(icon))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.size(size)))
+    let checkbox = from_raw(self_ptr);
+    into_raw(checkbox.size(size))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.spacing(pixels)))
+    let checkbox = from_raw(self_ptr);
+    into_raw(checkbox.spacing(pixels))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_style_basic(self_ptr: SelfPtr, style_raw: c_uchar) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let checkbox = from_raw(self_ptr);
     let style_fn = match BasicStyle::from_raw(style_raw) {
         Primary => checkbox::primary,
         Secondary => checkbox::secondary,
         Success => checkbox::success,
         Danger => checkbox::danger,
     };
-    Box::into_raw(Box::new(checkbox.style(style_fn)))
+    into_raw(checkbox.style(style_fn))
 }
 
 fn status_to_raw(status: Status) -> (c_uchar, bool) {
@@ -93,13 +94,13 @@ fn status_to_raw(status: Status) -> (c_uchar, bool) {
 #[no_mangle]
 extern "C" fn checkbox_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.style(move |theme, status| {
+    into_raw(checkbox.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let (status_raw, is_checked) = status_to_raw(status);
         let mut style = checkbox::primary(theme, status);
         callback(&mut style, theme_raw, status_raw, is_checked.into());
         style
-    })))
+    }))
 }
 
 #[no_mangle]
@@ -107,35 +108,34 @@ extern "C" fn checkbox_text_line_height(
     self_ptr: SelfPtr,
     line_height_ptr: *mut LineHeight,
 ) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    let line_height = unsafe { *Box::from_raw(line_height_ptr) };
-    Box::into_raw(Box::new(checkbox.text_line_height(line_height)))
+    let checkbox = from_raw(self_ptr);
+    let line_height = from_raw(line_height_ptr);
+    into_raw(checkbox.text_line_height(line_height))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_text_shaping(self_ptr: SelfPtr, shaping_raw: c_uchar) -> SelfPtr {
+    let checkbox = from_raw(self_ptr);
     let shaping = read_shaping(shaping_raw);
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.text_shaping(shaping)))
+    into_raw(checkbox.text_shaping(shaping))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_text_size(self_ptr: SelfPtr, text_size: c_float) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.text_size(text_size)))
+    let checkbox = from_raw(self_ptr);
+    into_raw(checkbox.text_size(text_size))
 }
 
 #[no_mangle]
-extern "C" fn checkbox_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
-    let checkbox = unsafe { Box::from_raw(self_ptr) };
-    let width = unsafe { *Box::from_raw(width) };
-    Box::into_raw(Box::new(checkbox.width(width)))
+extern "C" fn checkbox_width(self_ptr: SelfPtr, width_ptr: *mut Length) -> SelfPtr {
+    let checkbox = from_raw(self_ptr);
+    let width = from_raw(width_ptr);
+    into_raw(checkbox.width(width))
 }
 
 #[no_mangle]
 extern "C" fn checkbox_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let checkbox = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(checkbox.into()))
+    into_element(self_ptr)
 }
 
 #[no_mangle]
@@ -153,13 +153,13 @@ extern "C" fn checkbox_icon_new(code_point_raw: c_uint) -> IconPtr {
 
 #[no_mangle]
 extern "C" fn checkbox_style_set_background(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
+    let color = from_raw(color_ptr);
     style.background = Background::Color(color);
 }
 
 #[no_mangle]
 extern "C" fn checkbox_style_set_icon_color(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
+    let color = from_raw(color_ptr);
     style.icon_color = color;
 }
 
@@ -170,9 +170,8 @@ extern "C" fn checkbox_style_set_border(
     width: c_float,
     radius: c_float,
 ) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
     style.border = Border {
-        color,
+        color: from_raw(color_ptr),
         width,
         radius: radius.into(),
     }

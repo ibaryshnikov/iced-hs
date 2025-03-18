@@ -4,8 +4,8 @@ use iced::widget::{pick_list, PickList};
 use iced::{Background, Border, Color, Length, Padding};
 use pick_list::{Status, Style};
 
-use super::{ElementPtr, IcedMessage};
-use crate::ffi::read_c_string;
+use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 
@@ -24,21 +24,21 @@ extern "C" fn pick_list_new(
     let options = super::read_array_of_c_strings(len, options_ptr);
     let on_select = super::wrap_callback_with_string(on_select_ffi);
     let pick_list = pick_list(options, selected, on_select);
-    Box::into_raw(Box::new(pick_list))
+    into_raw(pick_list)
 }
 
 #[no_mangle]
 extern "C" fn pick_list_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
-    let pick_list = unsafe { Box::from_raw(self_ptr) };
-    let padding = unsafe { *Box::from_raw(padding_ptr) };
-    Box::into_raw(Box::new(pick_list.padding(padding)))
+    let pick_list = from_raw(self_ptr);
+    let padding = from_raw(padding_ptr);
+    into_raw(pick_list.padding(padding))
 }
 
 #[no_mangle]
 extern "C" fn pick_list_placeholder(self_ptr: SelfPtr, placeholder_ptr: *mut c_char) -> SelfPtr {
-    let pick_list = unsafe { Box::from_raw(self_ptr) };
+    let pick_list = from_raw(self_ptr);
     let placeholder = read_c_string(placeholder_ptr);
-    Box::into_raw(Box::new(pick_list.placeholder(placeholder)))
+    into_raw(pick_list.placeholder(placeholder))
 }
 
 fn status_to_raw(status: Status) -> c_uchar {
@@ -51,32 +51,32 @@ fn status_to_raw(status: Status) -> c_uchar {
 
 #[no_mangle]
 extern "C" fn pick_list_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
-    let pick_list = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(pick_list.style(move |theme, status| {
+    let pick_list = from_raw(self_ptr);
+    let pick_list = pick_list.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let status_raw = status_to_raw(status);
         let mut style = pick_list::default(theme, status);
         callback(&mut style, theme_raw, status_raw);
         style
-    })))
+    });
+    into_raw(pick_list)
 }
 
 #[no_mangle]
 extern "C" fn pick_list_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
-    let pick_list = unsafe { Box::from_raw(self_ptr) };
-    let width = unsafe { *Box::from_raw(width) };
-    Box::into_raw(Box::new(pick_list.width(width)))
+    let pick_list = from_raw(self_ptr);
+    let width = from_raw(width);
+    into_raw(pick_list.width(width))
 }
 
 #[no_mangle]
 extern "C" fn pick_list_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let pick_list = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(pick_list.into()))
+    into_element(self_ptr)
 }
 
 #[no_mangle]
 extern "C" fn pick_list_style_set_background(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
+    let color = from_raw(color_ptr);
     style.background = Background::Color(color);
 }
 
@@ -87,9 +87,8 @@ extern "C" fn pick_list_style_set_border(
     width: c_float,
     radius: c_float,
 ) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
     style.border = Border {
-        color,
+        color: from_raw(color_ptr),
         width,
         radius: radius.into(),
     }
@@ -97,18 +96,15 @@ extern "C" fn pick_list_style_set_border(
 
 #[no_mangle]
 extern "C" fn pick_list_style_set_text_color(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
-    style.text_color = color;
+    style.text_color = from_raw(color_ptr);
 }
 
 #[no_mangle]
 extern "C" fn pick_list_style_set_placeholder_color(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
-    style.placeholder_color = color;
+    style.placeholder_color = from_raw(color_ptr);
 }
 
 #[no_mangle]
 extern "C" fn pick_list_style_set_handle_color(style: &mut Style, color_ptr: *mut Color) {
-    let color = unsafe { *Box::from_raw(color_ptr) };
-    style.handle_color = color;
+    style.handle_color = from_raw(color_ptr);
 }

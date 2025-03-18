@@ -2,7 +2,7 @@ use canvas::{Cache, Frame, Geometry, Program};
 use iced::widget::{canvas, Canvas};
 use iced::{mouse, Length, Rectangle, Renderer, Theme};
 
-use super::{ElementPtr, IcedMessage};
+use crate::{ElementPtr, IcedMessage};
 
 mod fill;
 mod frame;

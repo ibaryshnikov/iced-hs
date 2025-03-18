@@ -4,7 +4,8 @@ use container::Style;
 use iced::widget::{container, Container};
 use iced::{Background, Border, Color, Length, Padding};
 
-use super::{ElementPtr, IcedMessage};
+use crate::ffi::into_element;
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Container<'static, IcedMessage>;
 
@@ -94,8 +95,7 @@ extern "C" fn container_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPt
 
 #[no_mangle]
 extern "C" fn container_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let container = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(container.into()))
+    into_element(self_ptr)
 }
 
 #[no_mangle]

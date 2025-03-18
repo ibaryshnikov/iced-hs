@@ -5,8 +5,8 @@ use iced::widget::text::LineHeight;
 use iced::widget::{combo_box, ComboBox};
 use iced::{Length, Padding};
 
-use super::{ElementPtr, IcedMessage};
-use crate::ffi::read_c_string;
+use crate::ffi::{into_element, read_c_string};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;
@@ -102,6 +102,5 @@ extern "C" fn combo_box_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr 
 
 #[no_mangle]
 extern "C" fn combo_box_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let combo_box = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(combo_box.into()))
+    into_element(self_ptr)
 }

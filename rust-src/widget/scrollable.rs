@@ -1,32 +1,32 @@
 use iced::widget::{scrollable, Scrollable};
 use iced::Length;
 
-use super::{ElementPtr, IcedMessage};
+use crate::ffi::{from_raw, into_element, into_raw};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Scrollable<'static, IcedMessage>;
 
 #[no_mangle]
 extern "C" fn scrollable_new(content_ptr: ElementPtr) -> SelfPtr {
-    let content = unsafe { *Box::from_raw(content_ptr) };
-    Box::into_raw(Box::new(scrollable(content)))
+    let content = from_raw(content_ptr);
+    into_raw(scrollable(content))
 }
 
 #[no_mangle]
 extern "C" fn scrollable_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
-    let scrollable = unsafe { Box::from_raw(self_ptr) };
-    let width = unsafe { *Box::from_raw(width) };
-    Box::into_raw(Box::new(scrollable.width(width)))
+    let scrollable = from_raw(self_ptr);
+    let width = from_raw(width);
+    into_raw(scrollable.width(width))
 }
 
 #[no_mangle]
 extern "C" fn scrollable_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
-    let scrollable = unsafe { Box::from_raw(self_ptr) };
-    let height = unsafe { *Box::from_raw(height) };
-    Box::into_raw(Box::new(scrollable.height(height)))
+    let scrollable = from_raw(self_ptr);
+    let height = from_raw(height);
+    into_raw(scrollable.height(height))
 }
 
 #[no_mangle]
 extern "C" fn scrollable_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let scrollable = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(scrollable.into()))
+    into_element(self_ptr)
 }

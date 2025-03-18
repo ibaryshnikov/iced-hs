@@ -2,8 +2,8 @@ use std::ffi::{c_char, c_uchar};
 
 use iced::widget::markdown::{self, Item};
 
-use super::ElementPtr;
-use crate::ffi::read_c_string;
+use crate::ffi::{into_raw, read_c_string};
+use crate::ElementPtr;
 
 type StatePtr = *mut State;
 
@@ -18,7 +18,7 @@ extern "C" fn markdown_state_new(input: *mut c_char) -> StatePtr {
     let string = read_c_string(input);
     let items = markdown::parse(&string).collect();
     let state = State { items };
-    Box::into_raw(Box::new(state))
+    into_raw(state)
 }
 
 #[no_mangle]
@@ -41,5 +41,5 @@ extern "C" fn markdown_view(
         markdown::Style::from_palette(theme.palette()),
     )
     .map(move |url| on_url_click(url.as_str().to_owned()));
-    Box::into_raw(Box::new(view))
+    into_raw(view)
 }

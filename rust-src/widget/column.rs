@@ -3,33 +3,34 @@ use std::ffi::c_float;
 use iced::widget::Column;
 use iced::{Alignment, Length, Padding};
 
-use super::{ElementPtr, IcedMessage};
+use crate::ffi::{from_raw, into_element, into_raw};
+use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Column<'static, IcedMessage>;
 
 #[no_mangle]
 extern "C" fn column_new() -> SelfPtr {
-    Box::into_raw(Box::new(Column::new()))
+    into_raw(Column::new())
 }
 
 #[no_mangle]
 extern "C" fn column_align_x(self_ptr: SelfPtr, alignment: *mut Alignment) -> SelfPtr {
-    let column = unsafe { Box::from_raw(self_ptr) };
-    let alignment = unsafe { *Box::from_raw(alignment) };
-    Box::into_raw(Box::new(column.align_x(alignment)))
+    let column = from_raw(self_ptr);
+    let alignment = from_raw(alignment);
+    into_raw(column.align_x(alignment))
 }
 
 #[no_mangle]
 extern "C" fn column_padding(self_ptr: SelfPtr, padding_ptr: *mut Padding) -> SelfPtr {
-    let column = unsafe { Box::from_raw(self_ptr) };
-    let padding = unsafe { *Box::from_raw(padding_ptr) };
-    Box::into_raw(Box::new(column.padding(padding)))
+    let column = from_raw(self_ptr);
+    let padding = from_raw(padding_ptr);
+    into_raw(column.padding(padding))
 }
 
 #[no_mangle]
 extern "C" fn column_spacing(self_ptr: SelfPtr, pixels: c_float) -> SelfPtr {
-    let column = unsafe { Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(column.spacing(pixels)))
+    let column = from_raw(self_ptr);
+    into_raw(column.spacing(pixels))
 }
 
 #[no_mangle]
@@ -37,10 +38,9 @@ extern "C" fn column_with_children(len: usize, ptr: *const ElementPtr) -> SelfPt
     let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
     let mut column = Column::new();
     for item in slice {
-        let boxed = unsafe { Box::from_raw(*item) };
-        column = column.push(*boxed);
+        column = column.push(from_raw(*item));
     }
-    Box::into_raw(Box::new(column))
+    into_raw(column)
 }
 
 #[no_mangle]
@@ -49,31 +49,29 @@ extern "C" fn column_extend(
     len: usize,
     elements_ptr: *const ElementPtr,
 ) -> SelfPtr {
-    let mut column = unsafe { *Box::from_raw(self_ptr) };
+    let mut column = from_raw(self_ptr);
     let slice = unsafe { std::slice::from_raw_parts(elements_ptr, len) };
     for item in slice {
-        let boxed = unsafe { Box::from_raw(*item) };
-        column = column.push(*boxed);
+        column = column.push(from_raw(*item));
     }
-    Box::into_raw(Box::new(column))
+    into_raw(column)
 }
 
 #[no_mangle]
 extern "C" fn column_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
-    let column = unsafe { Box::from_raw(self_ptr) };
-    let width = unsafe { *Box::from_raw(width) };
-    Box::into_raw(Box::new(column.width(width)))
+    let column = from_raw(self_ptr);
+    let width = from_raw(width);
+    into_raw(column.width(width))
 }
 
 #[no_mangle]
 extern "C" fn column_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
-    let column = unsafe { Box::from_raw(self_ptr) };
-    let height = unsafe { *Box::from_raw(height) };
-    Box::into_raw(Box::new(column.height(height)))
+    let column = from_raw(self_ptr);
+    let height = from_raw(height);
+    into_raw(column.height(height))
 }
 
 #[no_mangle]
 extern "C" fn column_into_element(self_ptr: SelfPtr) -> ElementPtr {
-    let column = unsafe { *Box::from_raw(self_ptr) };
-    Box::into_raw(Box::new(column.into()))
+    into_element(self_ptr)
 }
