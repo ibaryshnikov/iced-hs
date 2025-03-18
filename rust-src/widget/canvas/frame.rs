@@ -1,5 +1,6 @@
 use std::ffi::c_float;
 
+use iced::advanced::svg::Svg;
 use iced::widget::canvas::{Fill, Frame, Image, Path, Stroke, Text};
 use iced::{Point, Rectangle, Size};
 
@@ -22,6 +23,25 @@ extern "C" fn canvas_frame_draw_image(
     };
     let image = from_raw(image_ptr);
     frame.draw_image(bounds, image);
+}
+
+#[no_mangle]
+extern "C" fn canvas_frame_draw_svg(
+    frame: &mut Frame,
+    x: c_float,
+    y: c_float,
+    width: c_float,
+    height: c_float,
+    svg_ptr: *mut Svg,
+) {
+    let bounds = Rectangle {
+        x,
+        y,
+        width,
+        height,
+    };
+    let svg = from_raw(svg_ptr);
+    frame.draw_svg(bounds, svg);
 }
 
 #[no_mangle]

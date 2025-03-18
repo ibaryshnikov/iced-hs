@@ -1,6 +1,7 @@
 module Iced.Widget.Canvas.Frame (
   Action,
   drawImage,
+  drawSvg,
   fill,
   fillText,
   pushTransform,
@@ -10,21 +11,32 @@ module Iced.Widget.Canvas.Frame (
   stroke,
 ) where
 
-import Iced.Advanced.Image.Handle
+import Iced.Advanced.Image.Handle qualified as Image
+import Iced.Advanced.Svg.Handle qualified as Svg
 import Iced.Color
 import Iced.Widget.Canvas.FrameAction
 import Iced.Widget.Canvas.Shape
 import Iced.Widget.Canvas.Text
 
 drawImage
-  :: IntoHandle a
+  :: Image.IntoHandle a
   => Float -- top left x
   -> Float -- top left y
   -> Float -- width
   -> Float -- height
   -> a
   -> Action
-drawImage x y width height input = DrawImage x y width height $ intoHandle input
+drawImage x y width height input = DrawImage x y width height $ Image.intoHandle input
+
+drawSvg
+  :: Svg.IntoHandle a
+  => Float -- top left x
+  -> Float -- top left y
+  -> Float -- width
+  -> Float -- height
+  -> a
+  -> Action
+drawSvg x y width height input = DrawSvg x y width height $ Svg.intoHandle input
 
 fill :: [Shape] -> Color -> Action
 fill shapes color = Fill shapes color

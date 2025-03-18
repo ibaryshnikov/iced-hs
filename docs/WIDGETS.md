@@ -62,14 +62,14 @@ Detailed [canvas api](./CANVAS.md)
 newState :: IO State
 -- clear the cache when you want a redraw
 clearCache :: State -> IO ()
-canvas :: [Attribute] -> [FrameAction] -> State -> Element
+canvas :: [Attribute] -> [Action] -> State -> Element
 
 -- example
 import Iced.Color
 import Iced.Widget
 import Iced.Widget.Canvas qualified as Canvas
+import Iced.Widget.Canvas.Frame
 import Iced.Widget.Canvas.Shape
-import Iced.Widget.Canvas.FrameAction
 
 data Model = Model { state :: Canvas.State }
 
@@ -82,7 +82,7 @@ Canvas.clearCache model.state
 -- use widget in view
 canvas [width Fill, height Fill] shapes model.state
 
-shapes :: [FrameAction]
+shapes :: [Action]
 shapes = [
     fill [
       circle 700 700 50

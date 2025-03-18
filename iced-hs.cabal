@@ -20,6 +20,8 @@ extra-source-files:
   rust-src/advanced/mod.rs
   rust-src/advanced/image/mod.rs
   rust-src/advanced/image/handle.rs
+  rust-src/advanced/svg/mod.rs
+  rust-src/advanced/svg/handle.rs
   rust-src/alignment.rs
   rust-src/color.rs
   rust-src/ffi.rs
@@ -140,6 +142,8 @@ library
     Iced
     Iced.Advanced.Image
     Iced.Advanced.Image.Handle
+    Iced.Advanced.Svg
+    Iced.Advanced.Svg.Handle
     Iced.Application
     Iced.Attribute
     Iced.Attribute.Alignment

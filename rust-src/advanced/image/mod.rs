@@ -6,7 +6,7 @@ use crate::ffi::{from_raw, into_raw, read_c_bool};
 
 mod handle;
 
-type SelfPtr = *mut Image<Handle>;
+type SelfPtr = *mut Image;
 
 #[no_mangle]
 extern "C" fn advanced_image_new(handle_ptr: *mut Handle) -> SelfPtr {

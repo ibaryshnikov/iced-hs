@@ -1,12 +1,12 @@
 # Canvas widget
 
 ```haskell
-canvas :: [Attribute] -> [FrameAction] -> State -> Element
+canvas :: [Attribute] -> [Action] -> State -> Element
 
 -- example
 canvas [width Fill, height Fill] shapes model.state
 
-shapes :: [FrameAction]
+shapes :: [Action]
 shapes = [
     fill [
       circle 700 700 50
@@ -21,21 +21,39 @@ shapes = [
 ## List of possible actions
 
 ```haskell
+drawImage
+  :: Image.IntoHandle a
+  => Float -- top left x
+  -> Float -- top left y
+  -> Float -- width
+  -> Float -- height
+  -> a -- handle
+  -> Action
+
+drawSvg
+  :: Svg.IntoHandle a
+  => Float -- top left x
+  -> Float -- top left y
+  -> Float -- width
+  -> Float -- height
+  -> a -- handle
+  -> Action
+
 -- shapes color
-fill :: [Shape] -> Color -> FrameAction
+fill :: [Shape] -> Color -> Action
 
-fillText :: Text -> FrameAction
+fillText :: Text -> Action
 
-pushTransform :: FrameAction
+pushTransform :: Action
 
-popTransform :: FrameAction
+popTransform :: Action
 
-rotate :: Float -> FrameAction
+rotate :: Float -> Action
 
-scale :: Float -> FrameAction
+scale :: Float -> Action
 
 -- shapes color width
-stroke :: [Shape] -> Color -> Float -> FrameAction
+stroke :: [Shape] -> Color -> Float -> Action
 ```
 
 ## List of shapes

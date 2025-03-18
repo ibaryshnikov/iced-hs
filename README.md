@@ -143,6 +143,7 @@ option if you need a simple way to build some ui.
  - [ ] Canvas api
    - [ ] Frame methods
      - [x] drawImage
+     - [x] drawSvg
      - [x] fill
      - [x] fillText
      - [x] pushTransform
