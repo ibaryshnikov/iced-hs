@@ -9,7 +9,7 @@ module Iced.Widget.Radio (
   StatusAttribute,
 ) where
 
-import Data.List
+import Data.List (find)
 import Foreign
 import Foreign.C.String
 import Foreign.C.Types
