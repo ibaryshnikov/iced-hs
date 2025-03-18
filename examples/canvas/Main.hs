@@ -19,7 +19,7 @@ import Iced.Widget.Canvas.Text
 
 data Model = Model
   { state :: Canvas.State
-  , filePath :: String
+  , filePrefix :: String
   }
 
 data Message
@@ -30,10 +30,13 @@ update _message model = model
 view :: Model -> Element
 view model = canvas [width Fill, height Fill] actions model.state
  where
-  actions = shapes model.filePath
+  actions = shapes imagePath svgPath
+  prefix = model.filePrefix
+  imagePath = prefix ++ "image/watch_3.png"
+  svgPath = prefix ++ "canvas/simple.svg"
 
-shapes :: String -> [Action]
-shapes imagePath =
+shapes :: String -> String -> [Action]
+shapes imagePath svgPath =
   [ stroke
       [ moveTo 300 300
       , lineTo 300 350
@@ -61,6 +64,7 @@ shapes imagePath =
   , fillText $ label "Three" 165 (-422)
   , popTransform
   , drawImage 50 250 150 150 imagePath
+  , drawSvg 200 50 150 100 svgPath
   , stroke
       [ circle 300 500 70
       ]
@@ -86,17 +90,17 @@ label content x y =
     , shaping = Advanced
     }
 
-getFilePath :: String -> IO String
-getFilePath path = do
+getFilePrefix :: String -> IO String
+getFilePrefix path = do
   exists <- doesFileExist path
   pure $
     if exists
-      then path
-      else "examples/image/watch_3.png"
+      then "../"
+      else "examples/"
 
 main :: IO ()
 main = do
-  filePath <- getFilePath "../image/watch_3.png"
+  filePrefix <- getFilePrefix "simple.svg"
   state <- Canvas.newState
-  let model = Model{state = state, filePath = filePath}
+  let model = Model{state = state, filePrefix = filePrefix}
   Iced.run [] "Canvas" model update view

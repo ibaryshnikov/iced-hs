@@ -7,8 +7,10 @@ import Control.Monad
 import Foreign
 import Foreign.C.Types
 
-import Iced.Advanced.Image
-import Iced.Advanced.Image.Handle
+import Iced.Advanced.Image (ImagePtr, imageNew)
+import Iced.Advanced.Image.Handle qualified as Image
+import Iced.Advanced.Svg (SvgPtr, svgNew)
+import Iced.Advanced.Svg.Handle qualified as Svg
 import Iced.Color
 import Iced.Widget.Canvas.Fill
 import Iced.Widget.Canvas.FrameAction
@@ -29,6 +31,16 @@ foreign import ccall "canvas_frame_draw_image"
     -> CFloat -- width
     -> CFloat -- height
     -> ImagePtr
+    -> IO ()
+
+foreign import ccall "canvas_frame_draw_svg"
+  draw_svg
+    :: FramePtr
+    -> CFloat -- top left x
+    -> CFloat -- top left y
+    -> CFloat -- width
+    -> CFloat -- height
+    -> SvgPtr
     -> IO ()
 
 foreign import ccall "canvas_frame_fill"
@@ -72,6 +84,7 @@ applyAction :: Action -> FramePtr -> IO ()
 applyAction action framePtr = do
   case action of
     DrawImage x y width height handle -> drawImage framePtr x y width height =<< handle
+    DrawSvg x y width height handle -> drawSvg framePtr x y width height =<< handle
     Fill shapes color -> frameFill framePtr shapes color
     FillText text -> fillText framePtr text
     PushTransform -> push_transform framePtr
@@ -86,10 +99,21 @@ drawImage
   -> Float -- top left y
   -> Float -- width
   -> Float -- height
-  -> Handle
+  -> Image.Handle
   -> IO ()
 drawImage framePtr x y width height =
   draw_image framePtr (CFloat x) (CFloat y) (CFloat width) (CFloat height) <=< imageNew
+
+drawSvg
+  :: FramePtr
+  -> Float -- top left x
+  -> Float -- top left y
+  -> Float -- width
+  -> Float -- height
+  -> Svg.Handle
+  -> IO ()
+drawSvg framePtr x y width height =
+  draw_svg framePtr (CFloat x) (CFloat y) (CFloat width) (CFloat height) <=< svgNew
 
 frameFill :: FramePtr -> [Shape] -> Color -> IO ()
 frameFill framePtr shapes color = do

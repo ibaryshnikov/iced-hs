@@ -18,22 +18,22 @@ foreign import ccall "advanced_image_new"
   image_new :: Handle -> IO ImagePtr
 
 foreign import ccall "advanced_image_opacity"
-  image_opacity :: ImagePtr -> CFloat -> ImagePtr
+  image_opacity :: ImagePtr -> CFloat -> IO ImagePtr
 
 foreign import ccall "advanced_image_rotation"
-  image_rotation :: ImagePtr -> CFloat -> ImagePtr
+  image_rotation :: ImagePtr -> CFloat -> IO ImagePtr
 
 foreign import ccall "advanced_image_snap"
-  image_snap :: ImagePtr -> CBool -> ImagePtr
+  image_snap :: ImagePtr -> CBool -> IO ImagePtr
 
 imageNew :: Handle -> IO ImagePtr
 imageNew = image_new
 
-imageOpacity :: ImagePtr -> Float -> ImagePtr
+imageOpacity :: ImagePtr -> Float -> IO ImagePtr
 imageOpacity image = image_opacity image . CFloat
 
-imageRotation :: ImagePtr -> Float -> ImagePtr
+imageRotation :: ImagePtr -> Float -> IO ImagePtr
 imageRotation image = image_rotation image . CFloat
 
-imageSnap :: ImagePtr -> Bool -> ImagePtr
+imageSnap :: ImagePtr -> Bool -> IO ImagePtr
 imageSnap image = image_snap image . fromBool
