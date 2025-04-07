@@ -9,7 +9,7 @@ use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextInput<'static, IcedMessage>;
 
-type OnInputFFI = extern "C" fn(input: *mut c_char) -> *const u8;
+type OnInputFFI = super::CallbackForCString;
 
 type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar);
 

@@ -12,7 +12,7 @@ use crate::{ElementPtr, IcedMessage};
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
 
-type OnToggleFFI = extern "C" fn(input: c_uchar) -> *const u8;
+type OnToggleFFI = super::CallbackForCBool;
 
 type StyleCallback =
     extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_checked: c_uchar);

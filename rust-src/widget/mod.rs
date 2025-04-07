@@ -1,4 +1,5 @@
 use std::ffi::{c_char, c_uchar, CString};
+use std::sync::Arc;
 
 use iced::widget::text::Shaping;
 
@@ -27,7 +28,7 @@ mod tooltip;
 mod vertical_slider;
 
 use crate::ffi::read_c_string;
-use crate::IcedMessage;
+use crate::{free_haskell_fun_ptr, IcedMessage};
 
 fn read_array_of_c_strings(
     len: usize,
@@ -53,24 +54,44 @@ fn read_c_string_to_option(input: *mut c_char) -> Option<String> {
     }
 }
 
-type CallbackForCString = extern "C" fn(input: *mut c_char) -> *const u8;
+#[repr(transparent)]
+struct CallbackForCString {
+    inner: extern "C" fn(input: *mut c_char) -> *const u8,
+}
+
+impl Drop for CallbackForCString {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) }
+    }
+}
 
 fn wrap_callback_with_string(callback: CallbackForCString) -> impl Fn(String) -> IcedMessage {
+    let callback = Arc::new(callback);
     move |input| {
         let c_string = CString::new(input).expect("Should create a CString");
         let string_ptr = c_string.into_raw();
-        let message_ptr = callback(string_ptr);
+        let message_ptr = (callback.inner)(string_ptr);
         // free CString
         let _ = unsafe { CString::from_raw(string_ptr) };
         IcedMessage::ptr(message_ptr)
     }
 }
 
-type CallbackForCBool = extern "C" fn(input: c_uchar) -> *const u8;
+#[repr(transparent)]
+struct CallbackForCBool {
+    inner: extern "C" fn(input: c_uchar) -> *const u8,
+}
+
+impl Drop for CallbackForCBool {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) }
+    }
+}
 
 fn wrap_callback_with_bool(callback: CallbackForCBool) -> impl Fn(bool) -> IcedMessage {
+    let callback = Arc::new(callback);
     move |input| {
-        let message_ptr = callback(input.into());
+        let message_ptr = (callback.inner)(input.into());
         IcedMessage::ptr(message_ptr)
     }
 }

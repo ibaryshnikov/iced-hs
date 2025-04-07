@@ -8,7 +8,7 @@ use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Toggler<'static, IcedMessage>;
 
-type OnToggleFFI = extern "C" fn(input: c_uchar) -> *const u8;
+type OnToggleFFI = super::CallbackForCBool;
 
 #[no_mangle]
 extern "C" fn toggler_new(

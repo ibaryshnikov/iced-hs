@@ -9,7 +9,7 @@ use crate::{ElementPtr, IcedMessage};
 
 type SelfPtr = *mut PickList<'static, String, Vec<String>, String, IcedMessage>;
 
-type OnSelectFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = super::CallbackForCString;
 
 type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar);
 
