@@ -157,7 +157,6 @@ rustConfHook (description, buildInfo) flags = do
     "mv"
     [(rustBuildDir </> "libiced_hs.a"), (rustBuildDir </> "libCiced_hs.a")]
   copyFiles (fromFlag $ configVerbosity flags) rawBuildDir [(rustBuildDir, "libCiced_hs.a")]
-  copyFiles (fromFlag $ configVerbosity flags) rawBuildDir [(rustBuildDir, "libiced_hs.so")]
   pure localBuildInfo
 
 getCargoBuildDir :: Bool -> IO (SymbolicPath from to)
