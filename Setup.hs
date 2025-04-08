@@ -17,6 +17,7 @@ import Distribution.Simple.LocalBuildInfo
 import Distribution.Simple.Setup
 import Distribution.Simple.Utils
 import Distribution.System
+import Distribution.Types.Flag
 import Distribution.Utils.Path
 import System.Directory
 import System.Environment
@@ -132,6 +133,18 @@ main =
           (regHook simpleUserHooks) pd' lbi' uh rf
       }
 
+getCustomFlag :: String -> ConfigFlags -> Bool
+getCustomFlag name =
+    (fromMaybe False) . lookupFlagAssignment (mkFlagName name) . configConfigurationsFlags
+
+executeCommand :: ConfigFlags -> String -> [String] -> IO ()
+executeCommand flags command options = do
+  rawSystemExit
+    (fromFlag $ flags.configCommonFlags.setupVerbosity)
+    Nothing
+    command
+    options
+
 rustConfHook
   :: (PD.GenericPackageDescription, PD.HookedBuildInfo) -> ConfigFlags -> IO LocalBuildInfo
 rustConfHook (description, buildInfo) flags = do
@@ -139,24 +152,22 @@ rustConfHook (description, buildInfo) flags = do
   let packageDescription = localPkgDescr localBuildInfo
       library = fromJust $ PD.library packageDescription
       libraryBuildInfo = PD.libBuildInfo library
-  symbolicCargoBuildDir <- getCargoBuildDir $ fromFlagOrDefault False (configProf flags)
+      isRelease = getCustomFlag "release" flags
+  symbolicCargoBuildDir <- getCargoBuildDir isRelease
   let rustBuildDir = getSymbolicPath symbolicCargoBuildDir
   let rawBuildDir = interpretSymbolicPathCWD $ buildDir localBuildInfo
   putStrLn "Building Rust code..."
-  rawSystemExit
-    (fromFlag $ flags.configCommonFlags.setupVerbosity)
-    Nothing
-    "cargo"
-    ["build"]
+  let cargoFlags = if isRelease then ["--release"] else []
+  executeCommand flags "cargo" $ ["build"] ++ cargoFlags
   putStrLn "Build Rust code success!"
-  -- It is safer to rename an archive than a .so file
   -- TODO: force it overwrite when dest exists
-  rawSystemExit
-    (fromFlag $ flags.configCommonFlags.setupVerbosity)
-    Nothing
-    "mv"
+  executeCommand flags "mv" $
     [(rustBuildDir </> "libiced_hs.a"), (rustBuildDir </> "libCiced_hs.a")]
   copyFiles (fromFlag $ configVerbosity flags) rawBuildDir [(rustBuildDir, "libCiced_hs.a")]
+  let ciBuild = getCustomFlag "cibuild" flags
+  if ciBuild
+    then executeCommand flags "cargo" ["clean"]
+    else pure ()
   pure localBuildInfo
 
 getCargoBuildDir :: Bool -> IO (SymbolicPath from to)
