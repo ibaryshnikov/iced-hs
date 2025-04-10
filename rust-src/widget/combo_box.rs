@@ -11,9 +11,9 @@ use crate::{ElementPtr, IcedMessage};
 type SelfPtr = *mut ComboBox<'static, String, IcedMessage>;
 type StatePtr = *mut State<String>;
 
-type OnSelectFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
-type OnInputFFI = extern "C" fn(input: *mut c_char) -> *const u8;
-type OnOptionHoveredFFI = extern "C" fn(selected: *mut c_char) -> *const u8;
+type OnSelectFFI = super::CallbackForCString;
+type OnInputFFI = super::CallbackForCString;
+type OnOptionHoveredFFI = super::CallbackForCString;
 
 #[no_mangle]
 extern "C" fn combo_box_state_new(

@@ -1,3 +1,4 @@
 import: ./cabal.project
 
+flags: +cibuild
 tests: True

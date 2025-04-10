@@ -7,7 +7,7 @@ use crate::ElementPtr;
 
 type StatePtr = *mut State;
 
-type OnUrlClickFFI = extern "C" fn(url: *mut c_char) -> *const u8;
+type OnUrlClickFFI = super::CallbackForCString;
 
 struct State {
     items: Vec<Item>,

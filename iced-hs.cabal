@@ -81,6 +81,16 @@ extra-doc-files:
   docs/VISION.txt
   docs/WIDGETS.md
 
+flag release
+  description: Build Rust library in release mode
+  manual: True
+  default: False
+
+flag cibuild
+  description: Is it a CI build?
+  manual: True
+  default: False
+
 flag examples
   description: Build examples
   manual: True

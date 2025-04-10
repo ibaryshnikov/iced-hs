@@ -6,8 +6,7 @@ edition = "2021"
 
 [lib]
 path = "rust-src/lib.rs"
-crate-type = ["staticlib", "cdylib"]
-name = "iced_hs"
+crate-type = ["staticlib"]
 
 [dependencies.iced]
 # version = "0.13"
