@@ -1,4 +1,4 @@
 import: ./cabal.project
 
-flags: +release +cibuild
+flags: +cibuild
 tests: True

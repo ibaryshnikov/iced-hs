@@ -36,7 +36,11 @@ type Update = extern "C" fn(model: Model, message: Message) -> *mut UpdateResult
 type View = extern "C" fn(model: Model) -> ElementPtr;
 
 extern "C" {
+    // Part of HsFFI.h
+    #[link_name = "hs_free_fun_ptr"]
     fn free_haskell_fun_ptr(ptr: usize);
+    // Part of HsFFI.h
+    #[link_name = "hs_free_stable_ptr"]
     fn free_stable_ptr(ptr: *const u8);
 }
 
