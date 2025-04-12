@@ -1,16 +1,27 @@
 use std::ffi::c_float;
+use std::sync::Arc;
 
+use canvas::path::Builder;
 use iced::widget::canvas::{self, Path};
 use iced::Point;
 
-use canvas::path::Builder;
+use crate::free_haskell_fun_ptr;
 
-type PathCallback = extern "C" fn(builder: &mut Builder);
+#[repr(transparent)]
+struct PathCallback {
+    inner: extern "C" fn(builder: &mut Builder),
+}
+
+impl Drop for PathCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) }
+    }
+}
 
 #[no_mangle]
 extern "C" fn path_new(callback: PathCallback) -> *mut Path {
-    #[allow(clippy::redundant_closure)] // false positive
-    let path = Path::new(|builder| callback(builder));
+    let callback = Arc::new(callback);
+    let path = Path::new(move |builder| (callback.inner)(builder));
     Box::into_raw(Box::new(path))
 }
 
