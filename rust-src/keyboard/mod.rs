@@ -11,22 +11,21 @@ use crate::{free_haskell_fun_ptr, IcedMessage, Message};
 mod key;
 mod physical;
 
-type OnKey = extern "C" fn(key: c_int, modifiers: c_int) -> Message;
-
-struct HaskellClosure {
-    on_key: OnKey,
+#[repr(transparent)]
+struct OnKey {
+    inner: extern "C" fn(key: c_int, modifiers: c_int) -> Message,
 }
 
-impl Drop for HaskellClosure {
+impl Drop for OnKey {
     fn drop(&mut self) {
-        unsafe { free_haskell_fun_ptr(self.on_key as usize) };
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
     }
 }
 
 #[derive(Clone)]
 struct Closure {
     label: &'static str,
-    internal: Arc<HaskellClosure>,
+    on_key: Arc<OnKey>,
 }
 
 impl Hash for Closure {
@@ -37,8 +36,10 @@ impl Hash for Closure {
 
 impl Closure {
     fn new(label: &'static str, on_key: OnKey) -> Self {
-        let internal = Arc::new(HaskellClosure { on_key });
-        Closure { label, internal }
+        Closure {
+            label,
+            on_key: Arc::new(on_key),
+        }
     }
     fn call(&self, event: Event) -> IcedMessage {
         // let logical = match event.logical_key {
@@ -51,7 +52,7 @@ impl Closure {
             Physical::Unidentified(_) => return IcedMessage::None,
         };
 
-        let message_ptr = (self.internal.on_key)(physical, 0);
+        let message_ptr = (self.on_key.inner)(physical, 0);
         IcedMessage::ptr(message_ptr)
     }
 }

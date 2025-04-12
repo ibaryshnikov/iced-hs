@@ -2,7 +2,7 @@ use canvas::{Cache, Frame, Geometry, Program};
 use iced::widget::{canvas, Canvas};
 use iced::{mouse, Length, Rectangle, Renderer, Theme};
 
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 mod fill;
 mod frame;
@@ -14,7 +14,20 @@ mod style;
 mod text;
 
 type SelfPtr = *mut Canvas<&'static CanvasState, IcedMessage>;
-type Draw = extern "C" fn(frame: *mut Frame);
+
+#[repr(transparent)]
+struct Draw {
+    inner: extern "C" fn(frame: *mut Frame),
+}
+
+// Can't call Haskell function from a finalizer, need
+// to find some other way to free this callback
+// impl Drop for Draw {
+//     fn drop(&mut self) {
+//         println!("Calling drop in Draw");
+//         unsafe { free_haskell_fun_ptr(self.inner as usize) }
+//     }
+// }
 
 pub struct CanvasState {
     cache: Cache,
@@ -32,28 +45,30 @@ impl<Message> Program<Message> for CanvasState {
         bounds: Rectangle,
         _cursor: mouse::Cursor,
     ) -> Vec<Geometry> {
-        let Some(draw) = self.draw_hs else {
+        let Some(draw) = &self.draw_hs else {
             return vec![];
         };
         let geometry = self.cache.draw(renderer, bounds.size(), |frame| {
-            draw(frame);
+            (draw.inner)(frame);
         });
         vec![geometry]
     }
 }
 
 #[no_mangle]
-extern "C" fn canvas_state_new(draw: Draw) -> *mut CanvasState {
+extern "C" fn canvas_state_new() -> *mut CanvasState {
     let state = CanvasState {
         cache: Cache::default(),
-        draw_hs: Some(draw),
+        draw_hs: None,
     };
     Box::into_raw(Box::new(state))
 }
 
 #[no_mangle]
 extern "C" fn canvas_set_draw(state: &mut CanvasState, draw: Draw) {
-    state.draw_hs = Some(draw);
+    if let Some(old) = state.draw_hs.replace(draw) {
+        unsafe { free_haskell_fun_ptr(old.inner as usize) }
+    }
 }
 
 #[no_mangle]
