@@ -1,15 +1,25 @@
 use std::ffi::{c_char, c_float, c_uchar};
+use std::sync::Arc;
 
 use button::{Status, Style};
 use iced::widget::{button, text, Button};
 use iced::{Background, Border, Color, Length, Padding};
 
 use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Button<'static, IcedMessage>;
 
-type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar);
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 enum BasicStyle {
     Primary,
@@ -80,11 +90,12 @@ fn status_to_raw(status: Status) -> c_uchar {
 #[no_mangle]
 extern "C" fn button_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let button = from_raw(self_ptr);
+    let callback = Arc::new(callback);
     let button = button.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let status_raw = status_to_raw(status);
         let mut style = button::primary(theme, status);
-        callback(&mut style, theme_raw, status_raw);
+        (callback.inner)(&mut style, theme_raw, status_raw);
         style
     });
     into_raw(button)

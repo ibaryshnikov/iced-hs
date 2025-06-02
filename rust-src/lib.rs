@@ -31,9 +31,39 @@ use theme::{theme_from_raw, ThemeFn};
 
 type Model = *const u8;
 type Message = *const u8;
-type Title = extern "C" fn(model: Model) -> *mut c_char;
-type Update = extern "C" fn(model: Model, message: Message) -> *mut UpdateResult;
-type View = extern "C" fn(model: Model) -> ElementPtr;
+
+#[repr(transparent)]
+struct Title {
+    inner: extern "C" fn(model: Model) -> *mut c_char,
+}
+
+impl Drop for Title {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
+
+#[repr(transparent)]
+struct Update {
+    inner: extern "C" fn(model: Model, message: Message) -> *mut UpdateResult,
+}
+
+impl Drop for Update {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
+
+#[repr(transparent)]
+struct View {
+    inner: extern "C" fn(model: Model) -> ElementPtr,
+}
+
+impl Drop for View {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 extern "C" {
     // Part of HsFFI.h
@@ -91,7 +121,7 @@ impl Program for App {
         (app, Task::none())
     }
     fn title(&self, _window: window::Id) -> String {
-        let pointer = (self.title_hs)(self.model);
+        let pointer = (self.title_hs.inner)(self.model);
         read_c_string(pointer)
     }
     fn update(&mut self, message: Self::Message) -> Task<Self::Message> {
@@ -101,21 +131,21 @@ impl Program for App {
         }
     }
     fn view(&self, _window: window::Id) -> Element<Self::Message, Self::Theme, Self::Renderer> {
-        unsafe { *Box::from_raw((self.view_hs)(self.model)) }
+        unsafe { *Box::from_raw((self.view_hs.inner)(self.model)) }
     }
     fn theme(&self, _window: window::Id) -> Theme {
-        match self.theme_hs {
+        match &self.theme_hs {
             Some(theme_fn) => {
-                let value = theme_fn(self.model);
+                let value = (theme_fn.inner)(self.model);
                 theme_from_raw(value)
             }
             None => Self::Theme::default(),
         }
     }
     fn subscription(&self) -> Subscription<IcedMessage> {
-        match self.subscription_hs {
+        match &self.subscription_hs {
             Some(subscription) => {
-                let pointer = subscription(self.model);
+                let pointer = (subscription.inner)(self.model);
                 unsafe { *Box::from_raw(pointer) }
             }
             None => Subscription::none(),
@@ -125,7 +155,7 @@ impl Program for App {
 
 impl App {
     fn process_update(&mut self, message: Arc<HaskellMessage>) -> Task<IcedMessage> {
-        let result_ptr = (self.update_hs)(self.model, message.ptr);
+        let result_ptr = (self.update_hs.inner)(self.model, message.ptr);
         let result = from_raw(result_ptr);
         // when pointer changes, free the old one
         // in fact, it almost always changes

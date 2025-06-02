@@ -1,4 +1,5 @@
 use std::ffi::{c_char, c_float, c_uchar, c_uint};
+use std::sync::Arc;
 
 use checkbox::{Icon, Status, Style};
 use iced::widget::{checkbox, text, Checkbox};
@@ -7,15 +8,23 @@ use text::{LineHeight, Shaping};
 
 use super::read_shaping;
 use crate::ffi::{from_raw, into_element, into_raw, read_c_bool, read_c_string};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Checkbox<'static, IcedMessage>;
 type IconPtr = *mut Icon<Font>;
 
 type OnToggleFFI = super::CallbackForCBool;
 
-type StyleCallback =
-    extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_checked: c_uchar);
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_checked: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 enum BasicStyle {
     Primary,
@@ -94,11 +103,12 @@ fn status_to_raw(status: Status) -> (c_uchar, bool) {
 #[no_mangle]
 extern "C" fn checkbox_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let checkbox = unsafe { Box::from_raw(self_ptr) };
+    let callback = Arc::new(callback);
     into_raw(checkbox.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let (status_raw, is_checked) = status_to_raw(status);
         let mut style = checkbox::primary(theme, status);
-        callback(&mut style, theme_raw, status_raw, is_checked.into());
+        (callback.inner)(&mut style, theme_raw, status_raw, is_checked.into());
         style
     }))
 }

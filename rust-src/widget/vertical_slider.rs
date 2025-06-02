@@ -1,13 +1,24 @@
 use std::ffi::{c_float, c_int};
+use std::sync::Arc;
 
 use iced::widget::VerticalSlider;
 use iced::Length;
 
 use crate::ffi::{from_raw, into_element, into_raw};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut VerticalSlider<'static, c_int, IcedMessage>;
-type OnChangeFFI = extern "C" fn(value: c_int) -> *const u8;
+
+#[repr(transparent)]
+struct OnChangeFFI {
+    inner: extern "C" fn(value: c_int) -> *const u8,
+}
+
+impl Drop for OnChangeFFI {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 #[no_mangle]
 extern "C" fn vertical_slider_new(
@@ -16,8 +27,9 @@ extern "C" fn vertical_slider_new(
     value: c_int,
     on_change_ffi: OnChangeFFI,
 ) -> SelfPtr {
+    let on_change_ffi = Arc::new(on_change_ffi);
     let on_change = move |value| {
-        let message_ptr = on_change_ffi(value);
+        let message_ptr = (on_change_ffi.inner)(value);
         IcedMessage::ptr(message_ptr)
     };
     let range = range_start..=range_end;

@@ -228,9 +228,6 @@ run attributes title model update view = do
   settingsPtr <- newSettings
   applyAttributes flagsPtr settingsPtr attributes
   app_run flagsPtr settingsPtr
-  freeHaskellFunPtr titlePtr
-  freeHaskellFunPtr updatePtr
-  freeHaskellFunPtr viewPtr
 
 addFont :: [Word8] -> Attribute model message
 addFont bytes = Font bytes
