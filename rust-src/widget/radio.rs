@@ -1,18 +1,36 @@
 use std::ffi::{c_char, c_float, c_uchar, c_uint};
+use std::sync::Arc;
 
 use iced::widget::{radio, Radio};
 use iced::{Background, Color, Length};
 use radio::{Status, Style};
 
 use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Radio<'static, IcedMessage>;
 
-type OnSelectFFI = extern "C" fn(selected: c_uint) -> *const u8;
+#[repr(transparent)]
+struct OnSelectFFI {
+    inner: extern "C" fn(selected: c_uint) -> *const u8,
+}
 
-type StyleCallback =
-    extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_selected: c_uchar);
+impl Drop for OnSelectFFI {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
+
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar, is_selected: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 #[no_mangle]
 extern "C" fn radio_new(
@@ -26,8 +44,9 @@ extern "C" fn radio_new(
         0 => None,
         a => Some(a),
     };
+    let on_select_ffi = Arc::new(on_select_ffi);
     let on_select = move |input| {
-        let message_ptr = on_select_ffi(input);
+        let message_ptr = (on_select_ffi.inner)(input);
         IcedMessage::ptr(message_ptr)
     };
     let radio = radio(label, value, selected, on_select);
@@ -44,11 +63,12 @@ fn status_to_raw(status: Status) -> (c_uchar, bool) {
 #[no_mangle]
 extern "C" fn radio_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let radio = from_raw(self_ptr);
+    let callback = Arc::new(callback);
     let radio = radio.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let (status_raw, is_selected) = status_to_raw(status);
         let mut style = radio::default(theme, status);
-        callback(&mut style, theme_raw, status_raw, is_selected.into());
+        (callback.inner)(&mut style, theme_raw, status_raw, is_selected.into());
         style
     });
     into_raw(radio)

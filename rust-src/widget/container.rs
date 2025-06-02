@@ -1,15 +1,25 @@
 use std::ffi::{c_float, c_uchar};
+use std::sync::Arc;
 
 use container::Style;
 use iced::widget::{container, Container};
 use iced::{Background, Border, Color, Length, Padding};
 
 use crate::ffi::into_element;
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut Container<'static, IcedMessage>;
 
-type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar);
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 enum BasicStyle {
     BorderedBox,
@@ -71,10 +81,11 @@ extern "C" fn container_style_basic(self_ptr: SelfPtr, style_raw: c_uchar) -> Se
 #[no_mangle]
 extern "C" fn container_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let container = unsafe { Box::from_raw(self_ptr) };
+    let callback = Arc::new(callback);
     Box::into_raw(Box::new(container.style(move |theme| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let mut style = container::transparent(theme);
-        callback(&mut style, theme_raw);
+        (callback.inner)(&mut style, theme_raw);
         style
     })))
 }

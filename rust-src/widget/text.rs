@@ -1,15 +1,25 @@
 use std::ffi::{c_char, c_float, c_uchar};
+use std::sync::Arc;
 
 use iced::widget::{text, Text};
 use iced::{Color, Length};
 use text::Style;
 
 use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
-use crate::ElementPtr;
+use crate::{free_haskell_fun_ptr, ElementPtr};
 
 type SelfPtr = *mut Text<'static>;
 
-type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar);
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 #[no_mangle]
 extern "C" fn text_new(input: *mut c_char) -> SelfPtr {
@@ -33,10 +43,11 @@ extern "C" fn text_size(self_ptr: SelfPtr, size: c_float) -> SelfPtr {
 #[no_mangle]
 extern "C" fn text_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let text = from_raw(self_ptr);
+    let callback = Arc::new(callback);
     let text = text.style(move |theme| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let mut style = Style::default();
-        callback(&mut style, theme_raw);
+        (callback.inner)(&mut style, theme_raw);
         style
     });
     into_raw(text)

@@ -1,4 +1,5 @@
 use std::ffi::{c_char, c_float, c_uchar};
+use std::sync::Arc;
 
 use iced::advanced::text::highlighter::PlainText;
 use iced::widget::{text_editor, TextEditor};
@@ -6,13 +7,31 @@ use iced::{Background, Border, Color, Length, Padding};
 use text_editor::{Action, Content, Status, Style};
 
 use crate::ffi::{from_raw, into_element, into_raw, read_c_string};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut TextEditor<'static, PlainText, IcedMessage>;
 
-type OnActionFFI = extern "C" fn(action: *mut Action) -> *const u8;
+#[repr(transparent)]
+struct OnActionFFI {
+    inner: extern "C" fn(action: *mut Action) -> *const u8,
+}
 
-type StyleCallback = extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar);
+impl Drop for OnActionFFI {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
+
+#[repr(transparent)]
+struct StyleCallback {
+    inner: extern "C" fn(style: &mut Style, theme: c_uchar, status: c_uchar),
+}
+
+impl Drop for StyleCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 #[no_mangle]
 extern "C" fn text_editor_content_new() -> *mut Content {
@@ -47,9 +66,10 @@ extern "C" fn text_editor_new(content: *mut Content) -> SelfPtr {
 #[no_mangle]
 extern "C" fn text_editor_on_action(self_ptr: SelfPtr, on_action_ffi: OnActionFFI) -> SelfPtr {
     let text_editor = from_raw(self_ptr);
+    let on_action_ffi = Arc::new(on_action_ffi);
     let text_editor = text_editor.on_action(move |action| {
         let action_ptr = Box::into_raw(Box::new(action));
-        let message_ptr = on_action_ffi(action_ptr);
+        let message_ptr = (on_action_ffi.inner)(action_ptr);
         IcedMessage::ptr(message_ptr)
     });
     into_raw(text_editor)
@@ -74,11 +94,12 @@ fn status_to_raw(status: Status) -> c_uchar {
 #[no_mangle]
 extern "C" fn text_editor_style_custom(self_ptr: SelfPtr, callback: StyleCallback) -> SelfPtr {
     let text_editor = from_raw(self_ptr);
+    let callback = Arc::new(callback);
     let text_editor = text_editor.style(move |theme, status| {
         let theme_raw = crate::theme::theme_to_raw(theme);
         let status_raw = status_to_raw(status);
         let mut style = text_editor::default(theme, status);
-        callback(&mut style, theme_raw, status_raw);
+        (callback.inner)(&mut style, theme_raw, status_raw);
         style
     });
     into_raw(text_editor)

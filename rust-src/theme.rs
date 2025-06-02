@@ -2,9 +2,18 @@ use std::ffi::c_uchar;
 
 use iced::Theme::{self, *};
 
-use crate::Model;
+use crate::{free_haskell_fun_ptr, Model};
 
-pub type ThemeFn = extern "C" fn(model: Model) -> c_uchar;
+#[repr(transparent)]
+pub struct ThemeFn {
+    pub inner: extern "C" fn(model: Model) -> c_uchar,
+}
+
+impl Drop for ThemeFn {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 pub fn theme_from_raw(raw: c_uchar) -> Theme {
     match raw {

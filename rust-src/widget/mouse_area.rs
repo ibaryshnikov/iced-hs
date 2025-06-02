@@ -1,15 +1,25 @@
 use std::ffi::c_float;
+use std::sync::Arc;
 
 // use iced::mouse::ScrollDelta;
 use iced::widget::{mouse_area, MouseArea};
 use iced::Point;
 
 use crate::ffi::{from_raw, into_element, into_raw};
-use crate::{ElementPtr, IcedMessage};
+use crate::{free_haskell_fun_ptr, ElementPtr, IcedMessage};
 
 type SelfPtr = *mut MouseArea<'static, IcedMessage>;
 
-type OnMoveFFI = extern "C" fn(x: c_float, y: c_float) -> *const u8;
+#[repr(transparent)]
+struct OnMoveFFI {
+    inner: extern "C" fn(x: c_float, y: c_float) -> *const u8,
+}
+
+impl Drop for OnMoveFFI {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 #[no_mangle]
 extern "C" fn mouse_area_new(content_ptr: ElementPtr) -> SelfPtr {
@@ -55,8 +65,9 @@ extern "C" fn mouse_area_on_middle_release(self_ptr: SelfPtr, message_ptr: *cons
 #[no_mangle]
 extern "C" fn mouse_area_on_move(self_ptr: SelfPtr, on_move_ffi: OnMoveFFI) -> SelfPtr {
     let mouse_area = from_raw(self_ptr);
+    let on_move_ffi = Arc::new(on_move_ffi);
     let callback = move |point: Point| {
-        let message_ptr = on_move_ffi(point.x, point.y);
+        let message_ptr = (on_move_ffi.inner)(point.x, point.y);
         IcedMessage::ptr(message_ptr)
     };
     into_raw(mouse_area.on_move(callback))

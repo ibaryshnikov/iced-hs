@@ -1,9 +1,20 @@
+use std::sync::Arc;
+
 use iced::Task;
 
 use crate::future::{PinnedFuture, RawFuture, StablePtr};
-use crate::{IcedMessage, Message, Model};
+use crate::{free_haskell_fun_ptr, IcedMessage, Message, Model};
 
-pub type TaskCallback = extern "C" fn() -> Message;
+#[repr(transparent)]
+pub struct TaskCallback {
+    inner: extern "C" fn() -> Message,
+}
+
+impl Drop for TaskCallback {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 pub struct UpdateResult {
     pub model: Model,
@@ -29,8 +40,9 @@ impl TaskKind {
 }
 
 fn perform_io(callback: TaskCallback) -> Task<IcedMessage> {
+    let callback = Arc::new(callback);
     let handle = tokio::task::spawn_blocking(move || {
-        let ptr = callback();
+        let ptr = (callback.inner)();
         IcedMessage::ptr(ptr)
     });
     let future = async move {

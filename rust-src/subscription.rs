@@ -1,8 +1,17 @@
 use iced::Subscription;
 
-use crate::{IcedMessage, Model};
+use crate::{free_haskell_fun_ptr, IcedMessage, Model};
 
-pub type SubscriptionFn = extern "C" fn(model: Model) -> SelfPtr;
+#[repr(transparent)]
+pub struct SubscriptionFn {
+    pub inner: extern "C" fn(model: Model) -> SelfPtr,
+}
+
+impl Drop for SubscriptionFn {
+    fn drop(&mut self) {
+        unsafe { free_haskell_fun_ptr(self.inner as usize) };
+    }
+}
 
 type SelfPtr = *mut Subscription<IcedMessage>;
 
