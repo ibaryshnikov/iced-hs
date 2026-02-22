@@ -32,7 +32,7 @@ module Iced.Attribute (
 import Iced.Attribute.Alignment (alignX, alignY)
 import Iced.Attribute.Color (color)
 import Iced.Attribute.Icon (icon)
-import Iced.Attribute.Length (Length (..), height, width)
+import Iced.Attribute.Length (Length (..), height, width, addLength, girth)
 import Iced.Attribute.LineHeight (LineHeight (..), lineHeight)
 import Iced.Attribute.OnInput (onInput)
 import Iced.Attribute.OnPress (onPress)
@@ -49,6 +49,7 @@ import Iced.Attribute.Style (style)
 
 import Iced.Widget.Button (onPressIf)
 import Iced.Widget.Checkbox (
+  label,
   onToggle,
   onToggleIf,
   textLineHeight,

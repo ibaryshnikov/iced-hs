@@ -9,3 +9,9 @@ class UseWidth value attribute where
 
 class UseHeight value attribute where
   height :: value -> attribute
+
+class UseLength value attribute where
+  addLength :: value -> attribute
+
+class UseGirth value attribute where
+  girth :: value -> attribute

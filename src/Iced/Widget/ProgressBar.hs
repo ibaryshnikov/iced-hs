@@ -45,8 +45,8 @@ data BasicStyle = Primary | Secondary | Success | Danger deriving Enum
 data Attribute
   = BasicStyle BasicStyle
   | CustomStyle StyleCallback
-  | Width Length
-  | Height Length
+  | AddLength Length
+  | AddGirth Length
 
 -- range_from range_to value
 foreign import ccall "progress_bar_new"
@@ -58,11 +58,11 @@ foreign import ccall "progress_bar_style_basic"
 foreign import ccall "progress_bar_style_custom"
   progress_bar_style_custom :: Self -> FunPtr NativeStyleCallback -> IO Self
 
-foreign import ccall "progress_bar_width"
-  progress_bar_width :: Self -> LengthPtr -> IO Self
+foreign import ccall "progress_bar_length"
+  progress_bar_length :: Self -> LengthPtr -> IO Self
 
-foreign import ccall "progress_bar_height"
-  progress_bar_height :: Self -> LengthPtr -> IO Self
+foreign import ccall "progress_bar_girth"
+  progress_bar_girth :: Self -> LengthPtr -> IO Self
 
 foreign import ccall "progress_bar_into_element"
   into_element :: Self -> IO ElementPtr
@@ -97,17 +97,17 @@ instance UseAttribute Self Attribute where
   useAttribute attribute = case attribute of
     BasicStyle value -> useBasicStyle value
     CustomStyle value -> useCustomStyle value
-    Width len -> useFnIO progress_bar_width len
-    Height len -> useFnIO progress_bar_height len
+    AddLength len -> useFnIO progress_bar_length len
+    AddGirth len -> useFnIO progress_bar_girth len
 
 instance IntoStyle value => UseStyle value Attribute where
   style = intoStyle
 
-instance UseWidth Length Attribute where
-  width = Width
+instance UseLength Length Attribute where
+  addLength = AddLength
 
-instance UseHeight Length Attribute where
-  height = Height
+instance UseGirth Length Attribute where
+  girth = AddGirth
 
 progressBar :: [Attribute] -> Float -> Float -> Float -> Element
 progressBar attributes rangeFrom rangeTo value = pack ProgressBar{..} attributes

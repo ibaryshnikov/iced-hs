@@ -4,6 +4,7 @@
 
 module Iced.Widget.Checkbox (
   checkbox,
+  label,
   onToggle,
   onToggleIf,
   textLineHeight,
@@ -65,7 +66,8 @@ type StatusAttribute = (Status, [StyleAttribute])
 data BasicStyle = Primary | Secondary | Success | Danger deriving Enum
 
 data Attribute message
-  = Icon Word32
+  = Label String
+  | Icon Word32
   | AddOnToggle (OnToggle message)
   | Size Float
   | Spacing Float
@@ -79,7 +81,10 @@ data Attribute message
 
 -- label is_checked
 foreign import ccall "checkbox_new"
-  checkbox_new :: CString -> CBool -> IO Self
+  checkbox_new :: CBool -> IO Self
+
+foreign import ccall "checkbox_label"
+  checkbox_label :: Self -> CString -> IO Self
 
 foreign import ccall "checkbox_icon"
   checkbox_icon :: Self -> IconPtr -> IO Self
@@ -144,8 +149,7 @@ wrapOnToggle callback = newStablePtr . callback . toBool
 type OnToggle message = Bool -> message
 
 data Checkbox = Checkbox
-  { label :: String
-  , value :: Bool
+  { value :: Bool
   }
 
 instance Builder Self where
@@ -154,11 +158,11 @@ instance Builder Self where
 instance IntoNative Checkbox Self where
   toNative details = do
     let checked = fromBool details.value
-    label <- newCString details.label
-    checkbox_new label checked
+    checkbox_new checked
 
 instance UseAttribute Self (Attribute message) where
   useAttribute attribute = case attribute of
+    Label value -> useLabel value
     Icon codePoint -> useIcon codePoint
     AddOnToggle callback -> useOnToggle callback
     Size value -> useFn checkbox_size value
@@ -186,8 +190,14 @@ instance IntoStyle value => UseStyle value (Attribute message) where
 instance UseWidth Length (Attribute message) where
   width = Width
 
-checkbox :: [Attribute message] -> String -> Bool -> Element
-checkbox attributes label value = pack Checkbox{..} attributes
+checkbox :: [Attribute message] -> Bool -> Element
+checkbox attributes value = pack Checkbox{..} attributes
+
+label :: String -> Attribute message
+label = Label
+
+useLabel :: String -> AttributeFn
+useLabel value self = checkbox_label self =<< newCString value
 
 onToggle :: OnToggle message -> Attribute message
 onToggle = AddOnToggle

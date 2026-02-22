@@ -48,10 +48,16 @@ impl BasicStyle {
 }
 
 #[no_mangle]
-extern "C" fn checkbox_new(input: *mut c_char, is_checked_raw: c_uchar) -> SelfPtr {
-    let label = read_c_string(input);
+extern "C" fn checkbox_new(is_checked_raw: c_uchar) -> SelfPtr {
     let is_checked = read_c_bool(is_checked_raw);
-    into_raw(checkbox(label, is_checked))
+    into_raw(checkbox(is_checked))
+}
+
+#[no_mangle]
+extern "C" fn checkbox_label(self_ptr: SelfPtr, input: *mut c_char) -> SelfPtr {
+    let checkbox = from_raw(self_ptr);
+    let label = read_c_string(input);
+    into_raw(checkbox.label(label))
 }
 
 #[no_mangle]

@@ -31,7 +31,7 @@ view model =
     column
       [alignX Center, spacing 10]
       [ text [size 30] "Last action:"
-      , text [size 30] $ label model
+      , text [size 30] $ textLabel model
       , mouseArea
           [ onDoubleClick DoubleClick
           , onEnter Enter
@@ -47,9 +47,9 @@ view model =
           content
       ]
 
-label :: Maybe Message -> String
-label Nothing = ""
-label (Just message) = show message
+textLabel :: Maybe Message -> String
+textLabel Nothing = ""
+textLabel (Just message) = show message
 
 content :: Element
 content = container [width (Fixed 500), height (Fixed 500), style RoundedBox] $ text [] ""

@@ -35,11 +35,7 @@ extern "C" fn markdown_view(
     let state = unsafe { Box::from_raw(state_ptr) };
     let theme = crate::theme::theme_from_raw(theme_raw);
     let on_url_click = super::wrap_callback_with_string(on_url_click_ffi);
-    let view = markdown::view(
-        &Box::leak(state).items,
-        markdown::Settings::default(),
-        markdown::Style::from_palette(theme.palette()),
-    )
-    .map(move |url| on_url_click(url.as_str().to_owned()));
+    let view = markdown::view(&Box::leak(state).items, theme)
+        .map(move |url| on_url_click(url.as_str().to_owned()));
     into_raw(view)
 }

@@ -32,16 +32,16 @@ view model =
   container [centerX Fill, centerY Fill] $
     column
       [spacing 20]
-      [ checkbox [onToggle Default] "Default" model.def
+      [ checkbox [label "Default", onToggle Default] model.def
       , row [spacing 20] (map styled pairs)
-      , checkbox [icon 59649, onToggle Custom] "Custom" model.custom -- use icon id
+      , checkbox [label "Custom", icon 59649, onToggle Custom] model.custom -- use icon id
       ]
  where
   pairs =
     [(Primary, "Primary"), (Secondary, "Secondary"), (Success, "Success"), (Danger, "Danger")]
-  styled (value, label) = checkbox attributes label model.styled
+  styled (styleValue, labelValue) = checkbox attributes model.styled
    where
-    attributes = [style value, onToggleIf model.def Styled]
+    attributes = [label labelValue, style styleValue, onToggleIf model.def Styled]
 
 getFontPath :: IO String
 getFontPath = do

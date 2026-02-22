@@ -86,7 +86,7 @@ fn status_to_raw(status: Status) -> c_uchar {
     match status {
         Status::Active => 0,
         Status::Hovered => 1,
-        Status::Focused => 2,
+        Status::Focused { is_hovered: _ } => 2, // todo: support is_hovered
         Status::Disabled => 3,
     }
 }
@@ -135,11 +135,6 @@ extern "C" fn text_editor_style_set_border(
         width,
         radius: radius.into(),
     }
-}
-
-#[no_mangle]
-extern "C" fn text_editor_style_set_icon(style: &mut Style, color_ptr: *mut Color) {
-    style.icon = from_raw(color_ptr);
 }
 
 #[no_mangle]

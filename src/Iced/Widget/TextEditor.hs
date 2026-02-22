@@ -54,7 +54,6 @@ data Border = Border
 data StyleAttribute
   = Background Background
   | BorderStyle Border
-  | Icon Color
   | Placeholder Color
   | Text Color
   | Selection Color
@@ -119,9 +118,6 @@ foreign import ccall "text_editor_style_set_background"
 -- style color width radius
 foreign import ccall "text_editor_style_set_border"
   set_border :: Style -> ColorPtr -> CFloat -> CFloat -> IO ()
-
-foreign import ccall "text_editor_style_set_icon"
-  set_icon :: Style -> ColorPtr -> IO ()
 
 foreign import ccall "text_editor_style_set_placeholder"
   set_placeholder :: Style -> ColorPtr -> IO ()
@@ -227,7 +223,6 @@ instance UseStyleAttribute Style StyleAttribute where
   useStyleAttribute attribute = case attribute of
     Background (BgColor color) -> useFnIO set_background color
     BorderStyle value -> useBorder value
-    Icon color -> useFnIO set_icon color
     Placeholder color -> useFnIO set_placeholder color
     Text color -> useFnIO set_value color
     Selection color -> useFnIO set_selection color
@@ -247,9 +242,6 @@ instance UseBackground StyleAttribute where
 
 instance UseBorder StyleAttribute where
   border color w radius = BorderStyle $ Border color w radius
-
-instance UseIconColor StyleAttribute where
-  iconColor = Icon
 
 instance UsePlaceholderColor StyleAttribute where
   placeholderColor = Placeholder

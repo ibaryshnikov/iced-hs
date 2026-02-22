@@ -1,10 +1,10 @@
 use iced::Subscription;
 
-use crate::{free_haskell_fun_ptr, IcedMessage, Model};
+use crate::{free_haskell_fun_ptr, IcedMessage, ModelInner};
 
 #[repr(transparent)]
 pub struct SubscriptionFn {
-    pub inner: extern "C" fn(model: Model) -> SelfPtr,
+    pub inner: extern "C" fn(model: ModelInner) -> SelfPtr,
 }
 
 impl Drop for SubscriptionFn {

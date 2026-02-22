@@ -56,12 +56,12 @@ shapes imagePath svgPath =
       ]
       $ rgb8 150 200 50
   , pushTransform
-  , fillText $ label "One" 540 180
+  , fillText $ makeLabel "One" 540 180
   , rotate (-pi / 2)
-  , fillText $ label "Two" (-250) 475
+  , fillText $ makeLabel "Two" (-250) 475
   , rotate (pi)
   , scale 1.5
-  , fillText $ label "Three" 165 (-422)
+  , fillText $ makeLabel "Three" 165 (-422)
   , popTransform
   , drawImage 50 250 150 150 imagePath
   , drawSvg 200 50 150 100 svgPath
@@ -76,8 +76,8 @@ shapes imagePath svgPath =
       $ rgba8 255 0 0 0.4
   ]
 
-label :: String -> Float -> Float -> Text
-label content x y =
+makeLabel :: String -> Float -> Float -> Text
+makeLabel content x y =
   Text
     { content = content
     , x = x

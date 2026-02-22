@@ -1,13 +1,7 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE NoFieldSelectors #-}
-
 module Iced.Widget.Space (
   space,
-  spaceWidth,
-  spaceHeight,
-  horizontalSpace,
-  verticalSpace,
+  horizontal,
+  vertical,
 ) where
 
 import Foreign
@@ -19,71 +13,59 @@ import Iced.Element
 data NativeSpace
 type Self = Ptr NativeSpace
 
--- width height
+data Attribute
+  = Width Length
+  | Height Length
+
 foreign import ccall "space_new"
-  space_new :: LengthPtr -> LengthPtr -> IO Self
+  space_new :: IO Self
 
--- width
-foreign import ccall "space_with_width"
-  space_with_width :: LengthPtr -> IO Self
+foreign import ccall "space_horizontal"
+  space_horizontal :: IO Self
 
--- height
-foreign import ccall "space_with_height"
-  space_with_height :: LengthPtr -> IO Self
+foreign import ccall "space_vertical"
+  space_vertical :: IO Self
 
-foreign import ccall "horizontal_space_new"
-  horizontal_space_new :: IO Self
+foreign import ccall "space_width"
+  space_width :: Self -> LengthPtr -> IO Self
 
-foreign import ccall "vertical_space_new"
-  vertical_space_new :: IO Self
+foreign import ccall "space_height"
+  space_height :: Self -> LengthPtr -> IO Self
 
 foreign import ccall "space_into_element"
   into_element :: Self -> IO ElementPtr
 
-data Space = Space Length Length | Width Length | Height Length | Horizontal | Vertical
+data Space = Space | Horizontal | Vertical
 
-instance IntoNative Space ElementPtr where
+instance Builder Self where
+  build = into_element
+
+instance IntoNative Space Self where
   toNative details = do
-    -- currently no attributes for Space
     makeSpace details
-      >>= into_element
 
 makeSpace :: Space -> IO Self
 makeSpace kind = case kind of
-  Space w h -> do
-    widthPtr <- valueToNativeIO w
-    heightPtr <- valueToNativeIO h
-    space_new widthPtr heightPtr
-  Width value -> space_with_width =<< valueToNativeIO value
-  Height value -> space_with_height =<< valueToNativeIO value
-  Horizontal -> horizontal_space_new
-  Vertical -> vertical_space_new
+  Space -> space_new
+  Horizontal -> space_horizontal
+  Vertical -> space_vertical
 
--- todo: find a way to fix Ambiguous type variable error
--- in
--- spaceWidth :: IntoLength a => a -> Element
--- spaceWidth value = pack $ Width (intoLength value)
---
--- class IntoLength a where
---  intoLength :: a -> Length
---
--- instance IntoLength Float where
---  intoLength a = Fixed a
---
--- instance IntoLength Length where
---  intoLength a = a
+instance UseAttribute Self Attribute where
+  useAttribute attribute = case attribute of
+    Width len -> useFnIO space_width len
+    Height len -> useFnIO space_height len
 
-space :: Length -> Length -> Element
-space w h = packSimple $ Space w h
+instance UseWidth Length Attribute where
+  width = Width
 
-spaceWidth :: Length -> Element
-spaceWidth value = packSimple $ Width value
+instance UseHeight Length Attribute where
+  height = Height
 
-spaceHeight :: Length -> Element
-spaceHeight value = packSimple $ Height value
+space :: [Attribute] -> Element
+space = pack Space
 
-horizontalSpace :: Element
-horizontalSpace = packSimple Horizontal
+horizontal :: [Attribute] -> Element
+horizontal = pack Horizontal
 
-verticalSpace :: Element
-verticalSpace = packSimple Vertical
+vertical :: [Attribute] -> Element
+vertical = pack Vertical

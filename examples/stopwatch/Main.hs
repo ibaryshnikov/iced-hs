@@ -41,12 +41,12 @@ view model =
   container [centerX Fill, centerY Fill] $
     column
       [spacing 25, alignX Center]
-      [ label model.timePassed
+      [ makeLabel model.timePassed
       , button [onPress Toggle] (if model.running then "Stop" else "Start")
       ]
 
-label :: Integer -> Element
-label micros = text [size 30] $ formatTime millis
+makeLabel :: Integer -> Element
+makeLabel micros = text [size 30] $ formatTime millis
  where
   (millis, _) = divMod micros 1000
 

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Updated to iced 0.14
 * Added automatic formatting
 * Added canvas frame methods: fillText, pushTransform, popTransform, rotate, scale
 * Removed dependency on TemplateHaskell

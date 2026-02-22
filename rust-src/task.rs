@@ -3,7 +3,7 @@ use std::sync::Arc;
 use iced::Task;
 
 use crate::future::{PinnedFuture, RawFuture, StablePtr};
-use crate::{free_haskell_fun_ptr, IcedMessage, Message, Model};
+use crate::{free_haskell_fun_ptr, IcedMessage, Message, ModelInner};
 
 #[repr(transparent)]
 pub struct TaskCallback {
@@ -17,7 +17,7 @@ impl Drop for TaskCallback {
 }
 
 pub struct UpdateResult {
-    pub model: Model,
+    pub model: ModelInner,
     pub task: TaskKind,
 }
 
@@ -55,7 +55,7 @@ fn perform_io(callback: TaskCallback) -> Task<IcedMessage> {
 }
 
 #[no_mangle]
-extern "C" fn update_result_new(model: Model) -> *mut UpdateResult {
+extern "C" fn update_result_new(model: ModelInner) -> *mut UpdateResult {
     Box::into_raw(Box::new(UpdateResult {
         model,
         task: TaskKind::None,

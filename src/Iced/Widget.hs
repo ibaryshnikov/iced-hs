@@ -45,11 +45,9 @@ import Iced.Widget.Row (row)
 import Iced.Widget.Scrollable (scrollable)
 import Iced.Widget.Slider (slider)
 import Iced.Widget.Space (
-  horizontalSpace,
+  horizontal,
   space,
-  spaceHeight,
-  spaceWidth,
-  verticalSpace,
+  vertical,
  )
 import Iced.Widget.Text (text)
 import Iced.Widget.TextEditor (textEditor)

@@ -21,11 +21,11 @@ view :: Model -> Element
 view model =
   container [centerX Fill, centerY Fill] $
     text [size 20] $
-      label model.message
+      textLabel model.message
 
-label :: Maybe Message -> String
-label (Just message) = "Last action: " ++ showAction message
-label Nothing = ""
+textLabel :: Maybe Message -> String
+textLabel (Just message) = "Last action: " ++ showAction message
+textLabel Nothing = ""
 
 showAction :: Message -> String
 showAction (Pressed key) = "pressed " ++ show key

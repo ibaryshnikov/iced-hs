@@ -33,9 +33,9 @@ view model =
   content = button [onPress ChangePosition] "Press to change position"
 
 toText :: Tooltip.Position -> Element
-toText position = container [padding 6, style RoundedBox] $ text [] label
+toText position = container [padding 6, style RoundedBox] $ text [] labelText
  where
-  label = case position of
+  labelText = case position of
     Tooltip.FollowCursor -> "Follow Cursor"
     Tooltip.Top -> "Top"
     Tooltip.Bottom -> "Bottom"

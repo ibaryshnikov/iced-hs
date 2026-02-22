@@ -24,21 +24,21 @@ view model =
     column
       [alignX Center]
       [ text [size 20] "Contents disappear if width is less than 200"
-      , spaceHeight (Fixed 20)
+      , space [height (Fixed 20)]
       , row
           [alignY Center, spacing 6]
           [ text [width (Fixed 200)] $ "Container width: " ++ show model.value
           , slider [width (Fixed 200)] 0 500 model.value WidthChanged
           ]
-      , spaceHeight (Fixed 20)
-      , container containerAttributes $ responsive label
+      , space [height (Fixed 20)]
+      , container containerAttributes $ responsive makeLabel
       ]
  where
   containerAttributes = [style RoundedBox, width containerWidth, height (Fixed 100)]
   containerWidth = Fixed $ fromIntegral model.value
 
-label :: Size -> Element
-label s =
+makeLabel :: Size -> Element
+makeLabel s =
   column [] $
     if s.width < 200
       then []

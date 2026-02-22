@@ -2,11 +2,11 @@ use std::ffi::c_uchar;
 
 use iced::Theme::{self, *};
 
-use crate::{free_haskell_fun_ptr, Model};
+use crate::{free_haskell_fun_ptr, ModelInner};
 
 #[repr(transparent)]
 pub struct ThemeFn {
-    pub inner: extern "C" fn(model: Model) -> c_uchar,
+    pub inner: extern "C" fn(model: ModelInner) -> c_uchar,
 }
 
 impl Drop for ThemeFn {

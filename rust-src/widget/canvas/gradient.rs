@@ -56,6 +56,6 @@ extern "C" fn canvas_gradient_linear_add_stop(
     b: c_float,
     a: c_float,
 ) {
-    let color = Color::new(r, g, b, a);
+    let color = Color::from_rgba(r, g, b, a);
     linear.add_stop(offset, color);
 }

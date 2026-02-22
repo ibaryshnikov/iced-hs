@@ -58,7 +58,7 @@ view model =
       , text [] model.text
       , text [] "What is your language?"
       , widget
-      , spaceHeight (Fixed 150)
+      , space [height (Fixed 150)]
       ]
  where
   widget =

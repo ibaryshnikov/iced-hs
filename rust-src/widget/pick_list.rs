@@ -55,7 +55,7 @@ fn status_to_raw(status: Status) -> c_uchar {
     match status {
         Status::Active => 0,
         Status::Hovered => 1,
-        Status::Opened => 2,
+        Status::Opened { is_hovered: _ } => 2, // todo: support is_hovered
     }
 }
 

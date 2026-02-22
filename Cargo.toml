@@ -9,22 +9,15 @@ path = "rust-src/lib.rs"
 crate-type = ["staticlib"]
 
 [dependencies.iced]
-# version = "0.13"
-# use upstream to provide physical keys
-git = "https://github.com/iced-rs/iced.git"
-rev = "4a080e2"
+version = "0.14"
 features = ["advanced", "canvas", "image", "lazy", "markdown", "svg", "tokio"]
 
 [dependencies.iced_winit]
-# version = "0.13"
-git = "https://github.com/iced-rs/iced.git"
-rev = "4a080e2"
+version = "0.14"
 
 [dependencies.iced_widget]
-# version = "0.13"
-git = "https://github.com/iced-rs/iced.git"
-rev = "4a080e2"
+version = "0.14"
 
 [dependencies.tokio]
-version = "1.44"
+version = "1.49"
 features = ["macros", "rt-multi-thread", "sync", "time"]

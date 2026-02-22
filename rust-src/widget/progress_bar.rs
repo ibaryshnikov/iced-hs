@@ -78,17 +78,17 @@ extern "C" fn progress_bar_style_custom(self_ptr: SelfPtr, callback: StyleCallba
 }
 
 #[no_mangle]
-pub extern "C" fn progress_bar_width(self_ptr: SelfPtr, width: *mut Length) -> SelfPtr {
+pub extern "C" fn progress_bar_length(self_ptr: SelfPtr, length: *mut Length) -> SelfPtr {
     let progress_bar = from_raw(self_ptr);
-    let width = from_raw(width);
-    into_raw(progress_bar.width(width))
+    let length = from_raw(length);
+    into_raw(progress_bar.length(length))
 }
 
 #[no_mangle]
-pub extern "C" fn progress_bar_height(self_ptr: SelfPtr, height: *mut Length) -> SelfPtr {
+pub extern "C" fn progress_bar_girth(self_ptr: SelfPtr, girth: *mut Length) -> SelfPtr {
     let progress_bar = from_raw(self_ptr);
-    let height = from_raw(height);
-    into_raw(progress_bar.height(height))
+    let girth = from_raw(girth);
+    into_raw(progress_bar.girth(girth))
 }
 
 #[no_mangle]

@@ -53,9 +53,9 @@ view model =
  where
   pairs =
     [(Primary, "Primary"), (Secondary, "Secondary"), (Success, "Success"), (Danger, "Danger")]
-  styled (value, label) = checkbox attributes label model.checkBoxValue
+  styled (value, labelText) = checkbox attributes model.checkBoxValue
    where
-    attributes = [style value, onToggle ToggleCheckBox]
+    attributes = [label labelText, style value, onToggle ToggleCheckBox]
 
 options :: [Theme]
 options =

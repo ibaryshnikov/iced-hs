@@ -27,10 +27,10 @@ view model =
   scrollable [] $
     column
       [width Fill, alignX Center, spacing 10]
-      [ spaceHeight (Fixed 600)
+      [ space [height (Fixed 600)]
       , text [] "Which is your favorite language?"
       , widget
-      , spaceHeight (Fixed 600)
+      , space [height (Fixed 600)]
       ]
  where
   widget =

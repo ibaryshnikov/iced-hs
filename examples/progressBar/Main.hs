@@ -47,7 +47,7 @@ view model =
     column
       [alignX Center, spacing 50]
       [ progressBar
-          [width $ Fixed 300, height $ Fixed 30, style ProgressBar.Danger]
+          [addLength $ Fixed 300, girth $ Fixed 30, style ProgressBar.Danger]
           0
           100
           model.value

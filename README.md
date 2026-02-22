@@ -4,6 +4,10 @@ Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
 Very experimental, check [Roadmap](#roadmap) to see progress. There is some
 [documentation](./docs) available.
 
+Disclaimer: currently works with Rust 1.89 (and maybe some other earlier versions).
+There's a segfault with new Rust versions related to how Haskell runtime and Rust futures
+are tied togehter. The exact cause is still not clear.
+
 
 ## Platform support
 

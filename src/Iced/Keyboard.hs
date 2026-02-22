@@ -11,7 +11,7 @@ import Control.Monad
 import Foreign
 import Foreign.C.Types
 
-import Iced.Keyboard.Key
+-- import Iced.Keyboard.Key
 import Iced.Keyboard.LogicalKey
 import Iced.Keyboard.PhysicalKey
 import Iced.Subscription

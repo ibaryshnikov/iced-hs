@@ -34,9 +34,10 @@ extern "C" fn canvas_text_new(
         size: size.into(),
         line_height,
         font,
-        horizontal_alignment: horizontal.into(),
-        vertical_alignment: vertical.into(),
+        align_x: horizontal.into(),
+        align_y: vertical.into(),
         shaping,
+        max_width: f32::INFINITY,
     };
     Box::into_raw(Box::new(text))
 }
