@@ -11,7 +11,7 @@ bug-reports:
 license: MIT
 build-type: Custom
 tested-with:
-  ghc ==9.6.6 || ==9.8.4 || ==9.10.1
+  ghc ==9.6.7 || ==9.8.4 || ==9.10.3
 
 -- Files tracked by `cabal build`; changes in these files cause (partial) rebuilds.
 -- cabal-gild: discover rust-src/ Cargo.toml

@@ -4,7 +4,7 @@ Haskell wrapper for [iced](https://github.com/iced-rs/iced) gui library.
 Very experimental, check [Roadmap](#roadmap) to see progress. There is some
 [documentation](./docs) available.
 
-Disclaimer: currently works with Rust 1.89 (and maybe some other earlier versions).
+Disclaimer: currently works with Rust 1.89 (and some other earlier versions).
 There's a segfault with new Rust versions related to how Haskell runtime and Rust futures
 are tied togehter. The exact cause is still not clear.
 
@@ -60,7 +60,7 @@ Check the complete [example](examples/themes).
 
 ## Required build tools
 
-Rust toolchain is 1.84 or above. Haskell build uses cabal and supported versions
+Rust toolchain is 1.88 or above. Haskell build uses cabal and supported versions
 are specified in `iced-hs.cabal` file. It's also possible to build with GHC alone.
 Use provided bash scripts as an example.
 
