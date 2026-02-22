@@ -32,7 +32,7 @@ module Iced.Attribute (
 import Iced.Attribute.Alignment (alignX, alignY)
 import Iced.Attribute.Color (color)
 import Iced.Attribute.Icon (icon)
-import Iced.Attribute.Length (Length (..), height, width, addLength, girth)
+import Iced.Attribute.Length (Length (..), addLength, girth, height, width)
 import Iced.Attribute.LineHeight (LineHeight (..), lineHeight)
 import Iced.Attribute.OnInput (onInput)
 import Iced.Attribute.OnPress (onPress)
